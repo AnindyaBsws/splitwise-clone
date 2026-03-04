@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment variables
+.env
+
+# Flask instance
+instance/
+
+# Database
+*.db
+*.sqlite3
+
+# Migrations cache
+migrations/__pycache__/
+
+# VS Code settings
+.vscode/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+
+# Node modules (for frontend)
+frontend/node_modules/
+
+# Build folders
+frontend/build/
+frontend/dist/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Testing
+.pytest_cache/
