@@ -50,7 +50,8 @@ def add_expense():
 
     return jsonify({
         "message": "Expense added and split successfully",
-        "expense_id": expense.id
+        "expense_id": expense.id,
+        "group_id": group_id
     })
 
 @expense_bp.route("/group/<int:group_id>", methods=["GET"])
