@@ -39,7 +39,10 @@ def create_group():
 
     db.session.commit()
 
-    return jsonify({"message": "Group created"})
+    return jsonify({
+    "message": "Group created",
+    "id": group.id
+    })
 
 
 # --------------------------------
