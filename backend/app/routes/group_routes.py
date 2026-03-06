@@ -225,3 +225,41 @@ def get_group_expenses(group_id):
         })
 
     return jsonify(result)
+
+# --------------------------------
+# DELETE GROUP
+# --------------------------------
+@group_bp.route("/<int:group_id>", methods=["DELETE"])
+@jwt_required()
+def delete_group(group_id):
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    db.session.delete(group)
+    db.session.commit()
+
+    return jsonify({"message": "Group deleted"})
+
+
+# --------------------------------
+# REMOVE MEMBER FROM GROUP
+# --------------------------------
+@group_bp.route("/<int:group_id>/members/<int:user_id>", methods=["DELETE"])
+@jwt_required()
+def remove_member(group_id, user_id):
+
+    member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user_id
+    ).first()
+
+    if not member:
+        return jsonify({"error": "Member not found in group"}), 404
+
+    db.session.delete(member)
+    db.session.commit()
+
+    return jsonify({"message": "Member removed from group"})
