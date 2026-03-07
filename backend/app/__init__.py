@@ -6,15 +6,13 @@ from flask_migrate import Migrate
 from .routes.user_routes import user_bp
 from flask_cors import CORS
 
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # Enable CORS
+    # ENABLE CORS HERE
     CORS(
-        app,
-        resources={r"/api/*": {"origins": "http://localhost:5173"}},
+        app,resources={r"/api/*": {"origins": "http://localhost:5173"}},
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         supports_credentials=True
