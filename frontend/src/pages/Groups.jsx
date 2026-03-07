@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getGroups } from "../api/groupApi";
 import api from "../api/axios";
 
 function Groups() {
   const [groups, setGroups] = useState([]);
   const [groupName, setGroupName] = useState("");
+
+  const navigate = useNavigate();
 
   // Fetch groups when page loads
   useEffect(() => {
@@ -67,7 +70,8 @@ function Groups() {
         {groups.map((group) => (
           <div
             key={group.id}
-            className="p-4 border rounded-lg shadow-sm bg-white"
+            onClick={() => navigate(`/groups/${group.id}`)}
+            className="p-4 border rounded-lg shadow-sm bg-white cursor-pointer hover:bg-gray-100"
           >
             {group.name}
           </div>

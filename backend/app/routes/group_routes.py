@@ -1,18 +1,58 @@
 from flask import Blueprint, request, jsonify
 from ..extensions.db import db
 
+from ..models.user import User
 from ..models.group import Group
 from ..models.group_member import GroupMember
 from ..models.expense import Expense
 from ..models.expense_split import ExpenseSplit
 from ..models.settlement import Settlement
 
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required
 
 from heapq import heappush, heappop
 
 
 group_bp = Blueprint("groups", __name__)
+
+
+# --------------------------------
+# BALANCE COMPUTATION FUNCTION
+# --------------------------------
+def compute_balances(group_id):
+
+    members = GroupMember.query.filter_by(group_id=group_id).all()
+
+    # Initialize every member with 0
+    balances = {m.user_id: 0 for m in members}
+
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    settlements = Settlement.query.filter_by(group_id=group_id).all()
+
+    # -----------------------------
+    # PROCESS EXPENSES
+    # -----------------------------
+    for expense in expenses:
+
+        payer = expense.paid_by
+        amount = expense.amount
+
+        splits = ExpenseSplit.query.filter_by(expense_id=expense.id).all()
+
+        balances[payer] += amount
+
+        for split in splits:
+            balances[split.user_id] -= split.amount_owed
+
+    # -----------------------------
+    # PROCESS SETTLEMENTS
+    # -----------------------------
+    for s in settlements:
+
+        balances[s.payer_id] += s.amount
+        balances[s.receiver_id] -= s.amount
+
+    return balances
 
 
 # --------------------------------
@@ -27,6 +67,7 @@ def create_group():
     members = data.get("members", [])
 
     group = Group(name=name)
+
     db.session.add(group)
     db.session.commit()
 
@@ -40,8 +81,8 @@ def create_group():
     db.session.commit()
 
     return jsonify({
-    "message": "Group created",
-    "id": group.id
+        "message": "Group created",
+        "id": group.id
     })
 
 
@@ -98,59 +139,39 @@ def get_members(group_id):
     result = []
 
     for m in members:
-        result.append({
-            "user_id": m.user_id
-        })
+
+        user = User.query.get(m.user_id)
+
+        if user:
+            result.append({
+                "user_id": user.id,
+                "name": user.name,
+                "email": user.email
+            })
 
     return jsonify(result)
 
 
 # --------------------------------
-# BALANCE CALCULATION
+# GET BALANCES
 # --------------------------------
 @group_bp.route("/<int:group_id>/balances", methods=["GET"])
 @jwt_required()
 def get_balances(group_id):
 
-    expenses = Expense.query.filter_by(group_id=group_id).all()
-    settlements = Settlement.query.filter_by(group_id=group_id).all()
-
-    balances = {}
-
-    # process expenses
-    for expense in expenses:
-
-        payer = expense.paid_by
-        amount = expense.amount
-
-        splits = ExpenseSplit.query.filter_by(expense_id=expense.id).all()
-
-        balances[payer] = balances.get(payer, 0) + amount
-
-        for split in splits:
-
-            user = split.user_id
-            owed = split.amount_owed
-
-            balances[user] = balances.get(user, 0) - owed
-
-    # process settlements
-    for s in settlements:
-
-        balances[s.payer_id] = balances.get(s.payer_id, 0) - s.amount
-        balances[s.receiver_id] = balances.get(s.receiver_id, 0) + s.amount
+    balances = compute_balances(group_id)
 
     return jsonify(balances)
 
 
 # --------------------------------
-# SIMPLIFY DEBTS (Splitwise algorithm)
+# SIMPLIFY DEBTS (Splitwise Algorithm)
 # --------------------------------
 @group_bp.route("/<int:group_id>/simplify", methods=["GET"])
 @jwt_required()
 def simplify_debts(group_id):
 
-    balances = get_balances(group_id).json
+    balances = compute_balances(group_id)
 
     creditors = []
     debtors = []
@@ -225,6 +246,7 @@ def get_group_expenses(group_id):
         })
 
     return jsonify(result)
+
 
 # --------------------------------
 # DELETE GROUP
