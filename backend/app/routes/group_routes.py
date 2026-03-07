@@ -48,7 +48,7 @@ def create_group():
 # --------------------------------
 # GET GROUPS
 # --------------------------------
-@group_bp.route("/", methods=["GET"])
+@group_bp.route("", methods=["GET"])
 @jwt_required()
 def get_groups():
 
