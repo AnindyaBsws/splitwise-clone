@@ -93,9 +93,26 @@ def delete_expense(expense_id):
     if not expense:
         return jsonify({"error": "Expense not found"}), 404
 
-    # delete splits first
+    group_id = expense.group_id
+
+    # check balances
+    from ..routes.group_routes import compute_balances
+    balances = compute_balances(group_id)
+
+    # if anyone still owes money → block deletion
+    if any(balance != 0 for balance in balances.values()):
+        return jsonify({
+            "error": "Cannot delete expense until all settlements are done"
+        }), 400
+
+    # delete splits
     ExpenseSplit.query.filter_by(expense_id=expense_id).delete()
 
+    # delete settlements of this group
+    from ..models.settlement import Settlement
+    Settlement.query.filter_by(group_id=group_id).delete()
+
+    # delete expense
     db.session.delete(expense)
     db.session.commit()
 

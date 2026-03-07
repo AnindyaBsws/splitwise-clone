@@ -1,9 +1,14 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import { useNavigate } from "react-router-dom";
 
 function GroupDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [allUsers, setAllUsers] = useState([]);
+  const [groupInfo, setGroupInfo] = useState(null);
 
   const [members, setMembers] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -17,12 +22,37 @@ function GroupDetail() {
   const [payerId, setPayerId] = useState("");
   const [splitBetween, setSplitBetween] = useState([]);
 
+  const availableUsers = allUsers.filter(
+    (user) => !members.some((member) => member.user_id === user.user_id)
+  );
+
+  // Check if all balances are settled
+  const allSettled = Object.values(balances).every((b) => b === 0);
+
   const fetchMembers = async () => {
     try {
       const res = await api.get(`/api/groups/${id}/members`);
       setMembers(res.data);
     } catch (error) {
       console.error("Error fetching members", error);
+    }
+  };
+
+  const fetchGroupInfo = async () => {
+    try {
+      const res = await api.get(`/api/groups/${id}`);
+      setGroupInfo(res.data);
+    } catch (error) {
+      console.error("Error fetching group info", error);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      const res = await api.get("/api/users/");
+      setAllUsers(res.data);
+    } catch (error) {
+      console.error("Error fetching users", error);
     }
   };
 
@@ -54,7 +84,9 @@ function GroupDetail() {
   };
 
   useEffect(() => {
+    fetchGroupInfo();
     fetchMembers();
+    fetchUsers();
     fetchExpenses();
     fetchBalances();
     fetchSimplifiedDebts();
@@ -111,6 +143,26 @@ function GroupDetail() {
       console.error("Error adding expense", error);
     }
   };
+
+  const handleClearExpenses = async () => {
+    try {
+
+      await api.post(`/api/groups/${id}/clear-expenses`);
+
+      await fetchExpenses();
+      await fetchBalances();
+      await fetchSimplifiedDebts();
+
+    } catch (error) {
+
+      if (error.response) {
+        alert(error.response.data.error);
+      }
+
+      console.error("Error clearing expenses", error);
+    }
+  }; 
+
   //HANDLE SETTLE FUNCTION (MOST BUGS)
   const handleSettle = async (txn) => {
   try {
@@ -149,11 +201,19 @@ function GroupDetail() {
   return (
     <div className="p-8">
 
-      <h1 className="text-3xl font-bold mb-4">Group Detail</h1>
+      {groupInfo && (
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">{groupInfo.name}</h1>
 
-      <p className="text-gray-600 mb-6">
-        Viewing details for group ID: {id}
-      </p>
+          <p className="text-gray-600">
+            Created by: {groupInfo.created_by}
+          </p>
+
+          <p className="text-gray-500">
+            Created on: {new Date(groupInfo.created_at).toLocaleDateString()}
+          </p>
+        </div>
+      )}
 
       {/* MEMBERS */}
       <h2 className="text-xl font-semibold mb-3">Members</h2>
@@ -173,13 +233,21 @@ function GroupDetail() {
       <h2 className="text-xl font-semibold mb-2">Add Member</h2>
 
       <div className="flex gap-2 mb-8">
-        <input
-          type="number"
-          placeholder="User ID"
+
+        <select
           value={newMemberId}
           onChange={(e) => setNewMemberId(e.target.value)}
-          className="border p-2 rounded w-40"
-        />
+          className="border p-2 rounded w-48"
+        >
+          <option value="">Select User</option>
+
+          {availableUsers.map((user) => (
+            <option key={user.user_id} value={user.user_id}>
+              {user.name}
+            </option>
+          ))}
+
+        </select>
 
         <button
           onClick={handleAddMember}
@@ -187,6 +255,7 @@ function GroupDetail() {
         >
           Add
         </button>
+
       </div>
 
       {/* ADD EXPENSE */}
@@ -253,23 +322,52 @@ function GroupDetail() {
 
       </div>
 
-      {/* EXPENSE LIST */}
-      <h2 className="text-xl font-semibold mb-3">Expenses</h2>
+      {/* CURRENT EXPENSES */}
+      <h2 className="text-xl font-semibold mb-3">Current Expenses</h2>
 
-      <div className="space-y-3 mb-8">
-        {expenses.map((expense) => (
-          <div
-            key={expense.expense_id}
-            className="p-4 border rounded bg-white shadow-sm"
-          >
-            <p className="font-semibold">{expense.title}</p>
-            <p className="text-gray-600">Amount: ₹{expense.amount}</p>
-            <p className="text-gray-600">
-              Paid by: {getMemberName(expense.paid_by)}
-            </p>
-          </div>
-        ))}
+      <div className="space-y-3 mb-4">
+
+        {expenses.length === 0 ? (
+          <p className="text-gray-500">No Current Expenses Right Now</p>
+        ) : (
+          expenses.map((expense) => (
+            <div
+              key={expense.expense_id}
+              className="p-4 border rounded bg-white shadow-sm"
+            >
+              <p className="font-semibold">{expense.title}</p>
+              <p className="text-gray-600">Amount: ₹{expense.amount}</p>
+              <p className="text-gray-600">
+                Paid by: {getMemberName(expense.paid_by)}
+              </p>
+            </div>
+          ))
+        )}
+
       </div>
+      
+      <div className="flex flex-col gap-3 mt-4">
+        <button
+          onClick={handleClearExpenses}
+          disabled={!allSettled}
+          className={`px-4 py-2 rounded text-white ${
+            allSettled
+              ? "bg-red-600 hover:bg-red-700"
+              : "bg-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Clear Current Expenses
+        </button>
+        
+
+          <button
+            onClick={() => navigate(`/groups/${id}/history`)}
+            className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Expense History
+        </button>
+      </div>    
+      
 
       {/* BALANCES */}
       <h2 className="text-xl font-semibold mb-3">Balances</h2>

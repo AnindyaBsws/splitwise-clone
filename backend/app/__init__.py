@@ -4,6 +4,7 @@ from .extensions.db import db
 from .extensions.jwt import jwt
 from flask_migrate import Migrate
 from .routes.user_routes import user_bp
+from .models.expense_history import ExpenseHistory
 from flask_cors import CORS
 
 def create_app():
