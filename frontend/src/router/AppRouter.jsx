@@ -8,22 +8,29 @@ import GroupDetail from "../pages/GroupDetail";
 import ExpenseHistory from "../pages/ExpenseHistory";
 
 import ProtectedRoute from "./ProtectedRoute";
+import MainLayout from "../layouts/MainLayout";
 
 function AppRouter() {
+
   return (
     <BrowserRouter>
+
       <Routes>
 
         {/* PUBLIC ROUTES */}
+
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* PROTECTED ROUTES */}
+
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <MainLayout>
+                <Dashboard />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
@@ -32,7 +39,9 @@ function AppRouter() {
           path="/groups"
           element={
             <ProtectedRoute>
-              <Groups />
+              <MainLayout>
+                <Groups />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
@@ -41,24 +50,29 @@ function AppRouter() {
           path="/groups/:id"
           element={
             <ProtectedRoute>
-              <GroupDetail />
+              <MainLayout>
+                <GroupDetail />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
 
-        {/* NEW HISTORY PAGE */}
         <Route
           path="/groups/:id/history"
           element={
             <ProtectedRoute>
-              <ExpenseHistory />
+              <MainLayout>
+                <ExpenseHistory />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
 
       </Routes>
+
     </BrowserRouter>
   );
+
 }
 
 export default AppRouter;

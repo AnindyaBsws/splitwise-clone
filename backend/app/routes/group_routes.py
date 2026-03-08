@@ -7,56 +7,16 @@ from ..models.group_member import GroupMember
 from ..models.expense import Expense
 from ..models.expense_split import ExpenseSplit
 from ..models.settlement import Settlement
+from ..models.expense_history import ExpenseHistory
 
-from flask_jwt_extended import jwt_required
+from ..routes.settlement_routes import calculate_balances
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from heapq import heappush, heappop
 
-from datetime import datetime
-from ..models.expense_history import ExpenseHistory
-
-
 
 group_bp = Blueprint("groups", __name__)
-
-
-# --------------------------------
-# BALANCE COMPUTATION FUNCTION
-# --------------------------------
-def compute_balances(group_id):
-
-    members = GroupMember.query.filter_by(group_id=group_id).all()
-
-    # Initialize every member with 0
-    balances = {m.user_id: 0 for m in members}
-
-    expenses = Expense.query.filter_by(group_id=group_id).all()
-    settlements = Settlement.query.filter_by(group_id=group_id).all()
-
-    # -----------------------------
-    # PROCESS EXPENSES
-    # -----------------------------
-    for expense in expenses:
-
-        payer = expense.paid_by
-        amount = expense.amount
-
-        splits = ExpenseSplit.query.filter_by(expense_id=expense.id).all()
-
-        balances[payer] += amount
-
-        for split in splits:
-            balances[split.user_id] -= split.amount_owed
-
-    # -----------------------------
-    # PROCESS SETTLEMENTS
-    # -----------------------------
-    for s in settlements:
-
-        balances[s.payer_id] += s.amount
-        balances[s.receiver_id] -= s.amount
-
-    return balances
 
 
 # --------------------------------
@@ -66,17 +26,12 @@ def compute_balances(group_id):
 @jwt_required()
 def create_group():
 
-    from flask_jwt_extended import get_jwt_identity
-
     data = request.json
     name = data["name"]
     members = data.get("members", [])
 
     creator_id = get_jwt_identity()
 
-    # -------------------------
-    # CREATE GROUP
-    # -------------------------
     group = Group(
         name=name,
         created_by=creator_id
@@ -85,9 +40,6 @@ def create_group():
     db.session.add(group)
     db.session.commit()
 
-    # -------------------------
-    # ADD CREATOR AS MEMBER
-    # -------------------------
     creator_member = GroupMember(
         group_id=group.id,
         user_id=creator_id
@@ -95,12 +47,8 @@ def create_group():
 
     db.session.add(creator_member)
 
-    # -------------------------
-    # ADD OTHER MEMBERS
-    # -------------------------
     for member_id in members:
 
-        # avoid duplicate if creator included
         if member_id == creator_id:
             continue
 
@@ -139,14 +87,13 @@ def get_groups():
 
     return jsonify(result)
 
+
 # --------------------------------
 # GET SINGLE GROUP
 # --------------------------------
 @group_bp.route("/<int:group_id>", methods=["GET"])
 @jwt_required()
 def get_group(group_id):
-
-    from ..models.user import User
 
     group = Group.query.get(group_id)
 
@@ -158,8 +105,8 @@ def get_group(group_id):
     return jsonify({
         "id": group.id,
         "name": group.name,
-        "created_by": group.created_by,   # creator ID
-        "creator_name": creator.name,     # creator name
+        "created_by": group.created_by,
+        "creator_name": creator.name,
         "created_at": group.created_at
     })
 
@@ -216,19 +163,19 @@ def get_members(group_id):
 @jwt_required()
 def get_balances(group_id):
 
-    balances = compute_balances(group_id)
+    balances = calculate_balances(group_id)
 
     return jsonify(balances)
 
 
 # --------------------------------
-# SIMPLIFY DEBTS (Splitwise Algorithm)
+# SIMPLIFY DEBTS
 # --------------------------------
 @group_bp.route("/<int:group_id>/simplify", methods=["GET"])
 @jwt_required()
 def simplify_debts(group_id):
 
-    balances = compute_balances(group_id)
+    balances = calculate_balances(group_id)
 
     creditors = []
     debtors = []
@@ -312,13 +259,6 @@ def get_group_expenses(group_id):
 @jwt_required()
 def delete_group(group_id):
 
-    from flask_jwt_extended import get_jwt_identity
-    from ..models.group_member import GroupMember
-    from ..models.expense import Expense
-    from ..models.expense_split import ExpenseSplit
-    from ..models.settlement import Settlement
-    from ..routes.settlement_routes import calculate_balances
-
     requester_id = int(get_jwt_identity())
 
     group = Group.query.get(group_id)
@@ -326,17 +266,11 @@ def delete_group(group_id):
     if not group:
         return jsonify({"error": "Group not found"}), 404
 
-    # -------------------------
-    # ONLY CREATOR CAN DELETE
-    # -------------------------
     if group.created_by != requester_id:
         return jsonify({
             "error": "Only group creator can delete the group"
         }), 403
 
-    # -------------------------
-    # CHECK ACTIVE DEBTS
-    # -------------------------
     balances = calculate_balances(group_id)
 
     if any(balance != 0 for balance in balances.values()):
@@ -344,25 +278,16 @@ def delete_group(group_id):
             "error": "All debts must be settled before deleting the group"
         }), 400
 
-    # -------------------------
-    # DELETE EVERYTHING
-    # -------------------------
-
-    # delete settlements
     Settlement.query.filter_by(group_id=group_id).delete()
 
-    # delete splits
     expenses = Expense.query.filter_by(group_id=group_id).all()
     for expense in expenses:
         ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
 
-    # delete expenses
     Expense.query.filter_by(group_id=group_id).delete()
 
-    # delete members
     GroupMember.query.filter_by(group_id=group_id).delete()
 
-    # delete group
     db.session.delete(group)
 
     db.session.commit()
@@ -373,15 +298,11 @@ def delete_group(group_id):
 
 
 # --------------------------------
-# REMOVE MEMBER FROM GROUP
+# REMOVE MEMBER
 # --------------------------------
 @group_bp.route("/<int:group_id>/members/<int:user_id>", methods=["DELETE"])
 @jwt_required()
 def remove_member(group_id, user_id):
-
-    from flask_jwt_extended import get_jwt_identity
-    from ..models.user import User
-    from ..routes.settlement_routes import calculate_balances
 
     requester_id = int(get_jwt_identity())
 
@@ -390,25 +311,16 @@ def remove_member(group_id, user_id):
     if not group:
         return jsonify({"error": "Group not found"}), 404
 
-    # -------------------------
-    # ONLY CREATOR CAN REMOVE
-    # -------------------------
     if group.created_by != requester_id:
         return jsonify({
             "error": "Only group creator can remove members"
         }), 403
 
-    # -------------------------
-    # CREATOR CANNOT REMOVE SELF
-    # -------------------------
     if user_id == group.created_by:
         return jsonify({
             "error": "Group creator cannot be removed"
         }), 400
 
-    # -------------------------
-    # CHECK MEMBER EXISTS
-    # -------------------------
     member = GroupMember.query.filter_by(
         group_id=group_id,
         user_id=user_id
@@ -419,14 +331,11 @@ def remove_member(group_id, user_id):
             "error": "Member not found in group"
         }), 404
 
-    # -------------------------
-    # CHECK MEMBER BALANCE
-    # -------------------------
     balances = calculate_balances(group_id)
 
     member_balance = balances.get(user_id, 0)
 
-    if member_balance != 0:
+    if abs(member_balance) > 0.01:
 
         user = User.query.get(user_id)
 
@@ -437,9 +346,6 @@ def remove_member(group_id, user_id):
             "status": "Debts not cleared, Removal not possible"
         }), 400
 
-    # -------------------------
-    # REMOVE MEMBER
-    # -------------------------
     db.session.delete(member)
     db.session.commit()
 
@@ -447,58 +353,23 @@ def remove_member(group_id, user_id):
         "message": "Member removed successfully"
     })
 
+
 # --------------------------------
-# GET MEMBER DETAILS BEFORE REMOVAL
+# CLEAR CURRENT EXPENSES
 # --------------------------------
-@group_bp.route("/<int:group_id>/members/<int:user_id>", methods=["GET"])
-@jwt_required()
-def get_member_details(group_id, user_id):
-
-    from ..models.user import User
-    from ..routes.settlement_routes import calculate_balances
-
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    balances = calculate_balances(group_id)
-
-    balance = balances.get(user_id, 0)
-
-    status = "No active debts" if balance == 0 else "Debts not cleared"
-
-    return jsonify({
-        "name": user.name,
-        "email": user.email,
-        "balance": balance,
-        "status": status
-    })
-
-
-
 @group_bp.route("/<int:group_id>/clear-expenses", methods=["POST"])
 @jwt_required()
 def clear_current_expenses(group_id):
 
-    from ..models.expense import Expense
-    from ..models.expense_split import ExpenseSplit
-    from ..models.settlement import Settlement
-    from ..models.expense_history import ExpenseHistory
+    balances = calculate_balances(group_id)
 
-    # get balances
-    balances = compute_balances(group_id)
-
-    # block if debts still exist (tolerance for floating precision)
     if any(abs(float(b)) > 0.01 for b in balances.values()):
         return jsonify({
             "error": "Settle all debts before clearing expenses"
         }), 400
 
-    # get all current expenses
     expenses = Expense.query.filter_by(group_id=group_id).all()
 
-    # move expenses to history
     for expense in expenses:
 
         history = ExpenseHistory(
@@ -510,66 +381,14 @@ def clear_current_expenses(group_id):
 
         db.session.add(history)
 
-        # delete splits
         ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
 
-    # delete expenses
     Expense.query.filter_by(group_id=group_id).delete()
 
-    # delete settlements
     Settlement.query.filter_by(group_id=group_id).delete()
 
     db.session.commit()
 
     return jsonify({
         "message": "Current expenses moved to history and cleared"
-    })
-
-@group_bp.route("/<int:group_id>/history", methods=["GET"])
-@jwt_required()
-def get_expense_history(group_id):
-
-    histories = ExpenseHistory.query.filter_by(group_id=group_id).all()
-
-    result = []
-
-    for h in histories:
-
-        result.append({
-            "id": h.id,
-            "title": h.title,
-            "amount": h.amount,
-            "paid_by": h.paid_by,
-            "created_at": h.created_at
-        })
-
-    return jsonify(result)
-
-@group_bp.route("/<int:group_id>/history", methods=["DELETE"])
-@jwt_required()
-def delete_expense_history(group_id):
-
-    from flask_jwt_extended import get_jwt_identity
-    from ..models.group import Group
-    from ..models.expense_history import ExpenseHistory
-
-    user_id = get_jwt_identity()
-
-    group = Group.query.get(group_id)
-
-    if not group:
-        return jsonify({"error": "Group not found"}), 404
-
-    # only group creator can delete history
-    if group.created_by != user_id:
-        return jsonify({
-            "error": "Only group creator can delete expense history"
-        }), 403
-
-    ExpenseHistory.query.filter_by(group_id=group_id).delete()
-
-    db.session.commit()
-
-    return jsonify({
-        "message": "Expense history deleted"
     })

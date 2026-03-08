@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
+import getCurrentUserId from "../utils/getCurrentUserId";
 
 export default function Dashboard() {
 
@@ -16,9 +17,7 @@ export default function Dashboard() {
   const fetchDashboardData = async () => {
     try {
 
-      const token = localStorage.getItem("token");
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const currentUserId = Number(payload.sub);
+      const currentUserId = getCurrentUserId();
 
       const groupsRes = await api.get("/api/groups");
       const groups = groupsRes.data;
@@ -32,21 +31,14 @@ export default function Dashboard() {
 
       for (const group of groups) {
 
-        /* BALANCES */
         const balanceRes = await api.get(`/api/groups/${group.id}/balances`);
         const balances = balanceRes.data;
 
         const userBalance = Number(balances[currentUserId] || 0);
 
-        if (userBalance < 0) {
-          totalOwe += Math.abs(userBalance);
-        }
+        if (userBalance < 0) totalOwe += Math.abs(userBalance);
+        if (userBalance > 0) totalOwed += userBalance;
 
-        if (userBalance > 0) {
-          totalOwed += userBalance;
-        }
-
-        /* EXPENSES */
         const expenseRes = await api.get(`/api/expenses/group/${group.id}`);
         const expenses = expenseRes.data;
 
@@ -62,7 +54,6 @@ export default function Dashboard() {
         allExpenses = [...allExpenses, ...formattedExpenses];
       }
 
-      /* sort newest first */
       allExpenses.sort((a, b) => b.id - a.id);
 
       setRecentExpenses(allExpenses.slice(0, 5));
@@ -75,15 +66,46 @@ export default function Dashboard() {
     }
   };
 
+  /* ---------------- EMPTY STATE ---------------- */
+
+  if (groupCount === 0) {
+    return (
+      <div className="p-8 max-w-4xl mx-auto text-center">
+
+        <h1 className="text-3xl font-bold mb-8">
+          Dashboard
+        </h1>
+
+        <div className="bg-white border rounded-xl shadow-sm p-12">
+
+          <h2 className="text-2xl font-semibold mb-3">
+            No Groups Yet
+          </h2>
+
+          <p className="text-gray-600 mb-6">
+            Create your first group to start tracking shared expenses.
+            Smart Expense Tracker will automatically calculate balances.
+          </p>
+
+          <Link to="/groups">
+            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+              Create Your First Group
+            </button>
+          </Link>
+
+        </div>
+
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 max-w-6xl mx-auto">
 
-      {/* Page Title */}
       <h1 className="text-3xl font-bold mb-8">
         Dashboard
       </h1>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
         <div className="bg-white shadow-sm rounded-xl p-6 border hover:shadow-md transition">
@@ -118,7 +140,6 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Quick Actions */}
       <div className="mb-12">
 
         <h2 className="text-xl font-semibold mb-4">
@@ -147,7 +168,6 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Recent Activity */}
       <div>
 
         <h2 className="text-xl font-semibold mb-4">

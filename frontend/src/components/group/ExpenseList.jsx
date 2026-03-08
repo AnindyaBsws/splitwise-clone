@@ -1,46 +1,45 @@
 import { formatCurrency } from "../../utils/formatCurrency";
 
-function ExpensesSection({
+function ExpenseList({
   expenses,
   getMemberName,
   handleClearExpenses,
+  allSettled,
   navigate,
-  id,
-  allSettled
+  id
 }) {
+
   return (
     <div className="bg-white border rounded-xl shadow-sm p-6">
 
       <h2 className="text-xl font-semibold mb-4">Current Expenses</h2>
 
-      <div className="space-y-3">
+      {expenses.length === 0 ? (
+        <p className="text-gray-500">No expenses yet</p>
+      ) : (
+        expenses.map((expense) => (
 
-        {expenses.length === 0 ? (
-          <p className="text-gray-500">No Current Expenses Right Now</p>
-        ) : (
-          expenses.map((expense) => (
-            <div
-              key={expense.expense_id}
-              className="border rounded-lg p-4 flex justify-between items-center hover:bg-gray-50 transition"
-            >
+          <div
+            key={expense.expense_id}
+            className="border rounded-lg p-4 flex justify-between items-center mb-3 hover:bg-gray-50"
+          >
 
-              <div>
-                <p className="font-semibold text-lg">{expense.title}</p>
+            <div>
+              <p className="font-semibold">💸 {expense.title}</p>
 
-                <p className="text-sm text-gray-500">
-                  Paid by {getMemberName(expense.paid_by)}
-                </p>
-              </div>
-
-              <div className="text-lg font-semibold text-gray-800">
-                {formatCurrency(expense.amount)}
-              </div>
-
+              <p className="text-sm text-gray-500">
+                Paid by {getMemberName(expense.paid_by)}
+              </p>
             </div>
-          ))
-        )}
 
-      </div>
+            <div className="font-semibold text-lg">
+              {formatCurrency(expense.amount)}
+            </div>
+
+          </div>
+
+        ))
+      )}
 
       <div className="flex flex-col gap-3 mt-6">
 
@@ -69,4 +68,4 @@ function ExpensesSection({
   );
 }
 
-export default ExpensesSection;
+export default ExpenseList;
