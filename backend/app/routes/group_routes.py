@@ -158,7 +158,8 @@ def get_group(group_id):
     return jsonify({
         "id": group.id,
         "name": group.name,
-        "created_by": creator.name if creator else "Unknown",
+        "created_by": group.created_by,   # creator ID
+        "creator_name": creator.name,     # creator name
         "created_at": group.created_at
     })
 
@@ -311,15 +312,64 @@ def get_group_expenses(group_id):
 @jwt_required()
 def delete_group(group_id):
 
+    from flask_jwt_extended import get_jwt_identity
+    from ..models.group_member import GroupMember
+    from ..models.expense import Expense
+    from ..models.expense_split import ExpenseSplit
+    from ..models.settlement import Settlement
+    from ..routes.settlement_routes import calculate_balances
+
+    requester_id = int(get_jwt_identity())
+
     group = Group.query.get(group_id)
 
     if not group:
         return jsonify({"error": "Group not found"}), 404
 
+    # -------------------------
+    # ONLY CREATOR CAN DELETE
+    # -------------------------
+    if group.created_by != requester_id:
+        return jsonify({
+            "error": "Only group creator can delete the group"
+        }), 403
+
+    # -------------------------
+    # CHECK ACTIVE DEBTS
+    # -------------------------
+    balances = calculate_balances(group_id)
+
+    if any(balance != 0 for balance in balances.values()):
+        return jsonify({
+            "error": "All debts must be settled before deleting the group"
+        }), 400
+
+    # -------------------------
+    # DELETE EVERYTHING
+    # -------------------------
+
+    # delete settlements
+    Settlement.query.filter_by(group_id=group_id).delete()
+
+    # delete splits
+    expenses = Expense.query.filter_by(group_id=group_id).all()
+    for expense in expenses:
+        ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
+
+    # delete expenses
+    Expense.query.filter_by(group_id=group_id).delete()
+
+    # delete members
+    GroupMember.query.filter_by(group_id=group_id).delete()
+
+    # delete group
     db.session.delete(group)
+
     db.session.commit()
 
-    return jsonify({"message": "Group deleted"})
+    return jsonify({
+        "message": "Group deleted successfully"
+    })
 
 
 # --------------------------------
@@ -329,18 +379,101 @@ def delete_group(group_id):
 @jwt_required()
 def remove_member(group_id, user_id):
 
+    from flask_jwt_extended import get_jwt_identity
+    from ..models.user import User
+    from ..routes.settlement_routes import calculate_balances
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    # -------------------------
+    # ONLY CREATOR CAN REMOVE
+    # -------------------------
+    if group.created_by != requester_id:
+        return jsonify({
+            "error": "Only group creator can remove members"
+        }), 403
+
+    # -------------------------
+    # CREATOR CANNOT REMOVE SELF
+    # -------------------------
+    if user_id == group.created_by:
+        return jsonify({
+            "error": "Group creator cannot be removed"
+        }), 400
+
+    # -------------------------
+    # CHECK MEMBER EXISTS
+    # -------------------------
     member = GroupMember.query.filter_by(
         group_id=group_id,
         user_id=user_id
     ).first()
 
     if not member:
-        return jsonify({"error": "Member not found in group"}), 404
+        return jsonify({
+            "error": "Member not found in group"
+        }), 404
 
+    # -------------------------
+    # CHECK MEMBER BALANCE
+    # -------------------------
+    balances = calculate_balances(group_id)
+
+    member_balance = balances.get(user_id, 0)
+
+    if member_balance != 0:
+
+        user = User.query.get(user_id)
+
+        return jsonify({
+            "name": user.name,
+            "email": user.email,
+            "balance": member_balance,
+            "status": "Debts not cleared, Removal not possible"
+        }), 400
+
+    # -------------------------
+    # REMOVE MEMBER
+    # -------------------------
     db.session.delete(member)
     db.session.commit()
 
-    return jsonify({"message": "Member removed from group"})
+    return jsonify({
+        "message": "Member removed successfully"
+    })
+
+# --------------------------------
+# GET MEMBER DETAILS BEFORE REMOVAL
+# --------------------------------
+@group_bp.route("/<int:group_id>/members/<int:user_id>", methods=["GET"])
+@jwt_required()
+def get_member_details(group_id, user_id):
+
+    from ..models.user import User
+    from ..routes.settlement_routes import calculate_balances
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    balances = calculate_balances(group_id)
+
+    balance = balances.get(user_id, 0)
+
+    status = "No active debts" if balance == 0 else "Debts not cleared"
+
+    return jsonify({
+        "name": user.name,
+        "email": user.email,
+        "balance": balance,
+        "status": status
+    })
 
 
 
@@ -356,8 +489,8 @@ def clear_current_expenses(group_id):
     # get balances
     balances = compute_balances(group_id)
 
-    # block if debts still exist
-    if any(b != 0 for b in balances.values()):
+    # block if debts still exist (tolerance for floating precision)
+    if any(abs(float(b)) > 0.01 for b in balances.values()):
         return jsonify({
             "error": "Settle all debts before clearing expenses"
         }), 400

@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { formatCurrency } from "../utils/formatCurrency";
 
 function GroupDetail() {
   const { id } = useParams();
@@ -17,6 +18,12 @@ function GroupDetail() {
 
   const [newMemberId, setNewMemberId] = useState("");
 
+  const [selectedMember, setSelectedMember] = useState(null);
+  const [showRemoveModal, setShowRemoveModal] = useState(false);
+  const [memberDetails, setMemberDetails] = useState(null);
+
+  const [currentUserId, setCurrentUserId] = useState(null);
+
   const [expenseTitle, setExpenseTitle] = useState("");
   const [expenseAmount, setExpenseAmount] = useState("");
   const [payerId, setPayerId] = useState("");
@@ -26,61 +33,45 @@ function GroupDetail() {
     (user) => !members.some((member) => member.user_id === user.user_id)
   );
 
-  // Check if all balances are settled
-  const allSettled = Object.values(balances).every((b) => b === 0);
+  const allSettled = Object.values(balances).every(
+    (b) => Math.abs(Number(b)) < 0.01
+  );
 
   const fetchMembers = async () => {
-    try {
-      const res = await api.get(`/api/groups/${id}/members`);
-      setMembers(res.data);
-    } catch (error) {
-      console.error("Error fetching members", error);
-    }
+    const res = await api.get(`/api/groups/${id}/members`);
+    setMembers(res.data);
   };
 
   const fetchGroupInfo = async () => {
-    try {
-      const res = await api.get(`/api/groups/${id}`);
-      setGroupInfo(res.data);
-    } catch (error) {
-      console.error("Error fetching group info", error);
-    }
+    const res = await api.get(`/api/groups/${id}`);
+    setGroupInfo(res.data);
   };
 
   const fetchUsers = async () => {
-    try {
-      const res = await api.get("/api/users/");
-      setAllUsers(res.data);
-    } catch (error) {
-      console.error("Error fetching users", error);
-    }
+    const res = await api.get("/api/users/");
+    setAllUsers(res.data);
   };
 
   const fetchExpenses = async () => {
-    try {
-      const res = await api.get(`/api/expenses/group/${id}`);
-      setExpenses(res.data);
-    } catch (error) {
-      console.error("Error fetching expenses", error);
-    }
+    const res = await api.get(`/api/expenses/group/${id}`);
+    setExpenses(res.data);
   };
 
   const fetchBalances = async () => {
-    try {
-      const res = await api.get(`/api/groups/${id}/balances`);
-      setBalances(res.data);
-    } catch (error) {
-      console.error("Error fetching balances", error);
-    }
+    const res = await api.get(`/api/groups/${id}/balances`);
+    setBalances(res.data);
   };
 
   const fetchSimplifiedDebts = async () => {
-    try {
-      const res = await api.get(`/api/groups/${id}/simplify`);
-      setSimplifiedDebts(res.data);
-    } catch (error) {
-      console.error("Error fetching simplified debts", error);
-    }
+    const res = await api.get(`/api/groups/${id}/simplify`);
+    setSimplifiedDebts(res.data);
+  };
+
+  const getCurrentUserId = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return Number(payload.sub);
   };
 
   useEffect(() => {
@@ -90,21 +81,38 @@ function GroupDetail() {
     fetchExpenses();
     fetchBalances();
     fetchSimplifiedDebts();
+    setCurrentUserId(getCurrentUserId());
   }, [id]);
+
+  const getMemberName = (userId) => {
+    const member = members.find((m) => m.user_id === Number(userId));
+    return member ? member.name : `User ${userId}`;
+  };
+
+  const openRemoveModal = async (member) => {
+    try {
+      const res = await api.get(`/api/groups/${id}/members/${member.user_id}`);
+      setMemberDetails(res.data);
+      setSelectedMember(member);
+      setShowRemoveModal(true);
+    } catch (error) {
+      if (error.response) {
+        setMemberDetails(error.response.data);
+        setSelectedMember(member);
+        setShowRemoveModal(true);
+      }
+    }
+  };
 
   const handleAddMember = async () => {
     if (!newMemberId.trim()) return;
 
-    try {
-      await api.post(`/api/groups/${id}/members`, {
-        user_id: Number(newMemberId),
-      });
+    await api.post(`/api/groups/${id}/members`, {
+      user_id: Number(newMemberId),
+    });
 
-      setNewMemberId("");
-      fetchMembers();
-    } catch (error) {
-      console.error("Error adding member", error);
-    }
+    setNewMemberId("");
+    fetchMembers();
   };
 
   const toggleSplitUser = (userId) => {
@@ -121,51 +129,32 @@ function GroupDetail() {
       return;
     }
 
-    try {
-      await api.post("/api/expenses/", {
-        title: expenseTitle,
-        group_id: Number(id),
-        payer_id: Number(payerId),
-        amount: Number(expenseAmount),
-        split_between: splitBetween,
-      });
+    await api.post("/api/expenses/", {
+      title: expenseTitle,
+      group_id: Number(id),
+      payer_id: Number(payerId),
+      amount: Number(expenseAmount),
+      split_between: splitBetween,
+    });
 
-      setExpenseTitle("");
-      setExpenseAmount("");
-      setPayerId("");
-      setSplitBetween([]);
+    setExpenseTitle("");
+    setExpenseAmount("");
+    setPayerId("");
+    setSplitBetween([]);
 
-      fetchExpenses();
-      fetchBalances();
-      fetchSimplifiedDebts();
-
-    } catch (error) {
-      console.error("Error adding expense", error);
-    }
+    fetchExpenses();
+    fetchBalances();
+    fetchSimplifiedDebts();
   };
 
   const handleClearExpenses = async () => {
-    try {
+    await api.post(`/api/groups/${id}/clear-expenses`);
+    fetchExpenses();
+    fetchBalances();
+    fetchSimplifiedDebts();
+  };
 
-      await api.post(`/api/groups/${id}/clear-expenses`);
-
-      await fetchExpenses();
-      await fetchBalances();
-      await fetchSimplifiedDebts();
-
-    } catch (error) {
-
-      if (error.response) {
-        alert(error.response.data.error);
-      }
-
-      console.error("Error clearing expenses", error);
-    }
-  }; 
-
-  //HANDLE SETTLE FUNCTION (MOST BUGS)
   const handleSettle = async (txn) => {
-  try {
     await api.post("/api/settlements/", {
       group_id: Number(id),
       payer_id: Number(txn.from),
@@ -173,249 +162,308 @@ function GroupDetail() {
       amount: Number(txn.amount),
     });
 
-    // refresh UI in correct order
-    await fetchBalances();
-    await fetchSimplifiedDebts();
-    await fetchExpenses();
+    fetchBalances();
+    fetchSimplifiedDebts();
+    fetchExpenses();
+  };
 
-  } catch (error) {
-    if (error.response) {
-      console.log("Backend message:", error.response.data);
+  const deleteMember = async () => {
+    await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
 
-      // ignore already settled payments
-      if (error.response.data.error === "Payer does not owe money") {
-        await fetchBalances();
-        await fetchSimplifiedDebts();
-      }
-    }
+    setShowRemoveModal(false);
 
-    console.error("Error settling payment", error);
-  }
-};
+    fetchMembers();
+    fetchBalances();
+    fetchSimplifiedDebts();
+    fetchExpenses();
+  };
 
-  const getMemberName = (userId) => {
-    const member = members.find((m) => m.user_id === Number(userId));
-    return member ? member.name : `User ${userId}`;
+  const deleteGroup = async () => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this group?"
+    );
+
+    if (!confirmDelete) return;
+
+    await api.delete(`/api/groups/${id}`);
+    navigate("/groups");
   };
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-7xl mx-auto space-y-10">
+
+      {/* GROUP HEADER */}
 
       {groupInfo && (
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold">{groupInfo.name}</h1>
+        <div className="bg-white border rounded-xl shadow-sm p-6 flex justify-between items-center">
 
-          <p className="text-gray-600">
-            Created by: {groupInfo.created_by}
-          </p>
+          <div>
+            <h1 className="text-3xl font-bold">{groupInfo.name}</h1>
+            <p className="text-gray-600">
+              Created by: {groupInfo.creator_name}
+            </p>
+            <p className="text-gray-500 text-sm">
+              Created on: {new Date(groupInfo.created_at).toLocaleDateString()}
+            </p>
+          </div>
 
-          <p className="text-gray-500">
-            Created on: {new Date(groupInfo.created_at).toLocaleDateString()}
-          </p>
+          {Number(groupInfo.created_by) === Number(currentUserId) && (
+            <button
+              onClick={deleteGroup}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+            >
+              Delete Group
+            </button>
+          )}
         </div>
       )}
 
-      {/* MEMBERS */}
-      <h2 className="text-xl font-semibold mb-3">Members</h2>
+      {/* DASHBOARD GRID */}
 
-      <div className="space-y-2 mb-6">
-        {members.map((member) => (
-          <div
-            key={member.user_id}
-            className="p-3 border rounded bg-white shadow-sm"
-          >
-            {member.name} ({member.email})
-          </div>
-        ))}
-      </div>
+      <div className="grid md:grid-cols-2 gap-8">
 
-      {/* ADD MEMBER */}
-      <h2 className="text-xl font-semibold mb-2">Add Member</h2>
+        {/* LEFT COLUMN */}
 
-      <div className="flex gap-2 mb-8">
+        <div className="space-y-8">
 
-        <select
-          value={newMemberId}
-          onChange={(e) => setNewMemberId(e.target.value)}
-          className="border p-2 rounded w-48"
-        >
-          <option value="">Select User</option>
+          {/* ADD EXPENSE */}
 
-          {availableUsers.map((user) => (
-            <option key={user.user_id} value={user.user_id}>
-              {user.name}
-            </option>
-          ))}
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Add Expense</h2>
 
-        </select>
+            <input
+              type="text"
+              placeholder="Expense title"
+              value={expenseTitle}
+              onChange={(e) => setExpenseTitle(e.target.value)}
+              className="border rounded-lg p-2 w-full mb-3"
+            />
 
-        <button
-          onClick={handleAddMember}
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-        >
-          Add
-        </button>
+            <input
+              type="number"
+              placeholder="Amount"
+              value={expenseAmount}
+              onChange={(e) => setExpenseAmount(e.target.value)}
+              className="border rounded-lg p-2 w-full mb-3"
+            />
 
-      </div>
-
-      {/* ADD EXPENSE */}
-      <h2 className="text-xl font-semibold mb-3">Add Expense</h2>
-
-      <div className="space-y-3 mb-8">
-
-        <input
-          type="text"
-          placeholder="Title"
-          value={expenseTitle}
-          onChange={(e) => setExpenseTitle(e.target.value)}
-          className="border p-2 rounded w-64"
-        />
-
-        <input
-          type="number"
-          placeholder="Amount"
-          value={expenseAmount}
-          onChange={(e) => setExpenseAmount(e.target.value)}
-          className="border p-2 rounded w-64"
-        />
-
-        <div>
-          <p className="font-semibold mb-1">Paid by</p>
-
-          <select
-            value={payerId}
-            onChange={(e) => setPayerId(e.target.value)}
-            className="border p-2 rounded"
-          >
-            <option value="">Select payer</option>
-
-            {members.map((member) => (
-              <option key={member.user_id} value={member.user_id}>
-                {member.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <p className="font-semibold mb-1">Split between</p>
-
-          {members.map((member) => (
-            <label key={member.user_id} className="block">
-              <input
-                type="checkbox"
-                checked={splitBetween.includes(member.user_id)}
-                onChange={() => toggleSplitUser(member.user_id)}
-                className="mr-2"
-              />
-              {member.name}
-            </label>
-          ))}
-        </div>
-
-        <button
-          onClick={handleAddExpense}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          Add Expense
-        </button>
-
-      </div>
-
-      {/* CURRENT EXPENSES */}
-      <h2 className="text-xl font-semibold mb-3">Current Expenses</h2>
-
-      <div className="space-y-3 mb-4">
-
-        {expenses.length === 0 ? (
-          <p className="text-gray-500">No Current Expenses Right Now</p>
-        ) : (
-          expenses.map((expense) => (
-            <div
-              key={expense.expense_id}
-              className="p-4 border rounded bg-white shadow-sm"
+            <select
+              value={payerId}
+              onChange={(e) => setPayerId(e.target.value)}
+              className="border rounded-lg p-2 w-full mb-3"
             >
-              <p className="font-semibold">{expense.title}</p>
-              <p className="text-gray-600">Amount: ₹{expense.amount}</p>
-              <p className="text-gray-600">
-                Paid by: {getMemberName(expense.paid_by)}
-              </p>
+              <option value="">Paid by</option>
+              {members.map((member) => (
+                <option key={member.user_id} value={member.user_id}>
+                  {member.name}
+                </option>
+              ))}
+            </select>
+
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {members.map((member) => (
+                <label key={member.user_id} className="flex gap-2 items-center">
+                  <input
+                    type="checkbox"
+                    checked={splitBetween.includes(member.user_id)}
+                    onChange={() => toggleSplitUser(member.user_id)}
+                  />
+                  {member.name}
+                </label>
+              ))}
             </div>
-          ))
-        )}
 
-      </div>
-      
-      <div className="flex flex-col gap-3 mt-4">
-        <button
-          onClick={handleClearExpenses}
-          disabled={!allSettled}
-          className={`px-4 py-2 rounded text-white ${
-            allSettled
-              ? "bg-red-600 hover:bg-red-700"
-              : "bg-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Clear Current Expenses
-        </button>
-        
-
-          <button
-            onClick={() => navigate(`/groups/${id}/history`)}
-            className="mb-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Expense History
-        </button>
-      </div>    
-      
-
-      {/* BALANCES */}
-      <h2 className="text-xl font-semibold mb-3">Balances</h2>
-
-      <div className="space-y-2">
-        {Object.entries(balances).map(([userId, amount]) => (
-          <div
-            key={userId}
-            className="p-3 border rounded bg-white shadow-sm"
-          >
-            {amount > 0
-              ? `${getMemberName(userId)} is owed ₹${amount}`
-              : `${getMemberName(userId)} owes ₹${Math.abs(amount)}`}
-          </div>
-        ))}
-      </div>
-
-      {/* SIMPLIFIED DEBTS */}
-      <h2 className="text-xl font-semibold mb-3 mt-8">Simplified Debts</h2>
-
-      <div className="space-y-2">
-        {simplifiedDebts.length === 0 ? (
-          <p className="text-gray-500">All settled 🎉</p>
-        ) : (
-          simplifiedDebts.map((txn, index) => (
-            <div
-              key={index}
-              className="p-3 border rounded bg-white shadow-sm flex justify-between items-center"
+            <button
+              onClick={handleAddExpense}
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
             >
-              <span>
-                <span className="font-medium">{getMemberName(txn.from)}</span> pays{" "}
-                <span className="font-medium">{getMemberName(txn.to)}</span>
-                <span className="text-green-600 font-semibold ml-2">
-                  ₹{txn.amount}
-                </span>
-              </span>
+              Add Expense
+            </button>
+          </div>
+
+          {/* CURRENT EXPENSES */}
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+
+            <h2 className="text-xl font-semibold mb-4">Current Expenses</h2>
+
+            {expenses.length === 0 ? (
+              <p className="text-gray-500">No expenses yet</p>
+            ) : (
+              expenses.map((expense) => (
+                <div
+                  key={expense.expense_id}
+                  className="border rounded-lg p-4 flex justify-between items-center mb-3 hover:bg-gray-50"
+                >
+
+                  <div>
+                    <p className="font-semibold">💸 {expense.title}</p>
+
+                    <p className="text-sm text-gray-500">
+                      Paid by {getMemberName(expense.paid_by)}
+                    </p>
+                  </div>
+
+                  <div className="font-semibold text-lg">
+                    {formatCurrency(expense.amount)}
+                  </div>
+
+                </div>
+              ))
+            )}
+
+            {/* ACTION BUTTONS */}
+
+            <div className="flex flex-col gap-3 mt-6">
 
               <button
-                onClick={() => handleSettle(txn)}
-                className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+                onClick={handleClearExpenses}
+                disabled={!allSettled}
+                className={`px-4 py-2 rounded-lg text-white ${
+                  allSettled
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-gray-400 cursor-not-allowed"
+                }`}
               >
-                Settle
+                Clear Current Expenses
+              </button>
+
+              <button
+                onClick={() => navigate(`/groups/${id}/history`)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              >
+                Expense History
+              </button>
+
+            </div>
+
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN */}
+
+        <div className="space-y-8">
+
+          {/* MEMBERS */}
+
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Members</h2>
+
+            {members.map((member) => (
+              <div
+                key={member.user_id}
+                className="flex justify-between items-center border rounded-lg p-3 mb-2"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center">
+                    {member.name[0]}
+                  </div>
+
+                  {member.name}
+                </div>
+
+                {groupInfo &&
+                  Number(groupInfo.created_by) === Number(currentUserId) &&
+                  member.user_id !== currentUserId && (
+                    <button
+                      onClick={() => openRemoveModal(member)}
+                      className="text-red-600"
+                    >
+                      🗑
+                    </button>
+                  )}
+              </div>
+            ))}
+          </div>
+
+          {/* ADD MEMBER */}
+
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Add Member</h2>
+
+            <div className="flex gap-3">
+              <select
+                value={newMemberId}
+                onChange={(e) => setNewMemberId(e.target.value)}
+                className="border rounded-lg p-2 flex-1"
+              >
+                <option value="">Select User</option>
+
+                {availableUsers.map((user) => (
+                  <option key={user.user_id} value={user.user_id}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+
+              <button
+                onClick={handleAddMember}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg"
+              >
+                Add
               </button>
             </div>
-          ))
-        )}
-      </div>
+          </div>
 
+          {/* BALANCES */}
+
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Balances</h2>
+
+            {Object.entries(balances).map(([userId, amount]) => {
+              const value = Number(amount);
+
+              return (
+                <div
+                  key={userId}
+                  className="border rounded-lg p-3 flex justify-between mb-2"
+                >
+                  <span>
+                    {value > 0 ? (
+                      <span className="text-green-600 font-semibold">
+                        {getMemberName(userId)} gets
+                      </span>
+                    ) : (
+                      <span className="text-red-600 font-semibold">
+                        {getMemberName(userId)} owes
+                      </span>
+                    )}
+                  </span>
+
+                  <span>{formatCurrency(Math.abs(value))}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* SIMPLIFIED DEBTS */}
+
+          <div className="bg-white border rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold mb-4">Simplified Debts</h2>
+
+            {simplifiedDebts.length === 0 ? (
+              <p className="text-gray-500">All settled 🎉</p>
+            ) : (
+              simplifiedDebts.map((txn, index) => (
+                <div
+                  key={index}
+                  className="border rounded-lg p-3 flex justify-between items-center mb-2"
+                >
+                  <span>
+                    {getMemberName(txn.from)} → {getMemberName(txn.to)}
+                  </span>
+
+                  <button
+                    onClick={() => handleSettle(txn)}
+                    className="bg-green-600 text-white px-3 py-1 rounded-lg"
+                  >
+                    Settle
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
