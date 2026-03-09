@@ -4,7 +4,16 @@ from .extensions.db import db
 from .extensions.jwt import jwt
 from flask_migrate import Migrate
 from .routes.user_routes import user_bp
+
+# Import all models so Alembic can detect them
+from .models.user import User
+from .models.group import Group
+from .models.group_member import GroupMember
+from .models.expense import Expense
+from .models.expense_split import ExpenseSplit
+from .models.settlement import Settlement
 from .models.expense_history import ExpenseHistory
+
 from flask_cors import CORS
 
 def create_app():

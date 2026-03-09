@@ -42,7 +42,8 @@ def create_group():
 
     creator_member = GroupMember(
         group_id=group.id,
-        user_id=creator_id
+        user_id=creator_id,
+        role="creator"
     )
 
     db.session.add(creator_member)
@@ -54,7 +55,8 @@ def create_group():
 
         member = GroupMember(
             group_id=group.id,
-            user_id=member_id
+            user_id=member_id,
+            role="member"
         )
 
         db.session.add(member)
@@ -118,17 +120,51 @@ def get_group(group_id):
 @jwt_required()
 def add_member(group_id):
 
+    requester_id = int(get_jwt_identity())
     data = request.json
+    user_to_add = data["user_id"]
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    # Check requester membership
+    requester_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=requester_id
+    ).first()
+
+    if not requester_member:
+        return jsonify({"error": "You are not a member of this group"}), 403
+
+    # Authorization: only creator or admin can add members
+    if requester_member.role not in ["creator", "admin"]:
+        return jsonify({
+            "error": "Only creator or admin can add members"
+        }), 403
+
+    # Prevent duplicate membership
+    existing_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user_to_add
+    ).first()
+
+    if existing_member:
+        return jsonify({
+            "error": "User already exists in this group"
+        }), 400
 
     member = GroupMember(
         group_id=group_id,
-        user_id=data["user_id"]
+        user_id=user_to_add,
+        role="member"
     )
 
     db.session.add(member)
     db.session.commit()
 
-    return jsonify({"message": "Member added"})
+    return jsonify({"message": "Member added successfully"})
 
 
 # --------------------------------
@@ -311,9 +347,19 @@ def remove_member(group_id, user_id):
     if not group:
         return jsonify({"error": "Group not found"}), 404
 
-    if group.created_by != requester_id:
+    requester_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=requester_id
+    ).first()
+
+    if not requester_member:
         return jsonify({
-            "error": "Only group creator can remove members"
+            "error": "You are not a member of this group"
+        }), 403
+    
+    if requester_member.role not in ["creator", "admin"]:
+        return jsonify({
+            "error": "Only creator or admin can remove members"
         }), 403
 
     if user_id == group.created_by:
@@ -351,6 +397,52 @@ def remove_member(group_id, user_id):
 
     return jsonify({
         "message": "Member removed successfully"
+    })
+
+# --------------------------------
+# LEAVE GROUP (FOR MEMBERS AND ADMINS)
+# --------------------------------
+@group_bp.route("/<int:group_id>/leave", methods=["POST"])
+@jwt_required()
+def leave_group(group_id):
+
+    user_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user_id
+    ).first()
+
+    if not member:
+        return jsonify({
+            "error": "You are not a member of this group"
+        }), 403
+
+    # Creator cannot leave
+    if member.role == "creator":
+        return jsonify({
+            "error": "Group creator cannot leave the group"
+        }), 400
+
+    balances = calculate_balances(group_id)
+
+    user_balance = balances.get(user_id, 0)
+
+    if abs(user_balance) > 0.01:
+        return jsonify({
+            "error": "Settle all debts before leaving the group"
+        }), 400
+
+    db.session.delete(member)
+    db.session.commit()
+
+    return jsonify({
+        "message": "You have left the group successfully"
     })
 
 
