@@ -1,6 +1,22 @@
+import api from "../../api/axios";
+import { useNavigate } from "react-router-dom";
+
 function GroupHeader({ groupInfo, currentUserId, deleteGroup }) {
 
+  const navigate = useNavigate();
+
   if (!groupInfo) return null;
+
+  const isCreator = Number(groupInfo.created_by) === Number(currentUserId);
+
+  const handleLeaveGroup = async () => {
+    try {
+      await api.post(`/api/groups/${groupInfo.id}/leave`);
+      navigate("/groups");
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to leave group");
+    }
+  };
 
   return (
     <div className="bg-white border rounded-xl shadow-sm p-6 flex justify-between items-center">
@@ -17,14 +33,27 @@ function GroupHeader({ groupInfo, currentUserId, deleteGroup }) {
         </p>
       </div>
 
-      {Number(groupInfo.created_by) === Number(currentUserId) && (
-        <button
-          onClick={deleteGroup}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
-        >
-          Delete Group
-        </button>
-      )}
+      <div className="flex gap-3">
+
+        {isCreator && (
+          <button
+            onClick={deleteGroup}
+            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          >
+            Delete Group
+          </button>
+        )}
+
+        {!isCreator && (
+          <button
+            onClick={handleLeaveGroup}
+            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+          >
+            Leave Group
+          </button>
+        )}
+
+      </div>
 
     </div>
   );
