@@ -23,6 +23,16 @@ def add_expense():
     if not title or not group_id or not payer_id or not amount or not split_between:
         return jsonify({"error": "Missing required fields"}), 400
 
+    # convert to float safely
+    try:
+        amount = float(amount)
+    except:
+        return jsonify({"error": "Invalid amount"}), 400
+
+    # NEW VALIDATION (important)
+    if amount <= 0:
+        return jsonify({"error": "Expense amount must be greater than 0"}), 400
+
     # create expense
     expense = Expense(
         title=title,

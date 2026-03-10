@@ -11,6 +11,33 @@ function ExpenseForm({
   handleAddExpense
 }) {
 
+  const handleSubmit = () => {
+
+    const amount = Number(expenseAmount);
+
+    if (!expenseTitle.trim()) {
+      alert("Expense title is required");
+      return;
+    }
+
+    if (isNaN(amount) || amount <= 0) {
+      alert("Expense amount must be greater than 0");
+      return;
+    }
+
+    if (!payerId) {
+      alert("Please select who paid");
+      return;
+    }
+
+    if (splitBetween.length === 0) {
+      alert("Select at least one member to split");
+      return;
+    }
+
+    handleAddExpense();
+  };
+
   return (
     <div className="bg-white border rounded-xl shadow-sm p-6">
 
@@ -28,6 +55,7 @@ function ExpenseForm({
         type="number"
         placeholder="Amount"
         value={expenseAmount}
+        min="0"
         onChange={(e) => setExpenseAmount(e.target.value)}
         className="border rounded-lg p-2 w-full mb-3"
       />
@@ -66,7 +94,7 @@ function ExpenseForm({
       </div>
 
       <button
-        onClick={handleAddExpense}
+        onClick={handleSubmit}
         className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
       >
         Add Expense
