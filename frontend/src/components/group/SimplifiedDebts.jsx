@@ -5,42 +5,69 @@ function SimplifiedDebts({
 }) {
 
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-6">
 
-      <h2 className="text-xl font-semibold mb-4">Simplified Debts</h2>
+    <div className="glass-card p-6">
+
+      <h2 className="text-xl font-semibold mb-4">
+        Simplified Debts
+      </h2>
 
       {simplifiedDebts.length === 0 ? (
 
-        <p className="text-gray-500">All settled 🎉</p>
+        <p className="text-gray-400">
+          All settled 🎉
+        </p>
 
       ) : (
 
-        simplifiedDebts.map((txn, index) => (
+        <div className="space-y-3">
 
-          <div
-            key={index}
-            className="border rounded-lg p-3 flex justify-between items-center mb-2"
-          >
+          {simplifiedDebts.map((txn, index) => (
 
-            <span>
-              {getMemberName(txn.from)} pays {getMemberName(txn.to)} {txn.amount.toFixed(2)} ₹
-            </span>
-
-            <button
-              onClick={() => handleSettle(txn)}
-              className="bg-green-600 text-white px-3 py-1 rounded-lg"
+            <div
+              key={index}
+              className="glass-card p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 hover:-translate-y-1"
             >
-              Settle
-            </button>
 
-          </div>
+              <span className="text-gray-300">
 
-        ))
+                <span className="font-semibold text-white">
+                  {getMemberName(txn.from)}
+                </span>
+
+                {" "}pays{" "}
+
+                <span className="font-semibold text-white">
+                  {getMemberName(txn.to)}
+                </span>
+
+                {" "}
+
+                <span className="text-green-400 font-semibold">
+                  ₹{txn.amount.toFixed(2)}
+                </span>
+
+              </span>
+
+              <button
+                onClick={() => handleSettle(txn)}
+                className="gradient-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 px-4 py-2 rounded-lg text-sm"
+              >
+                Settle
+              </button>
+
+            </div>
+
+          ))}
+
+        </div>
 
       )}
 
     </div>
+
   );
+
 }
 
 export default SimplifiedDebts;

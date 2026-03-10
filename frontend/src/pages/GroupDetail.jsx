@@ -69,13 +69,12 @@ function GroupDetail() {
   };
 
   const openRemoveModal = async (member) => {
-    setMemberDetails(null); // reset old state
+
+    setMemberDetails(null);
 
     try {
 
       const res = await api.get(`/api/groups/${id}/members/${member.user_id}`);
-
-      console.log("Member details:", res.data);
 
       setMemberDetails(res.data);
       setSelectedMember(member);
@@ -94,6 +93,7 @@ function GroupDetail() {
   };
 
   const confirmDeleteGroup = async () => {
+
     try {
 
       await api.delete(`/api/groups/${id}`);
@@ -199,6 +199,7 @@ function GroupDetail() {
   };
 
   const deleteMember = async () => {
+
     try {
 
       await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
@@ -218,11 +219,12 @@ function GroupDetail() {
       }
 
     }
+
   };
 
   return (
 
-    <div className="p-8 max-w-7xl mx-auto space-y-10">
+    <div className="page-container space-y-10 fade-in">
 
       <GroupHeader
         groupInfo={groupInfo}
@@ -230,7 +232,11 @@ function GroupDetail() {
         deleteGroup={() => setShowDeleteModal(true)}
       />
 
-      <div className="grid md:grid-cols-2 gap-8">
+      {/* MAIN GRID */}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {/* LEFT COLUMN */}
 
         <div className="space-y-8">
 
@@ -257,6 +263,8 @@ function GroupDetail() {
           />
 
         </div>
+
+        {/* RIGHT COLUMN */}
 
         <div className="space-y-8">
 

@@ -42,7 +42,6 @@ function Groups() {
 
         const data = await getGroups();
 
-        // Fetch member counts
         const groupsWithMembers = await Promise.all(
 
           data.map(async (group) => {
@@ -166,33 +165,34 @@ function Groups() {
   // --------------------------------
   return (
 
-    <div className="p-8 max-w-5xl mx-auto">
+    <div className="page-container">
 
-      {/* Page Title */}
+      {/* TITLE */}
       <h1 className="text-3xl font-bold mb-8">
         Groups
       </h1>
 
-      {/* Create Group Card */}
-      <div className="bg-white border rounded-xl shadow-sm p-6 mb-8">
+      {/* CREATE GROUP */}
+
+      <div className="glass-card p-6 mb-10">
 
         <h2 className="text-lg font-semibold mb-4">
           Create New Group
         </h2>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
 
           <input
             type="text"
             placeholder="New group name"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            className="border p-2 rounded-lg flex-1"
+            className="neon-input flex-1"
           />
 
           <button
             onClick={handleCreateGroup}
-            className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 transition font-medium"
+            className="gradient-btn"
           >
             Create
           </button>
@@ -201,33 +201,35 @@ function Groups() {
 
       </div>
 
-      {/* Groups List */}
+      {/* GROUP LIST */}
+
       <div className="space-y-5">
 
         {groups.map((group) => (
 
           <div
             key={group.id}
-            className="bg-white border rounded-xl shadow-sm p-6 flex justify-between items-center hover:shadow-md transition"
+            className="glass-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:-translate-y-1"
           >
 
-            {/* Group Info */}
+            {/* GROUP INFO */}
+
             <div>
 
               <p
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="font-semibold text-lg cursor-pointer hover:text-blue-600"
+                className="font-semibold text-lg cursor-pointer hover:text-indigo-400"
               >
                 {group.name}
               </p>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-400">
                 Members: {group.memberCount}
               </p>
 
               {Number(group.created_by) === Number(currentUserId) && (
 
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-400">
                   Created by you
                 </p>
 
@@ -235,12 +237,13 @@ function Groups() {
 
             </div>
 
-            {/* Actions */}
+            {/* ACTIONS */}
+
             <div className="flex items-center gap-4">
 
               <button
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                className="gradient-btn"
               >
                 Open
               </button>
@@ -249,7 +252,7 @@ function Groups() {
 
                 <button
                   onClick={() => openDeleteModal(group.id)}
-                  className="text-red-600"
+                  className="text-red-400 hover:text-red-300 text-xl"
                 >
                   🗑
                 </button>
@@ -264,7 +267,8 @@ function Groups() {
 
       </div>
 
-      {/* Delete Group Modal */}
+      {/* DELETE MODAL */}
+
       <DeleteGroupModal
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}

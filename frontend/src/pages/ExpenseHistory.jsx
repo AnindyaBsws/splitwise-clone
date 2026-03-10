@@ -9,9 +9,11 @@ function ExpenseHistory() {
   const [history, setHistory] = useState([]);
 
   const fetchHistory = async () => {
+
     try {
 
       const res = await api.get(`/api/groups/${id}/history`);
+
       setHistory(res.data);
 
     } catch (error) {
@@ -19,6 +21,7 @@ function ExpenseHistory() {
       console.error("Error fetching history", error);
 
     }
+
   };
 
   useEffect(() => {
@@ -30,6 +33,7 @@ function ExpenseHistory() {
     try {
 
       await api.delete(`/api/groups/${id}/history`);
+
       setHistory([]);
 
       alert("Expense history deleted");
@@ -43,6 +47,7 @@ function ExpenseHistory() {
       console.error("Error deleting history", error);
 
     }
+
   };
 
   /* -----------------------------
@@ -73,75 +78,96 @@ function ExpenseHistory() {
 
   return (
 
-    <div className="p-8 max-w-4xl mx-auto">
+    <div className="page-container space-y-8 fade-in">
 
-      <h1 className="text-3xl font-bold mb-4">
+      <h1 className="text-3xl font-bold">
         Expense History
       </h1>
 
-      {/* TOTAL CONSUMPTION */}
+      {/* TOTAL SPENDING */}
 
-      <div className="bg-white border rounded-xl shadow-sm p-6 mb-6">
+      <div className="glass-card p-6">
 
-        <p className="text-gray-500 text-sm">
+        <p className="text-gray-400 text-sm">
           Total Group Spending
         </p>
 
-        <p className="text-2xl font-bold text-blue-600">
+        <p className="text-3xl font-bold text-indigo-400 mt-2">
           ₹{totalConsumption}
         </p>
 
       </div>
 
+      {/* HISTORY LIST */}
+
       {history.length === 0 ? (
 
-        <p className="text-gray-500">No expense history</p>
+        <div className="glass-card p-6 text-gray-400">
+          No expense history
+        </div>
 
       ) : (
 
-        <>
+        <div className="space-y-6">
+
           {Object.keys(groupedHistory).map((date) => (
 
-            <div key={date} className="mb-6">
+            <div key={date}>
 
               {/* DATE HEADER */}
 
-              <h2 className="text-lg font-semibold text-gray-700 mb-2">
+              <h2 className="text-lg font-semibold text-gray-300 mb-3">
                 {date}
               </h2>
 
-              {groupedHistory[date].map((h) => (
+              <div className="space-y-3">
 
-                <div
-                  key={h.id}
-                  className="p-4 border rounded bg-white shadow-sm mb-3"
-                >
-                  <p className="font-semibold">{h.title}</p>
-                  <p>Amount: ₹{h.amount}</p>
-                  <p>Paid by: {h.paid_by}</p>
-                </div>
+                {groupedHistory[date].map((h) => (
 
-              ))}
+                  <div
+                    key={h.id}
+                    className="glass-card p-4 hover:-translate-y-1"
+                  >
+
+                    <p className="font-semibold">
+                      {h.title}
+                    </p>
+
+                    <p className="text-sm text-gray-400">
+                      Amount: ₹{h.amount}
+                    </p>
+
+                    <p className="text-sm text-gray-400">
+                      Paid by: {h.paid_by}
+                    </p>
+
+                  </div>
+
+                ))}
+
+              </div>
 
             </div>
 
           ))}
 
-          {/* DELETE HISTORY BUTTON */}
+          {/* DELETE BUTTON */}
 
           <button
             onClick={handleDeleteHistory}
-            className="mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white"
           >
             Delete All History
           </button>
 
-        </>
+        </div>
+
       )}
 
     </div>
 
   );
+
 }
 
 export default ExpenseHistory;

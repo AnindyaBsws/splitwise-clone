@@ -7,7 +7,8 @@ import Groups from "../pages/Groups";
 import GroupDetail from "../pages/GroupDetail";
 import ExpenseHistory from "../pages/ExpenseHistory";
 import ManageGroup from "../pages/ManageGroup";
-import Profile from "../pages/Profile"; // NEW
+import Profile from "../pages/Profile";
+import JoinGroup from "../pages/JoinGroup"; // NEW
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
@@ -23,6 +24,9 @@ function AppRouter() {
 
         <Route path="/" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        {/* Invite join route */}
+        <Route path="/join/group/:token" element={<JoinGroup />} />
 
         {/* PROTECTED ROUTES */}
 
@@ -80,8 +84,6 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
-
-        {/* NEW PROFILE PAGE */}
 
         <Route
           path="/profile"

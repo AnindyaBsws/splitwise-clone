@@ -183,6 +183,146 @@ def add_member_by_tag(group_id):
 
 
 # --------------------------------
+# GENERATE GROUP INVITE LINK
+# --------------------------------
+@group_bp.route("/<int:group_id>/invite", methods=["POST"])
+@jwt_required()
+def generate_invite_link(group_id):
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    requester_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=requester_id
+    ).first()
+
+    if not requester_member:
+        return jsonify({"error": "You are not a member"}), 403
+
+    if requester_member.role not in ["creator", "admin"]:
+        return jsonify({
+            "error": "Only creator or admin can generate invite links"
+        }), 403
+
+    from ..models.group_invite import GroupInvite
+
+    token = GroupInvite.generate_token()
+
+    invite = GroupInvite(
+        group_id=group_id,
+        token=token,
+        created_by=requester_id
+    )
+
+    db.session.add(invite)
+    db.session.commit()
+
+    invite_link = f"http://localhost:5173/join/group/{token}"
+
+    return jsonify({
+        "invite_link": invite_link
+    })
+
+
+# --------------------------------
+# JOIN GROUP USING INVITE TOKEN
+# --------------------------------
+@group_bp.route("/join/<token>", methods=["POST"])
+@jwt_required()
+def join_group_by_invite(token):
+
+    user_id = int(get_jwt_identity())
+
+    from ..models.group_invite import GroupInvite
+
+    invite = GroupInvite.query.filter_by(
+        token=token,
+        is_active=True
+    ).first()
+
+    if not invite:
+        return jsonify({"error": "Invalid or expired invite"}), 404
+
+    group_id = invite.group_id
+
+    existing_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user_id
+    ).first()
+
+    # If already a member → just return group id
+    if existing_member:
+        return jsonify({
+            "message": "Already a member",
+            "group_id": group_id
+        })
+
+    member = GroupMember(
+        group_id=group_id,
+        user_id=user_id,
+        role="member"
+    )
+
+    db.session.add(member)
+    db.session.commit()
+
+    return jsonify({
+        "message": "Joined group successfully",
+        "group_id": group_id
+    })
+
+
+# --------------------------------
+# INVITE PREVIEW
+# --------------------------------
+@group_bp.route("/invite/<token>", methods=["GET"])
+def preview_invite(token):
+
+    from ..models.group_invite import GroupInvite
+
+    invite = GroupInvite.query.filter_by(
+        token=token,
+        is_active=True
+    ).first()
+
+    if not invite:
+        return jsonify({"error": "Invalid invite link"}), 404
+
+    group = Group.query.get(invite.group_id)
+
+    members = GroupMember.query.filter_by(
+        group_id=group.id
+    ).all()
+
+    member_list = []
+
+    for m in members:
+
+        user = User.query.get(m.user_id)
+
+        if user:
+            member_list.append({
+                "id": user.id,
+                "name": user.name
+            })
+
+    creator = User.query.get(group.created_by)
+
+    return jsonify({
+        "group_id": group.id,
+        "group_name": group.name,
+        "creator": creator.name if creator else "Unknown",
+        "members": member_list
+    })
+
+
+
+# --------------------------------
 # ADD GROUP MEMBER
 # --------------------------------
 @group_bp.route("/<int:group_id>/members", methods=["POST"])

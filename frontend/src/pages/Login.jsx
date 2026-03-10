@@ -12,17 +12,21 @@ function Login() {
   const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
     if (!email || !password) {
       alert("Please enter email and password");
       return;
     }
+
     if (!email.includes("@")) {
       alert("Enter a valid email address");
       return;
     }
 
     try {
+
       const data = await loginUser(email, password);
 
       login(data.access_token || data.token);
@@ -39,74 +43,73 @@ function Login() {
 
   return (
 
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+    <div className="min-h-screen flex items-center justify-center px-6">
 
-      {/* HEADER SECTION */}
+      {/* Login Card */}
 
-      <div className="text-center mb-8">
+      <div className="glass-card w-full max-w-md p-8 fade-in">
 
-        <h1 className="text-4xl font-bold text-blue-600 mb-2">
-          Smart Expense Tracker
-        </h1>
+        {/* Logo / Title */}
 
-        <p className="text-gray-600 max-w-md">
-          Split bills effortlessly, track group spending clearly,
-          and settle debts without awkward reminders.
-          Smart expense sharing for smarter friendships.
-        </p>
+        <div className="text-center mb-8">
 
-      </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+            Smart Expense Tracker
+          </h1>
 
-      {/* LOGIN CARD */}
+          <p className="text-gray-300 mt-2 text-sm">
+            Track shared expenses and settle debts effortlessly.
+          </p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow w-96"
-      >
+        </div>
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Login
-        </h1>
+        {/* Form */}
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 mb-4 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="space-y-4">
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="email"
+            placeholder="Email address"
+            className="neon-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <button className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
-          Login
-        </button>
+          <input
+            type="password"
+            placeholder="Password"
+            className="neon-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        {/* REGISTER LINK */}
+          <button className="gradient-btn w-full">
+            Login
+          </button>
 
-        <p className="text-sm text-center text-gray-600 mt-4">
+        </form>
+
+        {/* Register Link */}
+
+        <p className="text-center text-sm text-gray-300 mt-6">
 
           New user?{" "}
 
           <Link
             to="/register"
-            className="text-blue-600 hover:underline font-medium"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
-            Register first
+            Register here
           </Link>
 
         </p>
 
-      </form>
+      </div>
 
     </div>
+
   );
+
 }
 
 export default Login;

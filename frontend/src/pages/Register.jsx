@@ -15,13 +15,11 @@ function Register() {
 
     e.preventDefault();
 
-    // password length check
     if (password.length < 4) {
       alert("Password must be at least 4 characters");
       return;
     }
 
-    // confirm password check
     if (password !== confirmPassword) {
       alert("Passwords do not match");
       return;
@@ -37,7 +35,7 @@ function Register() {
 
       alert("Registration successful");
 
-      navigate("/"); // redirect to login
+      navigate("/");
 
     } catch (error) {
 
@@ -49,91 +47,92 @@ function Register() {
 
   return (
 
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+    <div className="min-h-screen flex items-center justify-center px-6">
 
-      {/* HEADER */}
+      {/* Register Card */}
 
-      <div className="text-center mb-8">
+      <div className="glass-card w-full max-w-md p-8 fade-in">
 
-        <h1 className="text-4xl font-bold text-blue-600 mb-2">
-          Smart Expense Tracker
-        </h1>
+        {/* Header */}
 
-        <p className="text-gray-600 max-w-md">
-          Manage group expenses, split bills instantly, and keep friendships
-          stress-free. Track every rupee transparently.
-        </p>
+        <div className="text-center mb-8">
 
-      </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+            Smart Expense Tracker
+          </h1>
 
-      {/* REGISTER CARD */}
+          <p className="text-gray-300 mt-2 text-sm">
+            Create your account and start tracking shared expenses.
+          </p>
 
-      <form
-        onSubmit={handleRegister}
-        className="bg-white p-8 rounded-lg shadow w-96"
-      >
+        </div>
 
-        <h1 className="text-2xl font-bold mb-6 text-center">
-          Register
-        </h1>
+        {/* Form */}
 
-        <input
-          type="text"
-          placeholder="Name"
-          className="w-full border p-2 mb-4 rounded"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <form onSubmit={handleRegister} className="space-y-4">
 
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 mb-4 rounded"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <input
+            type="text"
+            placeholder="Full name"
+            className="neon-input"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-4 rounded"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+          <input
+            type="email"
+            placeholder="Email address"
+            className="neon-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          className="w-full border p-2 mb-4 rounded"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />
+          <input
+            type="password"
+            placeholder="Password"
+            className="neon-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
-        <button
-          type="submit"
-          className="w-full bg-green-600 text-white p-2 rounded hover:bg-green-700"
-        >
-          Register
-        </button>
+          <input
+            type="password"
+            placeholder="Confirm password"
+            className="neon-input"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
 
-        <p className="mt-4 text-sm text-center text-gray-600">
+          <button
+            type="submit"
+            className="gradient-btn w-full"
+          >
+            Register
+          </button>
+
+        </form>
+
+        {/* Login Link */}
+
+        <p className="text-center text-sm text-gray-300 mt-6">
 
           Already have an account?{" "}
 
           <Link
-            className="text-blue-600 hover:underline font-medium"
             to="/"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
             Login
           </Link>
 
         </p>
 
-      </form>
+      </div>
 
     </div>
 
   );
+
 }
 
 export default Register;

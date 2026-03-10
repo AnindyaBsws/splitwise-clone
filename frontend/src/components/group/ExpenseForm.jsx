@@ -36,20 +36,28 @@ function ExpenseForm({
     }
 
     handleAddExpense();
+
   };
 
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-6">
 
-      <h2 className="text-xl font-semibold mb-4">Add Expense</h2>
+    <div className="glass-card p-6">
+
+      <h2 className="text-xl font-semibold mb-5">
+        Add Expense
+      </h2>
+
+      {/* TITLE */}
 
       <input
         type="text"
         placeholder="Expense title"
         value={expenseTitle}
         onChange={(e) => setExpenseTitle(e.target.value)}
-        className="border rounded-lg p-2 w-full mb-3"
+        className="w-full mb-3 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
       />
+
+      {/* AMOUNT */}
 
       <input
         type="number"
@@ -57,51 +65,78 @@ function ExpenseForm({
         value={expenseAmount}
         min="0"
         onChange={(e) => setExpenseAmount(e.target.value)}
-        className="border rounded-lg p-2 w-full mb-3"
+        className="w-full mb-3 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
       />
+
+      {/* PAYER */}
 
       <select
         value={payerId}
         onChange={(e) => setPayerId(e.target.value)}
-        className="border rounded-lg p-2 w-full mb-3"
+        className="w-full mb-4 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white"
       >
+
         <option value="">Paid by</option>
 
         {members.map((member) => (
+
           <option key={member.user_id} value={member.user_id}>
             {member.name}
           </option>
+
         ))}
 
       </select>
 
-      <div className="grid grid-cols-2 gap-2 mb-3">
+      {/* SPLIT MEMBERS */}
 
-        {members.map((member) => (
-          <label key={member.user_id} className="flex gap-2 items-center">
+      <div className="mb-4">
 
-            <input
-              type="checkbox"
-              checked={splitBetween.includes(member.user_id)}
-              onChange={() => toggleSplitUser(member.user_id)}
-            />
+        <p className="text-sm text-gray-400 mb-2">
+          Split Between
+        </p>
 
-            {member.name}
+        <div className="flex flex-wrap gap-2">
 
-          </label>
-        ))}
+          {members.map((member) => {
+
+            const selected = splitBetween.includes(member.user_id);
+
+            return (
+
+              <button
+                key={member.user_id}
+                onClick={() => toggleSplitUser(member.user_id)}
+                className={`px-3 py-1 rounded-full text-sm ${
+                  selected
+                    ? "bg-indigo-500 text-white"
+                    : "bg-white/10 text-gray-300"
+                }`}
+              >
+                {member.name}
+              </button>
+
+            );
+
+          })}
+
+        </div>
 
       </div>
 
+      {/* ADD BUTTON */}
+
       <button
         onClick={handleSubmit}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
+        className="gradient-btn w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 py-2 rounded-lg text-white"
       >
         Add Expense
       </button>
 
     </div>
+
   );
+
 }
 
 export default ExpenseForm;

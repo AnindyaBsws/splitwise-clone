@@ -9,19 +9,32 @@ function MainLayout({ children }) {
   const showBackButton = location.pathname !== "/dashboard";
 
   return (
-    <div className="min-h-screen bg-gray-100">
 
+    <div className="min-h-screen relative overflow-x-hidden">
+
+      {/* Background gradient overlay */}
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_20%_20%,#1e293b,#020617)]" />
+
+      {/* Navbar */}
       <Navbar />
 
-      <main className="p-6">
+      {/* Page Content */}
+      <main className="page-container py-6 fade-in">
 
+        {/* Back Button */}
         {showBackButton && (
-          <button
-            onClick={() => navigate(-1)}
-            className="mb-4 flex items-center text-gray-700 hover:text-black"
-          >
-            ← Back
-          </button>
+
+          <div className="mb-6">
+
+            <button
+              onClick={() => navigate(-1)}
+              className="circle-icon-btn"
+            >
+              ←
+            </button>
+
+          </div>
+
         )}
 
         {children}
@@ -29,6 +42,7 @@ function MainLayout({ children }) {
       </main>
 
     </div>
+
   );
 
 }

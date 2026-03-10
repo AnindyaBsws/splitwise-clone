@@ -2,50 +2,82 @@ import { formatCurrency } from "../../utils/formatCurrency";
 
 function BalanceList({ balances, getMemberName }) {
 
+  const entries = Object.entries(balances);
+
   return (
-    <div className="bg-white border rounded-xl shadow-sm p-6">
 
-      <h2 className="text-xl font-semibold mb-4">Balances</h2>
+    <div className="glass-card p-6">
 
-      {Object.entries(balances).map(([userId, amount]) => {
+      <h2 className="text-xl font-semibold mb-5">
+        Balances
+      </h2>
 
-        const value = Number(amount);
+      {entries.length === 0 ? (
 
-        return (
+        <p className="text-gray-400">
+          No balances yet
+        </p>
 
-          <div
-            key={userId}
-            className="border rounded-lg p-3 flex justify-between mb-2"
-          >
+      ) : (
 
-            <span>
+        <div className="space-y-3">
 
-              {value > 0 ? (
+          {entries.map(([userId, amount]) => {
 
-                <span className="text-green-600 font-semibold">
-                  {getMemberName(userId)} gets
+            const value = Number(amount);
+            const isPositive = value > 0;
+
+            return (
+
+              <div
+                key={userId}
+                className="glass-card p-4 flex justify-between items-center hover:-translate-y-1"
+              >
+
+                <span className="text-gray-300">
+
+                  <span
+                    className={`font-semibold ${
+                      isPositive
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
+
+                    {getMemberName(userId)}
+
+                  </span>
+
+                  {" "}
+
+                  {isPositive ? "gets" : "owes"}
+
                 </span>
 
-              ) : (
-
-                <span className="text-red-600 font-semibold">
-                  {getMemberName(userId)} owes
+                <span
+                  className={`font-semibold ${
+                    isPositive
+                      ? "text-green-400"
+                      : "text-red-400"
+                  }`}
+                >
+                  {formatCurrency(Math.abs(value))}
                 </span>
 
-              )}
+              </div>
 
-            </span>
+            );
 
-            <span>{formatCurrency(Math.abs(value))}</span>
+          })}
 
-          </div>
+        </div>
 
-        );
-
-      })}
+      )}
 
     </div>
+
   );
+
 }
 
 export default BalanceList;

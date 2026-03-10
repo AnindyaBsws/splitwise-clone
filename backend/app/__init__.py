@@ -4,6 +4,7 @@ from .extensions.db import db
 from .extensions.jwt import jwt
 from flask_migrate import Migrate
 from .routes.user_routes import user_bp
+from .models.group_invite import GroupInvite
 
 # Import all models so Alembic can detect them
 from .models.user import User

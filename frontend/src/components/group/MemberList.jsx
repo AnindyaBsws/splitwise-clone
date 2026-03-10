@@ -11,7 +11,7 @@ function MemberList({
 }) {
 
   if (!members || !groupInfo) {
-    return <div className="p-6">Loading members...</div>;
+    return <div className="glass-card p-6">Loading members...</div>;
   }
 
   const [openMenu, setOpenMenu] = useState(null);
@@ -26,12 +26,14 @@ function MemberList({
 
   const isAdmin = currentUser?.role === "admin";
 
-  // Close dropdown when clicking outside
   useEffect(() => {
+
     const handleClickOutside = (event) => {
+
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setOpenMenu(null);
       }
+
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -39,6 +41,7 @@ function MemberList({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+
   }, []);
 
   const updateRole = async (userId, role) => {
@@ -75,7 +78,6 @@ function MemberList({
     return avatarColors[index];
   };
 
-  // Sort members: Creator → Admin → Member
   const sortedMembers = [...members].sort((a, b) => {
 
     const rolePriority = {
@@ -88,156 +90,171 @@ function MemberList({
       return rolePriority[a.role] - rolePriority[b.role];
     }
 
-    // fallback alphabetical
     return a.name.localeCompare(b.name);
 
   });
 
   return (
 
-    <div className="bg-white border rounded-xl shadow-sm p-6">
+    <div className="glass-card p-6">
 
-      <h2 className="text-xl font-semibold mb-4">Members</h2>
+      <h2 className="text-xl font-semibold mb-5">
+        Members
+      </h2>
 
-      {sortedMembers.map((member) => {
+      <div className="space-y-3">
 
-        const isCreatorMember = member.role === "creator";
+        {sortedMembers.map((member) => {
 
-        return (
+          const isCreatorMember = member.role === "creator";
 
-          <div
-            key={member.user_id}
-            className="flex justify-between items-center border rounded-lg p-3 mb-2"
-          >
+          return (
 
-            {/* LEFT SIDE */}
+            <div
+              key={member.user_id}
+              className="glass-card p-4 flex justify-between items-center hover:-translate-y-1"
+            >
 
-            <div className="flex items-center gap-3">
+              {/* LEFT SIDE */}
 
-              <div
-                className={`${getAvatarColor(member.name)} text-white rounded-full w-8 h-8 flex items-center justify-center`}
-              >
-                {member.name[0].toUpperCase()}
-              </div>
+              <div className="flex items-center gap-3">
 
-              <div className="flex flex-col">
-
-                <div className="font-medium">
-                  {member.name}
-                </div>
-
-                <div className="mt-1">
-
-                  {member.role === "creator" && (
-                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
-                      Creator
-                    </span>
-                  )}
-
-                  {member.role === "admin" && (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                      Admin
-                    </span>
-                  )}
-
-                  {member.role === "member" && (
-                    <span className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
-                      Member
-                    </span>
-                  )}
-
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* ACTION MENU */}
-
-            {(isCreator || isAdmin) &&
-              member.role !== "creator" &&
-              member.user_id !== currentUserId && (
-
-              <div className="relative">
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenMenu(
-                      openMenu === member.user_id
-                        ? null
-                        : member.user_id
-                    );
-                  }}
-                  className="text-gray-600 hover:text-black text-lg"
+                <div
+                  className={`${getAvatarColor(member.name)} text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold`}
                 >
-                  ⋮
-                </button>
+                  {member.name[0].toUpperCase()}
+                </div>
 
-                {openMenu === member.user_id && (
+                <div className="flex flex-col">
 
-                  <div
-                    ref={menuRef}
-                    className="absolute right-0 mt-2 w-44 bg-white border rounded-lg shadow-md z-20"
-                  >
+                  <div className="font-medium text-white">
+                    {member.name}
+                  </div>
 
-                    {isCreator && !isCreatorMember && (
+                  <div className="mt-1 flex gap-2">
 
-                      member.role === "admin" ? (
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateRole(member.user_id, "member");
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Demote to Member
-                        </button>
-
-                      ) : (
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            updateRole(member.user_id, "admin");
-                          }}
-                          className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100"
-                        >
-                          Promote to Admin
-                        </button>
-
-                      )
+                    {member.role === "creator" && (
+                      <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
+                        Creator
+                      </span>
                     )}
 
-                    {(isCreator || isAdmin) && (
+                    {member.role === "admin" && (
+                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">
+                        Admin
+                      </span>
+                    )}
 
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openRemoveModal(member);
-                          setOpenMenu(null);
-                        }}
-                        className="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                      >
-                        Remove Member
-                      </button>
-
+                    {member.role === "member" && (
+                      <span className="text-xs bg-gray-500/20 text-gray-300 px-2 py-1 rounded-full">
+                        Member
+                      </span>
                     )}
 
                   </div>
 
-                )}
+                </div>
 
               </div>
 
-            )}
+              {/* ACTION MENU */}
 
-          </div>
+              {(isCreator || isAdmin) &&
+                member.role !== "creator" &&
+                member.user_id !== currentUserId && (
 
-        );
+                <div className="relative">
 
-      })}
+                  <button
+                    onClick={(e) => {
+
+                      e.stopPropagation();
+
+                      setOpenMenu(
+                        openMenu === member.user_id
+                          ? null
+                          : member.user_id
+                      );
+
+                    }}
+                    className="text-gray-400 hover:text-white text-lg"
+                  >
+                    ⋮
+                  </button>
+
+                  {openMenu === member.user_id && (
+
+                    <div
+                      ref={menuRef}
+                      className="absolute right-0 mt-2 w-44 glass-card z-20"
+                    >
+
+                      {isCreator && !isCreatorMember && (
+
+                        member.role === "admin" ? (
+
+                          <button
+                            onClick={(e) => {
+
+                              e.stopPropagation();
+                              updateRole(member.user_id, "member");
+
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                          >
+                            Demote to Member
+                          </button>
+
+                        ) : (
+
+                          <button
+                            onClick={(e) => {
+
+                              e.stopPropagation();
+                              updateRole(member.user_id, "admin");
+
+                            }}
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-white/10"
+                          >
+                            Promote to Admin
+                          </button>
+
+                        )
+
+                      )}
+
+                      {(isCreator || isAdmin) && (
+
+                        <button
+                          onClick={(e) => {
+
+                            e.stopPropagation();
+                            openRemoveModal(member);
+                            setOpenMenu(null);
+
+                          }}
+                          className="block w-full text-left px-4 py-2 text-red-400 hover:bg-white/10"
+                        >
+                          Remove Member
+                        </button>
+
+                      )}
+
+                    </div>
+
+                  )}
+
+                </div>
+
+              )}
+
+            </div>
+
+          );
+
+        })}
+
+      </div>
 
     </div>
 

@@ -16,15 +16,12 @@ function ManageGroup() {
   const navigate = useNavigate();
 
   const {
-    allUsers,
     groupInfo,
     members,
     fetchMembers
   } = useGroupData(id);
 
   const currentUserId = getCurrentUserId();
-
-  const [newMemberId, setNewMemberId] = useState("");
 
   const [selectedMember, setSelectedMember] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -33,8 +30,10 @@ function ManageGroup() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
+  const [inviteLink, setInviteLink] = useState("");
+
   if (!members || !groupInfo) {
-    return <div className="p-8">Loading group...</div>;
+    return <div className="page-container">Loading group...</div>;
   }
 
   const currentUser = members.find(
@@ -47,18 +46,13 @@ function ManageGroup() {
   const isAdmin =
     currentUser?.role === "admin";
 
-  const availableUsers = allUsers.filter(
-    (user) => !members.some((member) => member.user_id === user.user_id)
-  );
-
-
   const openRemoveModal = (member) => {
 
     setMemberDetails(member);
     setSelectedMember(member);
     setShowRemoveModal(true);
 
-    };
+  };
 
   const deleteMember = async () => {
 
@@ -118,23 +112,68 @@ function ManageGroup() {
 
   };
 
-  const handleAddMember = async () => {
+  // ---------------- INVITE ----------------
 
-    if (!newMemberId.trim()) return;
+  const generateInviteLink = async () => {
 
-    await api.post(`/api/groups/${id}/members`, {
-      user_id: Number(newMemberId)
-    });
+    try {
 
-    setNewMemberId("");
+      const res = await api.post(`/api/groups/${id}/invite`);
 
-    fetchMembers();
+      setInviteLink(res.data.invite_link);
+
+    } catch {
+
+      alert("Failed to generate invite link");
+
+    }
+
+  };
+
+  const copyInviteLink = async () => {
+
+    if (!inviteLink) {
+      await generateInviteLink();
+    }
+
+    navigator.clipboard.writeText(inviteLink);
+
+    alert("Invite link copied");
+
+  };
+
+  const shareWhatsApp = async () => {
+
+    if (!inviteLink) {
+      await generateInviteLink();
+    }
+
+    const message = `Join my expense group: ${inviteLink}`;
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
+
+  };
+
+  const shareEmail = async () => {
+
+    if (!inviteLink) {
+      await generateInviteLink();
+    }
+
+    const subject = "Join my expense group";
+    const body = `Join my expense group using this link:\n\n${inviteLink}`;
+
+    window.location.href =
+      `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
   };
 
   return (
 
-    <div className="p-8 max-w-5xl mx-auto space-y-8">
+    <div className="page-container space-y-10 fade-in">
 
       <h1 className="text-3xl font-bold">
         Manage Group
@@ -150,36 +189,79 @@ function ManageGroup() {
       />
 
       {(isCreator || isAdmin) && (
+
         <AddMember
-          newMemberId={newMemberId}
-          setNewMemberId={setNewMemberId}
-          availableUsers={availableUsers}
-          handleAddMember={handleAddMember}
+          groupId={id}
+          fetchMembers={fetchMembers}
         />
+
       )}
 
-      <div className="bg-white border rounded-xl shadow-sm p-6">
+      {/* INVITE SECTION */}
 
-        <h2 className="text-xl font-semibold text-red-600 mb-4">
+      {(isCreator || isAdmin) && (
+
+        <div className="glass-card p-6">
+
+          <h2 className="text-xl font-semibold mb-4">
+            Invite Others
+          </h2>
+
+          <div className="flex flex-wrap gap-3">
+
+            <button
+              onClick={copyInviteLink}
+              className="gradient-btn"
+            >
+              Copy Invite Link
+            </button>
+
+            <button
+              onClick={shareWhatsApp}
+              className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-400 text-white"
+            >
+              WhatsApp
+            </button>
+
+            <button
+              onClick={shareEmail}
+              className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white"
+            >
+              Email
+            </button>
+
+          </div>
+
+        </div>
+
+      )}
+
+      {/* DANGER ZONE */}
+
+      <div className="glass-card p-6 border border-red-400/40">
+
+        <h2 className="text-xl font-semibold text-red-400 mb-4">
           Danger Zone
         </h2>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
 
           <button
             onClick={handleLeaveGroup}
-            className="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700"
+            className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-white"
           >
             Leave Group
           </button>
 
           {isCreator && (
+
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+              className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white"
             >
               Delete Group
             </button>
+
           )}
 
         </div>
