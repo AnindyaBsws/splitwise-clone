@@ -43,7 +43,12 @@ function Navbar() {
 
       <div className="flex items-center gap-4">
 
-        <span className="text-gray-600">👤 {userName}</span>
+        <Link
+          to="/profile"
+          className="text-gray-600 hover:text-blue-600"
+        >
+          👤 {userName}
+        </Link>
 
         <button
           onClick={handleLogout}

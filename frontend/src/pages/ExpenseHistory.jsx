@@ -12,7 +12,6 @@ function ExpenseHistory() {
     try {
 
       const res = await api.get(`/api/groups/${id}/history`);
-
       setHistory(res.data);
 
     } catch (error) {
@@ -26,14 +25,11 @@ function ExpenseHistory() {
     fetchHistory();
   }, []);
 
-  // DELETE HISTORY FUNCTION
   const handleDeleteHistory = async () => {
 
     try {
 
       await api.delete(`/api/groups/${id}/history`);
-
-      // clear UI
       setHistory([]);
 
       alert("Expense history deleted");
@@ -49,11 +45,53 @@ function ExpenseHistory() {
     }
   };
 
+  /* -----------------------------
+     Calculate total consumption
+  ----------------------------- */
+
+  const totalConsumption = history.reduce((sum, h) => {
+    return sum + Number(h.amount);
+  }, 0);
+
+  /* -----------------------------
+     Group history by date
+  ----------------------------- */
+
+  const groupedHistory = history.reduce((acc, h) => {
+
+    const date = new Date(h.created_at).toLocaleDateString();
+
+    if (!acc[date]) {
+      acc[date] = [];
+    }
+
+    acc[date].push(h);
+
+    return acc;
+
+  }, {});
+
   return (
 
-    <div className="p-8">
+    <div className="p-8 max-w-4xl mx-auto">
 
-      <h1 className="text-3xl font-bold mb-6">Expense History</h1>
+      <h1 className="text-3xl font-bold mb-4">
+        Expense History
+      </h1>
+
+      {/* TOTAL CONSUMPTION */}
+
+      <div className="bg-white border rounded-xl shadow-sm p-6 mb-6">
+
+        <p className="text-gray-500 text-sm">
+          Total Group Spending
+        </p>
+
+        <p className="text-2xl font-bold text-blue-600">
+          ₹{totalConsumption}
+        </p>
+
+      </div>
 
       {history.length === 0 ? (
 
@@ -62,20 +100,35 @@ function ExpenseHistory() {
       ) : (
 
         <>
-          {history.map((h) => (
+          {Object.keys(groupedHistory).map((date) => (
 
-            <div
-              key={h.id}
-              className="p-4 border rounded bg-white shadow-sm mb-3"
-            >
-              <p className="font-semibold">{h.title}</p>
-              <p>Amount: ₹{h.amount}</p>
-              <p>Paid by: {h.paid_by}</p>
+            <div key={date} className="mb-6">
+
+              {/* DATE HEADER */}
+
+              <h2 className="text-lg font-semibold text-gray-700 mb-2">
+                {date}
+              </h2>
+
+              {groupedHistory[date].map((h) => (
+
+                <div
+                  key={h.id}
+                  className="p-4 border rounded bg-white shadow-sm mb-3"
+                >
+                  <p className="font-semibold">{h.title}</p>
+                  <p>Amount: ₹{h.amount}</p>
+                  <p>Paid by: {h.paid_by}</p>
+                </div>
+
+              ))}
+
             </div>
 
           ))}
 
           {/* DELETE HISTORY BUTTON */}
+
           <button
             onClick={handleDeleteHistory}
             className="mt-6 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"

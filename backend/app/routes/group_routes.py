@@ -535,3 +535,88 @@ def clear_current_expenses(group_id):
     return jsonify({
         "message": "Current expenses moved to history and cleared"
     })
+
+# --------------------------------
+# GET EXPENSE HISTORY
+# --------------------------------
+@group_bp.route("/<int:group_id>/history", methods=["GET"])
+@jwt_required()
+def get_expense_history(group_id):
+
+    histories = ExpenseHistory.query.filter_by(group_id=group_id).all()
+
+    result = []
+
+    for h in histories:
+
+        user = User.query.get(h.paid_by)
+
+        result.append({
+            "id": h.id,
+            "title": h.title,
+            "amount": h.amount,
+            "paid_by": user.name if user else "Unknown",
+            "created_at": h.created_at
+        })
+
+    return jsonify(result)
+
+from datetime import datetime, timedelta
+
+
+# --------------------------------
+# DELETE OLD HISTORY
+# --------------------------------
+@group_bp.route("/<int:group_id>/history/old", methods=["DELETE"])
+@jwt_required()
+def delete_old_history(group_id):
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if group.created_by != requester_id:
+        return jsonify({
+            "error": "Only creator can delete history"
+        }), 403
+
+    one_day_ago = datetime.utcnow() - timedelta(days=1)
+
+    ExpenseHistory.query.filter(
+        ExpenseHistory.group_id == group_id,
+        ExpenseHistory.created_at < one_day_ago
+    ).delete()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "Old history deleted"
+    })
+
+# --------------------------------
+# DELETE ALL HISTORY
+# --------------------------------
+@group_bp.route("/<int:group_id>/history", methods=["DELETE"])
+@jwt_required()
+def delete_all_history(group_id):
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    # Only creator can delete history
+    if group.created_by != requester_id:
+        return jsonify({
+            "error": "Only creator can delete history"
+        }), 403
+
+    ExpenseHistory.query.filter_by(group_id=group_id).delete()
+
+    db.session.commit()
+
+    return jsonify({
+        "message": "All expense history deleted"
+    })

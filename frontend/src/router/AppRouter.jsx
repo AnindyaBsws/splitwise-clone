@@ -7,6 +7,7 @@ import Groups from "../pages/Groups";
 import GroupDetail from "../pages/GroupDetail";
 import ExpenseHistory from "../pages/ExpenseHistory";
 import ManageGroup from "../pages/ManageGroup";
+import Profile from "../pages/Profile"; // NEW
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
@@ -75,6 +76,19 @@ function AppRouter() {
             <ProtectedRoute>
               <MainLayout>
                 <ExpenseHistory />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* NEW PROFILE PAGE */}
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Profile />
               </MainLayout>
             </ProtectedRoute>
           }
