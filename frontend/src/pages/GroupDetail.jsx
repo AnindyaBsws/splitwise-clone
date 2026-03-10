@@ -260,20 +260,6 @@ function GroupDetail() {
 
         <div className="space-y-8">
 
-          <MemberList
-            members={members}
-            groupInfo={groupInfo}
-            currentUserId={currentUserId}
-            openRemoveModal={openRemoveModal}
-          />
-
-          <AddMember
-            newMemberId={newMemberId}
-            setNewMemberId={setNewMemberId}
-            availableUsers={availableUsers}
-            handleAddMember={handleAddMember}
-          />
-
           <BalanceList
             balances={balances}
             getMemberName={getMemberName}

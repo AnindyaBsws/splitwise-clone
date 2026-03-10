@@ -6,6 +6,7 @@ import Dashboard from "../pages/Dashboard";
 import Groups from "../pages/Groups";
 import GroupDetail from "../pages/GroupDetail";
 import ExpenseHistory from "../pages/ExpenseHistory";
+import ManageGroup from "../pages/ManageGroup";
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
@@ -52,6 +53,17 @@ function AppRouter() {
             <ProtectedRoute>
               <MainLayout>
                 <GroupDetail />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/:id/manage"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ManageGroup />
               </MainLayout>
             </ProtectedRoute>
           }

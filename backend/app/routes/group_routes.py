@@ -174,6 +174,8 @@ def add_member(group_id):
 @jwt_required()
 def get_members(group_id):
 
+    group = Group.query.get(group_id)
+
     members = GroupMember.query.filter_by(group_id=group_id).all()
 
     result = []
@@ -183,10 +185,18 @@ def get_members(group_id):
         user = User.query.get(m.user_id)
 
         if user:
+
+            role = m.role
+
+            # Force creator role
+            if user.id == group.created_by:
+                role = "creator"
+
             result.append({
                 "user_id": user.id,
                 "name": user.name,
-                "email": user.email
+                "email": user.email,
+                "role": role
             })
 
     return jsonify(result)
@@ -443,6 +453,47 @@ def leave_group(group_id):
 
     return jsonify({
         "message": "You have left the group successfully"
+    })
+
+
+# --------------------------------
+# ROLE UPDATE
+# --------------------------------
+@group_bp.route("/<int:group_id>/members/<int:user_id>/role", methods=["PUT"])
+@jwt_required()
+def update_member_role(group_id, user_id):
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    # only creator can change roles
+    if group.created_by != requester_id:
+        return jsonify({"error": "Only creator can change roles"}), 403
+
+    member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user_id
+    ).first()
+
+    if not member:
+        return jsonify({"error": "Member not found"}), 404
+
+    data = request.json
+    role = data.get("role")
+
+    if role not in ["admin", "member"]:
+        return jsonify({"error": "Invalid role"}), 400
+
+    member.role = role
+
+    db.session.commit()
+
+    return jsonify({
+        "message": f"Role updated to {role}"
     })
 
 
