@@ -1,20 +1,38 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 import useAuth from "../hooks/useAuth";
 
 function Profile() {
 
-  const { token } = useAuth();
+  const [user, setUser] = useState(null);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
 
-  let name = "User";
-  let email = "";
+  useEffect(() => {
 
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      name = payload.name || "User";
-      email = payload.email || "";
-    } catch (error) {
-      console.error("Token decode failed:", error);
-    }
+    const fetchUser = async () => {
+
+      try {
+        const res = await api.get("/api/users/me");
+        setUser(res.data);
+      } catch (error) {
+        console.error("Failed to load profile", error);
+      }
+
+    };
+
+    fetchUser();
+
+  }, []);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  if (!user) {
+    return <p className="text-center mt-10">Loading...</p>;
   }
 
   return (
@@ -29,14 +47,30 @@ function Profile() {
 
         <div>
           <p className="text-gray-500 text-sm">Name</p>
-          <p className="text-lg font-medium">{name}</p>
+          <p className="text-lg font-medium">{user.name}</p>
         </div>
 
         <div>
           <p className="text-gray-500 text-sm">Email</p>
-          <p className="text-lg font-medium">{email || "Not available"}</p>
+          <p className="text-lg font-medium">{user.email}</p>
         </div>
 
+        <div>
+          <p className="text-gray-500 text-sm">User Tag</p>
+          <p className="text-lg font-medium text-blue-600">
+            {user.user_tag}
+          </p>
+        </div>
+
+      </div>
+
+      <div className="mt-8">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white px-5 py-2 rounded-lg"
+        >
+          Logout
+        </button>
       </div>
 
     </div>

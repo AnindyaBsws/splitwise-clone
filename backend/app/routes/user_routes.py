@@ -41,6 +41,7 @@ def get_users():
         result.append({
             "user_id": user.id,
             "name": user.name,
+            "user_tag": user.user_tag,
             "groups": groups
         })
 
@@ -131,4 +132,26 @@ def user_balances():
         "you_owe": you_owe,
         "you_are_owed": you_are_owed,
         "net_balance": net_balance
+    })
+
+
+# --------------------------------
+# GET CURRENT USER PROFILE
+# --------------------------------
+@user_bp.route("/me", methods=["GET"])
+@jwt_required()
+def get_me():
+
+    user_id = get_jwt_identity()
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "user_tag": user.user_tag
     })

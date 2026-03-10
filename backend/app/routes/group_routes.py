@@ -70,22 +70,29 @@ def create_group():
 
 
 # --------------------------------
-# GET GROUPS
+# GET GROUPS (ONLY USER'S GROUPS)
 # --------------------------------
 @group_bp.route("", methods=["GET"])
 @jwt_required()
 def get_groups():
 
-    groups = Group.query.all()
+    user_id = int(get_jwt_identity())
+
+    memberships = GroupMember.query.filter_by(user_id=user_id).all()
 
     result = []
 
-    for g in groups:
-        result.append({
-            "id": g.id,
-            "name": g.name,
-            "created_by": g.created_by
-        })
+    for m in memberships:
+
+        group = Group.query.get(m.group_id)
+
+        if group:
+
+            result.append({
+                "id": group.id,
+                "name": group.name,
+                "created_by": group.created_by
+            })
 
     return jsonify(result)
 
@@ -110,6 +117,68 @@ def get_group(group_id):
         "created_by": group.created_by,
         "creator_name": creator.name,
         "created_at": group.created_at
+    })
+
+# --------------------------------
+# ADD MEMBER BY USER TAG
+# --------------------------------
+@group_bp.route("/<int:group_id>/add-by-tag", methods=["POST"])
+@jwt_required()
+def add_member_by_tag(group_id):
+
+    requester_id = int(get_jwt_identity())
+
+    data = request.json
+    user_tag = data.get("user_tag")
+
+    if not user_tag:
+        return jsonify({"error": "User tag is required"}), 400
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    requester_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=requester_id
+    ).first()
+
+    if not requester_member:
+        return jsonify({"error": "You are not a member of this group"}), 403
+
+    if requester_member.role not in ["creator", "admin"]:
+        return jsonify({"error": "Only creator or admin can add members"}), 403
+
+    # find user by tag
+    user = User.query.filter_by(user_tag=user_tag).first()
+
+    if not user:
+        return jsonify({"error": "User tag not found"}), 404
+
+    # prevent adding self
+    if user.id == requester_id:
+        return jsonify({"error": "You cannot add yourself"}), 400
+
+    existing_member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=user.id
+    ).first()
+
+    if existing_member:
+        return jsonify({"error": "User already in group"}), 400
+
+    member = GroupMember(
+        group_id=group_id,
+        user_id=user.id,
+        role="member"
+    )
+
+    db.session.add(member)
+    db.session.commit()
+
+    return jsonify({
+        "message": f"{user.name} added successfully"
     })
 
 
