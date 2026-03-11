@@ -61,46 +61,61 @@ function JoinGroup() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+        <p className="text-lg">Loading invite...</p>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="p-8 text-center text-red-600">
-        {error}
+      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center">
+
+          <h2 className="text-xl font-semibold mb-3">
+            Invite Error
+          </h2>
+
+          <p className="text-red-400">
+            {error}
+          </p>
+
+        </div>
+
       </div>
     );
   }
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
 
-      <div className="bg-white border rounded-xl shadow-sm p-8 w-[450px]">
+      <div className="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-8 w-[420px]">
 
-        <h1 className="text-2xl font-bold text-center mb-4">
+        <h1 className="text-2xl font-bold text-center mb-2">
           {group.group_name}
         </h1>
 
-        <p className="text-gray-600 text-center mb-4">
-          Created by {group.creator}
+        <p className="text-gray-400 text-center mb-6">
+          Created by <span className="text-white">{group.creator}</span>
         </p>
 
+        <div className="border border-slate-700 rounded-lg p-4 mb-6 bg-slate-900">
 
-        <div className="border rounded-lg p-4 mb-6">
-
-          <h2 className="font-semibold mb-2">
+          <h2 className="font-semibold mb-3 text-gray-300">
             Members
           </h2>
 
           {group.members?.length > 0 ? (
             group.members.map((m) => (
-              <div key={m.id} className="text-gray-700">
+              <div key={m.id} className="text-gray-400">
                 • {m.name}
               </div>
             ))
           ) : (
-            <p className="text-gray-400 text-sm">
+            <p className="text-gray-500 text-sm">
               No members found
             </p>
           )}
@@ -109,7 +124,7 @@ function JoinGroup() {
 
         <button
           onClick={handleJoin}
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
+          className="w-full bg-blue-600 hover:bg-blue-700 transition py-2 rounded-lg font-semibold"
         >
           Join Group
         </button>
