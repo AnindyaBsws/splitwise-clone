@@ -4,6 +4,8 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 });
 
+
+// Attach JWT token automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -18,5 +20,24 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+
+// Handle unauthorized / expired token
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+
+    if (error.response?.status === 401) {
+      console.warn("Unauthorized request. Logging out...");
+
+      localStorage.removeItem("token");
+
+      window.location.href = "/";
+    }
+
+    return Promise.reject(error);
+  }
+);
+
 
 export default api;
