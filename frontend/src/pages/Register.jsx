@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
@@ -10,6 +10,12 @@ function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Redirect if already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) navigate("/dashboard");
+  }, []);
 
   const handleRegister = async (e) => {
 
@@ -35,7 +41,7 @@ function Register() {
 
       alert("Registration successful");
 
-      navigate("/");
+      navigate("/login");
 
     } catch (error) {
 
@@ -119,7 +125,7 @@ function Register() {
           Already have an account?{" "}
 
           <Link
-            to="/"
+            to="/login"
             className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
             Login

@@ -8,7 +8,9 @@ import GroupDetail from "../pages/GroupDetail";
 import ExpenseHistory from "../pages/ExpenseHistory";
 import ManageGroup from "../pages/ManageGroup";
 import Profile from "../pages/Profile";
-import JoinGroup from "../pages/JoinGroup"; // NEW
+import JoinGroup from "../pages/JoinGroup"; 
+import Landing from "../pages/Landing"; //New
+import NotFound from "../pages/NotFound"; //New
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
@@ -22,7 +24,8 @@ function AppRouter() {
 
         {/* PUBLIC ROUTES */}
 
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
         {/* Invite join route */}
@@ -95,6 +98,8 @@ function AppRouter() {
             </ProtectedRoute>
           }
         />
+
+        <Route path="*" element={<NotFound />} />
 
       </Routes>
 
