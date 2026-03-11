@@ -182,6 +182,8 @@ def add_member_by_tag(group_id):
     })
 
 
+import os
+
 # --------------------------------
 # GENERATE GROUP INVITE LINK
 # --------------------------------
@@ -222,7 +224,9 @@ def generate_invite_link(group_id):
     db.session.add(invite)
     db.session.commit()
 
-    invite_link = f"http://localhost:5173/join/group/{token}"
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    invite_link = f"{FRONTEND_URL}/join/group/{token}"
 
     return jsonify({
         "invite_link": invite_link

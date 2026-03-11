@@ -86,17 +86,24 @@ function JoinGroup() {
           Created by {group.creator}
         </p>
 
+
         <div className="border rounded-lg p-4 mb-6">
 
           <h2 className="font-semibold mb-2">
             Members
           </h2>
 
-          {group.members.map((m) => (
-            <div key={m.id} className="text-gray-700">
-              • {m.name}
-            </div>
-          ))}
+          {group.members?.length > 0 ? (
+            group.members.map((m) => (
+              <div key={m.id} className="text-gray-700">
+                • {m.name}
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-400 text-sm">
+              No members found
+            </p>
+          )}
 
         </div>
 
