@@ -26,7 +26,6 @@ function GroupDetail() {
     expenses,
     balances,
     simplifiedDebts,
-
     fetchMembers,
     fetchExpenses,
     fetchBalances,
@@ -49,17 +48,8 @@ function GroupDetail() {
   const [splitBetween, setSplitBetween] = useState([]);
 
   const currentUserId = getCurrentUserId();
-  // Prevent UI from rendering before group data arrives
-  if (loading) {
-    return (
-      <div className="page-container">
-        <div className="glass-card p-8 text-center text-gray-300">
-          Loading group...
-        </div>
-      </div>
-    );
-  }
 
+  //Hooks First
   const allSettled = useMemo(() => {
     return (
       Object.values(balances).length > 0 &&
@@ -228,6 +218,17 @@ function GroupDetail() {
     }
 
   };
+
+  // Prevent UI from rendering before group data arrives
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="glass-card p-8 text-center text-gray-300">
+          Loading group...
+        </div>
+      </div>
+    );
+  }
 
   return (
 
