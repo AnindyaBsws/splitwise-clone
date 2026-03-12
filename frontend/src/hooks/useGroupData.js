@@ -16,11 +16,6 @@ function useGroupData(id) {
     setMembers(res.data);
   };
 
-  const fetchUsers = async () => {
-    const res = await api.get("/api/users/");
-    setAllUsers(res.data);
-  };
-
   const fetchExpenses = async () => {
     const res = await api.get(`/api/expenses/group/${id}`);
     setExpenses(res.data);
@@ -36,13 +31,8 @@ function useGroupData(id) {
     setSimplifiedDebts(res.data);
   };
 
-  const fetchGroupInfo = async () => {
-    const res = await api.get(`/api/groups/${id}`);
-    setGroupInfo(res.data);
-  };
-
   useEffect(() => {
-
+    if (!id) return;
     const fetchAllData = async () => {
 
       setLoading(true);
