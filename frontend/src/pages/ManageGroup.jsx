@@ -131,29 +131,62 @@ function ManageGroup() {
   };
 
   const copyInviteLink = async () => {
+    try {
 
-    if (!inviteLink) {
-      await generateInviteLink();
+      let link = inviteLink;
+
+      if (!link) {
+        const res = await api.post(`/api/groups/${id}/invite`);
+        link = res.data.invite_link;
+        setInviteLink(link);
+      }
+
+      await navigator.clipboard.writeText(link);
+
+      alert("Invite link copied");
+
+    } catch {
+
+      alert("Failed to copy invite link");
+
     }
-
-    navigator.clipboard.writeText(inviteLink);
-
-    alert("Invite link copied");
 
   };
 
   const shareWhatsApp = async () => {
+    try {
 
-    if (!inviteLink) {
-      await generateInviteLink();
+      let link = inviteLink;
+
+      if (!link) {
+        const res = await api.post(`/api/groups/${id}/invite`);
+        link = res.data.invite_link;
+        setInviteLink(link);
+      }
+
+      const registerLink = `${window.location.origin}/register`;
+
+      const message = `📊 Smart Expense Tracker
+
+  Split expenses easily with friends and never lose track of who paid.
+
+  👉 Join my group:
+  ${link}
+
+  🆕 Not registered yet?
+  Create your account:
+  ${registerLink}`;
+
+      window.open(
+        `https://wa.me/?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
+
+    } catch {
+
+      alert("Failed to generate invite link");
+
     }
-
-    const message = `Join my expense group: ${inviteLink}`;
-
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
 
   };
 
