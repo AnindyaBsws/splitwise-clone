@@ -70,4 +70,6 @@ function SimplifiedDebts({
 
 }
 
-export default SimplifiedDebts;
+import React from "react";
+
+export default React.memo(SimplifiedDebts);

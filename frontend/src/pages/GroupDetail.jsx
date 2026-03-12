@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 import useGroupData from "../hooks/useGroupData";
 import getCurrentUserId from "../utils/getCurrentUserId";
@@ -8,8 +8,6 @@ import api from "../api/axios";
 import GroupHeader from "../components/group/GroupHeader";
 import ExpenseForm from "../components/group/ExpenseForm";
 import ExpenseList from "../components/group/ExpenseList";
-import MemberList from "../components/group/MemberList";
-import AddMember from "../components/group/AddMember";
 import BalanceList from "../components/group/BalanceList";
 import SimplifiedDebts from "../components/group/SimplifiedDebts";
 import RemoveMemberModal from "../components/group/RemoveMemberModal";
@@ -22,7 +20,7 @@ function GroupDetail() {
 
   const {
 
-    allUsers,
+    loading,
     groupInfo,
     members,
     expenses,
@@ -51,14 +49,23 @@ function GroupDetail() {
   const [splitBetween, setSplitBetween] = useState([]);
 
   const currentUserId = getCurrentUserId();
+  // Prevent UI from rendering before group data arrives
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="glass-card p-8 text-center text-gray-300">
+          Loading group...
+        </div>
+      </div>
+    );
+  }
 
-  const availableUsers = allUsers.filter(
-    (user) => !members.some((member) => member.user_id === user.user_id)
-  );
-
-  const allSettled =
-    Object.values(balances).length > 0 &&
-    Object.values(balances).every((b) => Math.abs(Number(b)) <= 0.01);
+  const allSettled = useMemo(() => {
+    return (
+      Object.values(balances).length > 0 &&
+      Object.values(balances).every((b) => Math.abs(Number(b)) <= 0.01)
+    );
+  }, [balances]);
 
   const getMemberName = (userId) => {
 

@@ -89,4 +89,6 @@ function ExpenseList({
 
 }
 
-export default ExpenseList;
+import React from "react";
+
+export default React.memo(ExpenseList);

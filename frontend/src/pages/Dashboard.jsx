@@ -25,23 +25,49 @@ export default function Dashboard() {
 
       setGroupCount(groups.length);
 
+      if (groups.length === 0) {
+        setRecentExpenses([]);
+        setYouOwe(0);
+        setYouAreOwed(0);
+        return;
+      }
+
+      /* ---------- FETCH BALANCES IN PARALLEL ---------- */
+
+      const balanceRequests = groups.map((group) =>
+        api.get(`/api/groups/${group.id}/balances`)
+      );
+
+      const balanceResponses = await Promise.all(balanceRequests);
+
       let totalOwe = 0;
       let totalOwed = 0;
 
-      let allExpenses = [];
+      balanceResponses.forEach((res) => {
 
-      for (const group of groups) {
-
-        const balanceRes = await api.get(`/api/groups/${group.id}/balances`);
-        const balances = balanceRes.data;
+        const balances = res.data;
 
         const userBalance = Number(balances[currentUserId] || 0);
 
         if (userBalance < 0) totalOwe += Math.abs(userBalance);
         if (userBalance > 0) totalOwed += userBalance;
 
-        const expenseRes = await api.get(`/api/expenses/group/${group.id}`);
-        const expenses = expenseRes.data;
+      });
+
+      /* ---------- FETCH EXPENSES IN PARALLEL ---------- */
+
+      const expenseRequests = groups.map((group) =>
+        api.get(`/api/expenses/group/${group.id}`)
+      );
+
+      const expenseResponses = await Promise.all(expenseRequests);
+
+      let allExpenses = [];
+
+      expenseResponses.forEach((res, index) => {
+
+        const group = groups[index];
+        const expenses = res.data;
 
         const formattedExpenses = expenses.map((exp) => ({
           id: exp.expense_id,
@@ -53,7 +79,8 @@ export default function Dashboard() {
         }));
 
         allExpenses = [...allExpenses, ...formattedExpenses];
-      }
+
+      });
 
       allExpenses.sort((a, b) => b.id - a.id);
 

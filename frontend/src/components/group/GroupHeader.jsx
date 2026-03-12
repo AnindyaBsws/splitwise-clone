@@ -46,4 +46,6 @@ function GroupHeader({ groupInfo }) {
 
 }
 
-export default GroupHeader;
+import React from "react";
+
+export default React.memo(GroupHeader);

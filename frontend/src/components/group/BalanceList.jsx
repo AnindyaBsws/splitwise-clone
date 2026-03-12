@@ -80,4 +80,6 @@ function BalanceList({ balances, getMemberName }) {
 
 }
 
-export default BalanceList;
+import React from "react";
+
+export default React.memo(BalanceList);
