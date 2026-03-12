@@ -36,7 +36,7 @@ function ExpenseList({
 
               <div>
 
-                <p className="font-semibold text-white">
+                <p className="font-semibold text-white truncate max-w-[220px]">
                   💸 {expense.title}
                 </p>
 
@@ -46,7 +46,7 @@ function ExpenseList({
 
               </div>
 
-              <div className="font-semibold text-lg text-indigo-400">
+              <div className="font-semibold text-lg text-indigo-400 break-all max-w-[120px] text-right">
                 {formatCurrency(expense.amount)}
               </div>
 

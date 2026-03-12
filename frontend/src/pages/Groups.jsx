@@ -16,17 +16,12 @@ function Groups() {
 
   const navigate = useNavigate();
 
-  // --------------------------------
-  // GET CURRENT USER ID
-  // --------------------------------
   const getCurrentUserId = () => {
 
     const token = localStorage.getItem("token");
-
     if (!token) return null;
 
     const payload = JSON.parse(atob(token.split(".")[1]));
-
     return Number(payload.sub);
 
   };
@@ -42,8 +37,11 @@ function Groups() {
 
         const data = await getGroups();
 
-        const groupsWithMembers = await Promise.all(
+        // Show groups immediately
+        setGroups(data);
 
+        // Fetch member counts in background
+        const groupsWithMembers = await Promise.all(
           data.map(async (group) => {
 
             try {
@@ -65,7 +63,6 @@ function Groups() {
             }
 
           })
-
         );
 
         setGroups(groupsWithMembers);
@@ -98,22 +95,7 @@ function Groups() {
 
       const data = await getGroups();
 
-      const groupsWithMembers = await Promise.all(
-
-        data.map(async (group) => {
-
-          const res = await api.get(`/api/groups/${group.id}/members`);
-
-          return {
-            ...group,
-            memberCount: res.data.length
-          };
-
-        })
-
-      );
-
-      setGroups(groupsWithMembers);
+      setGroups(data);
       setGroupName("");
 
     } catch (error) {
@@ -124,9 +106,6 @@ function Groups() {
 
   };
 
-  // --------------------------------
-  // OPEN DELETE MODAL
-  // --------------------------------
   const openDeleteModal = (groupId) => {
 
     setSelectedGroupId(groupId);
@@ -135,9 +114,6 @@ function Groups() {
 
   };
 
-  // --------------------------------
-  // CONFIRM DELETE GROUP
-  // --------------------------------
   const confirmDeleteGroup = async () => {
 
     try {
@@ -160,19 +136,13 @@ function Groups() {
 
   };
 
-  // --------------------------------
-  // UI
-  // --------------------------------
   return (
 
     <div className="page-container">
 
-      {/* TITLE */}
       <h1 className="text-3xl font-bold mb-8">
         Groups
       </h1>
-
-      {/* CREATE GROUP */}
 
       <div className="glass-card p-6 mb-10">
 
@@ -201,8 +171,6 @@ function Groups() {
 
       </div>
 
-      {/* GROUP LIST */}
-
       <div className="space-y-5">
 
         {groups.map((group) => (
@@ -211,8 +179,6 @@ function Groups() {
             key={group.id}
             className="glass-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:-translate-y-1"
           >
-
-            {/* GROUP INFO */}
 
             <div>
 
@@ -224,7 +190,7 @@ function Groups() {
               </p>
 
               <p className="text-sm text-gray-400">
-                Members: {group.memberCount}
+                Members: {group.memberCount ?? "..."}
               </p>
 
               {Number(group.created_by) === Number(currentUserId) && (
@@ -236,8 +202,6 @@ function Groups() {
               )}
 
             </div>
-
-            {/* ACTIONS */}
 
             <div className="flex items-center gap-4">
 
@@ -266,8 +230,6 @@ function Groups() {
         ))}
 
       </div>
-
-      {/* DELETE MODAL */}
 
       <DeleteGroupModal
         showDeleteModal={showDeleteModal}
