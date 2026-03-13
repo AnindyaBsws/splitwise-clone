@@ -6,6 +6,7 @@ from ..models.user import User
 
 auth_bp = Blueprint("auth", __name__)
 
+
 @auth_bp.route("/register", methods=["POST"])
 def register():
 
@@ -64,3 +65,12 @@ def login():
     )
 
     return jsonify({"token": token})
+
+
+# --------------------------------
+# Backend wake-up endpoint
+# --------------------------------
+
+@auth_bp.route("/ping", methods=["GET"])
+def ping():
+    return jsonify({"status": "awake"}), 200

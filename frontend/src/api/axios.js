@@ -3,10 +3,9 @@ import axios from "axios";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
 
-  // Prevent requests from hanging forever
-  timeout: 10000, // 10 seconds
+  // Increase timeout to handle Render cold start
+  timeout: 30000, // 30 seconds
 });
-
 
 // Attach JWT token automatically
 api.interceptors.request.use(
@@ -26,12 +25,12 @@ api.interceptors.request.use(
   }
 );
 
-
-// Handle unauthorized / expired token
+// Handle unauthorized / expired token and network errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
 
+    // Handle expired token
     if (error.response?.status === 401) {
 
       console.warn("Unauthorized request. Logging out...");
@@ -39,6 +38,15 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
 
       window.location.href = "/";
+
+    }
+
+    // Handle timeout or server sleep
+    if (error.code === "ECONNABORTED") {
+
+      console.warn("Request timeout. Backend might be waking up.");
+
+      alert("Server is waking up. Please try again in a few seconds.");
 
     }
 
