@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import api from "../api/axios";
 
+/* -----------------------------
+   SIMPLE IN-MEMORY CACHE
+------------------------------ */
+
+const groupCache = {};
+const CACHE_DURATION = 10000; // 10 seconds
+
+
 function useGroupData(id) {
 
   const [allUsers, setAllUsers] = useState([]);
@@ -32,12 +40,37 @@ function useGroupData(id) {
   };
 
   useEffect(() => {
+
     if (!id) return;
+
     const fetchAllData = async () => {
 
       setLoading(true);
 
       try {
+
+        /* -----------------------------
+           CHECK CACHE FIRST
+        ------------------------------ */
+
+        const cached = groupCache[id];
+
+        if (cached && Date.now() - cached.time < CACHE_DURATION) {
+
+          setGroupInfo(cached.groupInfo);
+          setMembers(cached.members);
+          setAllUsers(cached.allUsers);
+          setExpenses(cached.expenses);
+          setBalances(cached.balances);
+          setSimplifiedDebts(cached.simplifiedDebts);
+
+          setLoading(false);
+          return;
+        }
+
+        /* -----------------------------
+           FETCH DATA FROM API
+        ------------------------------ */
 
         const [
           groupRes,
@@ -55,12 +88,28 @@ function useGroupData(id) {
           api.get(`/api/groups/${id}/simplify`)
         ]);
 
-        setGroupInfo(groupRes.data);
-        setMembers(membersRes.data);
-        setAllUsers(usersRes.data);
-        setExpenses(expensesRes.data);
-        setBalances(balancesRes.data);
-        setSimplifiedDebts(debtsRes.data);
+        const newData = {
+          groupInfo: groupRes.data,
+          members: membersRes.data,
+          allUsers: usersRes.data,
+          expenses: expensesRes.data,
+          balances: balancesRes.data,
+          simplifiedDebts: debtsRes.data,
+          time: Date.now()
+        };
+
+        /* -----------------------------
+           SAVE TO CACHE
+        ------------------------------ */
+
+        groupCache[id] = newData;
+
+        setGroupInfo(newData.groupInfo);
+        setMembers(newData.members);
+        setAllUsers(newData.allUsers);
+        setExpenses(newData.expenses);
+        setBalances(newData.balances);
+        setSimplifiedDebts(newData.simplifiedDebts);
 
       } catch (error) {
 

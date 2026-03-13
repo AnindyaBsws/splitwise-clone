@@ -80,19 +80,25 @@ def get_groups():
 
     memberships = GroupMember.query.filter_by(user_id=user_id).all()
 
+    group_ids = [m.group_id for m in memberships]
+
+    if not group_ids:
+        return jsonify([])
+
+    groups = Group.query.filter(Group.id.in_(group_ids)).all()
+
     result = []
 
-    for m in memberships:
+    for group in groups:
 
-        group = Group.query.get(m.group_id)
+        member_count = GroupMember.query.filter_by(group_id=group.id).count()
 
-        if group:
-
-            result.append({
-                "id": group.id,
-                "name": group.name,
-                "created_by": group.created_by
-            })
+        result.append({
+            "id": group.id,
+            "name": group.name,
+            "created_by": group.created_by,
+            "memberCount": member_count
+        })
 
     return jsonify(result)
 

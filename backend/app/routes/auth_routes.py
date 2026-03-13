@@ -56,11 +56,15 @@ def login():
     if not check_password_hash(user.password_hash, data["password"]):
         return jsonify({"error": "Invalid password"}), 401
 
+    # check if demo account
+    is_demo = user.email == "demo@expense.com"
+
     token = create_access_token(
         identity=str(user.id),
         additional_claims={
             "name": user.name,
-            "email": user.email
+            "email": user.email,
+            "is_demo": is_demo
         }
     )
 

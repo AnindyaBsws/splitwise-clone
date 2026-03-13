@@ -2,7 +2,9 @@ from flask import Blueprint, request, jsonify
 from ..extensions.db import db
 from ..models.expense import Expense
 from ..models.expense_split import ExpenseSplit
+from ..utils.demo_guard import block_demo_user
 from flask_jwt_extended import jwt_required
+
 
 
 expense_bp = Blueprint("expenses", __name__)
@@ -11,6 +13,10 @@ expense_bp = Blueprint("expenses", __name__)
 @expense_bp.route("/", methods=["POST"])
 @jwt_required()
 def add_expense():
+
+    guard = block_demo_user()
+    if guard:
+        return guard
 
     data = request.json
 
@@ -29,34 +35,38 @@ def add_expense():
     except:
         return jsonify({"error": "Invalid amount"}), 400
 
-    # NEW VALIDATION (important)
     if amount <= 0:
         return jsonify({"error": "Expense amount must be greater than 0"}), 400
 
-    # create expense
-    expense = Expense(
-        title=title,
-        group_id=group_id,
-        paid_by=payer_id,
-        amount=amount
-    )
+    try:
 
-    db.session.add(expense)
-    db.session.commit()
-
-    # equal split
-    split_amount = amount / len(split_between)
-
-    for user_id in split_between:
-        split = ExpenseSplit(
-            expense_id=expense.id,
-            user_id=user_id,
-            amount_owed=split_amount
+        # create expense
+        expense = Expense(
+            title=title,
+            group_id=group_id,
+            paid_by=payer_id,
+            amount=amount
         )
 
-        db.session.add(split)
+        db.session.add(expense)
+        db.session.flush()  # ensures expense.id is available
 
-    db.session.commit()
+        # equal split
+        split_amount = amount / len(split_between)
+
+        for user_id in split_between:
+            split = ExpenseSplit(
+                expense_id=expense.id,
+                user_id=user_id,
+                amount_owed=split_amount
+            )
+            db.session.add(split)
+
+        db.session.commit()
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "Failed to add expense"}), 500
 
     return jsonify({
         "message": "Expense added and split successfully",
@@ -68,31 +78,45 @@ def add_expense():
 @jwt_required()
 def get_group_expenses(group_id):
 
+    # Query all expenses in one go
     expenses = Expense.query.filter_by(group_id=group_id).all()
+
+    if not expenses:
+        return jsonify([])
+
+    expense_ids = [e.id for e in expenses]
+
+    # Query all splits for those expenses in one go
+    splits = ExpenseSplit.query.filter(
+        ExpenseSplit.expense_id.in_(expense_ids)
+    ).all()
+
+    # Organize splits by expense_id
+    split_map = {}
+
+    for s in splits:
+        if s.expense_id not in split_map:
+            split_map[s.expense_id] = []
+
+        split_map[s.expense_id].append({
+            "user_id": s.user_id,
+            "amount_owed": s.amount_owed
+        })
 
     result = []
 
     for expense in expenses:
-
-        splits = ExpenseSplit.query.filter_by(expense_id=expense.id).all()
-
-        split_data = []
-
-        for s in splits:
-            split_data.append({
-                "user_id": s.user_id,
-                "amount_owed": s.amount_owed
-            })
 
         result.append({
             "expense_id": expense.id,
             "title": expense.title,
             "amount": expense.amount,
             "paid_by": expense.paid_by,
-            "splits": split_data
+            "splits": split_map.get(expense.id, [])
         })
 
     return jsonify(result)
+
 
 @expense_bp.route("/<int:expense_id>", methods=["DELETE"])
 @jwt_required()

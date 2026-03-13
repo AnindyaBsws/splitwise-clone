@@ -17,13 +17,11 @@ function Groups() {
   const navigate = useNavigate();
 
   const getCurrentUserId = () => {
-
     const token = localStorage.getItem("token");
     if (!token) return null;
 
     const payload = JSON.parse(atob(token.split(".")[1]));
     return Number(payload.sub);
-
   };
 
   // --------------------------------
@@ -37,35 +35,8 @@ function Groups() {
 
         const data = await getGroups();
 
-        // Show groups immediately
+        // Backend already returns memberCount
         setGroups(data);
-
-        // Fetch member counts in background
-        const groupsWithMembers = await Promise.all(
-          data.map(async (group) => {
-
-            try {
-
-              const res = await api.get(`/api/groups/${group.id}/members`);
-
-              return {
-                ...group,
-                memberCount: res.data.length
-              };
-
-            } catch {
-
-              return {
-                ...group,
-                memberCount: 0
-              };
-
-            }
-
-          })
-        );
-
-        setGroups(groupsWithMembers);
 
       } catch (error) {
 
@@ -190,7 +161,7 @@ function Groups() {
               </p>
 
               <p className="text-sm text-gray-400">
-                Members: {group.memberCount ?? "..."}
+                Members: {group.memberCount}
               </p>
 
               {Number(group.created_by) === Number(currentUserId) && (

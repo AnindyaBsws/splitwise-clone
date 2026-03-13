@@ -8,6 +8,8 @@ from ..models.expense import Expense
 from ..models.expense_split import ExpenseSplit
 from ..models.settlement import Settlement
 
+from ..routes.settlement_routes import calculate_balances
+
 user_bp = Blueprint("users", __name__)
 
 
@@ -71,7 +73,6 @@ def user_balances():
         for split in splits:
 
             if split.user_id != user_id:
-
                 balances[split.user_id] = balances.get(split.user_id, 0) + split.amount_owed
 
 
@@ -85,7 +86,6 @@ def user_balances():
         expense = Expense.query.get(split.expense_id)
 
         if expense and expense.paid_by != user_id:
-
             balances[expense.paid_by] = balances.get(expense.paid_by, 0) - split.amount_owed
 
 
@@ -125,7 +125,6 @@ def user_balances():
                 "amount": amount
             })
 
-
     net_balance = sum(balances.values())
 
     return jsonify({
@@ -154,4 +153,68 @@ def get_me():
         "name": user.name,
         "email": user.email,
         "user_tag": user.user_tag
+    })
+
+
+# --------------------------------
+# DASHBOARD DATA (OPTIMIZED)
+# --------------------------------
+@user_bp.route("/dashboard", methods=["GET"])
+@jwt_required()
+def get_dashboard_data():
+
+    user_id = int(get_jwt_identity())
+
+    memberships = GroupMember.query.filter_by(user_id=user_id).all()
+
+    groups = []
+
+    for m in memberships:
+        group = Group.query.get(m.group_id)
+        if group:
+            groups.append(group)
+
+    group_count = len(groups)
+
+    if group_count == 0:
+        return jsonify({
+            "groupCount": 0,
+            "youOwe": 0,
+            "youAreOwed": 0,
+            "recentExpenses": []
+        })
+
+    total_owe = 0
+    total_owed = 0
+    all_expenses = []
+
+    for group in groups:
+
+        balances = calculate_balances(group.id)
+
+        user_balance = float(balances.get(user_id, 0))
+
+        if user_balance < 0:
+            total_owe += abs(user_balance)
+
+        if user_balance > 0:
+            total_owed += user_balance
+
+        expenses = Expense.query.filter_by(group_id=group.id).all()
+
+        for e in expenses:
+            all_expenses.append({
+                "id": e.id,
+                "title": e.title,
+                "amount": e.amount,
+                "groupName": group.name
+            })
+
+    all_expenses.sort(key=lambda x: x["id"], reverse=True)
+
+    return jsonify({
+        "groupCount": group_count,
+        "youOwe": total_owe,
+        "youAreOwed": total_owed,
+        "recentExpenses": all_expenses[:5]
     })
