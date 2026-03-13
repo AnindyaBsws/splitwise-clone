@@ -17,11 +17,15 @@ from .models.expense_history import ExpenseHistory
 
 from flask_cors import CORS
 
+# NEW IMPORTS
+from flask_migrate import upgrade
+import threading
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    # ENABLE CORS HERE
     CORS(
         app,
         resources={
@@ -52,5 +56,12 @@ def create_app():
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
     app.register_blueprint(settlement_bp, url_prefix="/api/settlements")
     app.register_blueprint(user_bp, url_prefix="/api/users")
+
+    # RUN MIGRATIONS AFTER SERVER START
+    def run_migrations():
+        with app.app_context():
+            upgrade()
+
+    threading.Thread(target=run_migrations).start()
 
     return app
