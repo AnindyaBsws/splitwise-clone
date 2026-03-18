@@ -132,7 +132,13 @@ Explain clearly in simple terms.
 
         data = response.json()
 
-        explanation = data["candidates"][0]["content"]["parts"][0]["text"]
+        if "candidates" in data:
+            explanation = data["candidates"][0]["content"]["parts"][0]["text"]
+        else:
+            print("GEMINI FULL RESPONSE:", data)
+            return jsonify({
+                "error": data
+            }), 500
 
         return jsonify({
             "explanation": explanation
