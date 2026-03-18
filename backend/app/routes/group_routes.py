@@ -8,6 +8,7 @@ from ..models.expense import Expense
 from ..models.expense_split import ExpenseSplit
 from ..models.settlement import Settlement
 from ..models.expense_history import ExpenseHistory
+from ..models.group_invite import GroupInvite
 
 from ..routes.settlement_routes import calculate_balances
 
@@ -549,24 +550,26 @@ def delete_group(group_id):
         # DELETE ALL RELATED DATA
         # -------------------------------
 
+        # ✅ FIX: delete invites FIRST (new bug)
+        GroupInvite.query.filter_by(group_id=group_id).delete()
+
         # settlements
         Settlement.query.filter_by(group_id=group_id).delete()
 
         # expense splits + expenses
         expenses = Expense.query.filter_by(group_id=group_id).all()
-
         for expense in expenses:
             ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
 
         Expense.query.filter_by(group_id=group_id).delete()
 
-        # 👇 THIS WAS MISSING (MAIN BUG)
+        # history
         ExpenseHistory.query.filter_by(group_id=group_id).delete()
 
-        # group members
+        # members
         GroupMember.query.filter_by(group_id=group_id).delete()
 
-        # finally delete group
+        # delete group
         db.session.delete(group)
 
         db.session.commit()
@@ -576,7 +579,7 @@ def delete_group(group_id):
         })
 
     except Exception as e:
-        print("DELETE GROUP ERROR:", str(e))  # 👈 for debugging
+        print("DELETE GROUP ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
 
 
