@@ -19,7 +19,6 @@ from flask_cors import CORS
 
 # NEW IMPORTS
 from flask_migrate import upgrade
-import threading
 
 
 def create_app():
@@ -60,5 +59,11 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/users")
     app.register_blueprint(ai_bp, url_prefix="/api/ai")
 
+    with app.app_context():
+        try:
+            upgrade()
+            print("✅ Migration applied")
+        except Exception as e:
+            print("⚠️ Migration error:", str(e))
 
     return app
