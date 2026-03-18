@@ -58,9 +58,15 @@ function AiExplain() {
         {loading ? (
           <p className="text-gray-400">Thinking...</p>
         ) : (
-          <p className="text-gray-200 leading-relaxed whitespace-pre-line">
-            {explanation}
-          </p>
+          <div
+            className="text-gray-200 leading-relaxed space-y-3"
+            dangerouslySetInnerHTML={{
+                __html: explanation
+                .replace(/\n/g, "<br/>")
+                .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+                .replace(/### (.*?)/g, "<h3 class='text-lg font-semibold mt-4'>$1</h3>")
+            }}
+            />
         )}
       </div>
 

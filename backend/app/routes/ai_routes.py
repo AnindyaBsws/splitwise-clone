@@ -11,6 +11,9 @@ import os
 
 ai_bp = Blueprint("ai", __name__)
 
+# 🔥 SIMPLE CACHE (VERY IMPORTANT FOR FREE TIER)
+ai_cache = {}
+
 
 # --------------------------------
 # CUSTOM AI (LOGIC BASED)
@@ -74,6 +77,16 @@ def gemini_explain(group_id):
 
     try:
 
+        # 🔥 CACHE CHECK (CRITICAL)
+        cache_key = f"gemini_{group_id}"
+
+        if cache_key in ai_cache:
+            print("⚡ CACHE HIT")
+            return jsonify({
+                "explanation": ai_cache[cache_key],
+                "cached": True
+            })
+
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
@@ -105,10 +118,18 @@ def gemini_explain(group_id):
             })
 
         # --------------------------------
-        # PROMPT
+        # PROMPT (CLEAN UI OUTPUT)
         # --------------------------------
         prompt = f"""
-Explain how debts were calculated and simplified.
+You are a financial assistant explaining a Splitwise-style expense system.
+
+IMPORTANT:
+- Use clean formatting
+- Use headings and bullet points
+- Keep explanation short but clear
+- Do NOT use complex words
+
+DATA:
 
 Balances:
 {balances}
@@ -116,16 +137,32 @@ Balances:
 Expenses:
 {expense_data}
 
-Explain clearly:
-- Who owes whom
-- Why they owe
-- How simplification works
+TASK:
 
-Keep it simple and beginner-friendly.
+1. Give a short summary of the situation
+2. Explain who owes whom (bullet points)
+3. Explain WHY each person owes money
+4. Explain how debt simplification works
+
+FORMAT STRICTLY LIKE THIS:
+
+## Summary
+...
+
+## Who Owes Whom
+- Person A → Person B: ₹X
+
+## Why They Owe
+- Reason...
+
+## Simplification
+- Explanation...
+
+Keep it beginner-friendly.
 """
 
         # --------------------------------
-        # GEMINI API CALL (FINAL FIX)
+        # GEMINI API CALL (FINAL WORKING)
         # --------------------------------
         url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
 
@@ -151,18 +188,24 @@ Keep it simple and beginner-friendly.
         print("GEMINI RAW RESPONSE:", data)
 
         # --------------------------------
-        # SAFE PARSE
+        # ERROR HANDLING (IMPORTANT)
         # --------------------------------
         if "candidates" not in data:
-            return jsonify({"error": data}), 500
+            return jsonify({
+                "error": "Gemini API failed",
+                "details": data
+            }), 500
 
         explanation = data["candidates"][0]["content"]["parts"][0]["text"]
 
+        # 🔥 SAVE TO CACHE
+        ai_cache[cache_key] = explanation
+
         return jsonify({
-            "explanation": explanation
+            "explanation": explanation,
+            "cached": False
         })
 
     except Exception as e:
         print("GEMINI ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
-    
