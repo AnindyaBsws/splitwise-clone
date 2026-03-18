@@ -6,6 +6,9 @@ from ..models.expense_split import ExpenseSplit
 from ..routes.settlement_routes import calculate_balances
 from ..models.user import User
 
+import requests
+import os
+
 ai_bp = Blueprint("ai", __name__)
 
 
@@ -62,9 +65,6 @@ def custom_explain(group_id):
         return jsonify({"error": str(e)}), 500
 
 
-import requests
-import os
-
 # --------------------------------
 # GEMINI AI EXPLANATION
 # --------------------------------
@@ -81,6 +81,9 @@ def gemini_explain(group_id):
                 "error": "Gemini API key not configured"
             }), 500
 
+        # --------------------------------
+        # GET DATA
+        # --------------------------------
         balances = calculate_balances(group_id)
         expenses = Expense.query.filter_by(group_id=group_id).all()
 
@@ -103,7 +106,12 @@ def gemini_explain(group_id):
                 ]
             })
 
+        # --------------------------------
+        # PROMPT
+        # --------------------------------
         prompt = f"""
+You are a helpful financial assistant.
+
 Explain how debts were calculated and simplified.
 
 Balances:
@@ -112,33 +120,48 @@ Balances:
 Expenses:
 {expense_data}
 
-Explain clearly in simple terms.
+Explain:
+- Who owes whom
+- Why they owe
+- How simplification works
+
+Keep it simple and beginner-friendly.
 """
 
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+        # --------------------------------
+        # GEMINI API CALL (FIXED)
+        # --------------------------------
+        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
 
-        response = requests.post(
-            url,
-            json={
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": prompt}
-                        ]
-                    }
-                ]
-            }
-        )
+        payload = {
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt}
+                    ]
+                }
+            ]
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, headers=headers, json=payload)
 
         data = response.json()
 
-        if "candidates" in data:
-            explanation = data["candidates"][0]["content"]["parts"][0]["text"]
-        else:
-            print("GEMINI FULL RESPONSE:", data)
+        print("GEMINI RAW RESPONSE:", data)  # DEBUG
+
+        # --------------------------------
+        # SAFE PARSING (CRITICAL FIX)
+        # --------------------------------
+        if "candidates" not in data:
             return jsonify({
                 "error": data
             }), 500
+
+        explanation = data["candidates"][0]["content"]["parts"][0]["text"]
 
         return jsonify({
             "explanation": explanation
