@@ -131,7 +131,7 @@ Keep it simple and beginner-friendly.
         # --------------------------------
         # GEMINI API CALL (FIXED)
         # --------------------------------
-        url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
 
         payload = {
             "contents": [
