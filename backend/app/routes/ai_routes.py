@@ -95,26 +95,39 @@ def gemini_explain(group_id):
         # --------------------------------
         # GET DATA
         # --------------------------------
-        balances = calculate_balances(group_id)
+        raw_balances = calculate_balances(group_id)
+
+        balances = {}
+        for user_id, amount in raw_balances.items():
+            user = User.query.get(int(user_id))
+            balances[user.name] = amount
+
+
         expenses = Expense.query.filter_by(group_id=group_id).all()
 
         expense_data = []
 
         for e in expenses:
 
+            payer = User.query.get(e.paid_by)   # get payer name
+
             splits = ExpenseSplit.query.filter_by(expense_id=e.id).all()
+
+            split_data = []
+
+            for s in splits:
+                user = User.query.get(s.user_id)
+
+                split_data.append({
+                    "user": user.name,                 
+                    "amount": s.amount_owed
+                })
 
             expense_data.append({
                 "title": e.title,
                 "amount": e.amount,
-                "paid_by": e.paid_by,
-                "splits": [
-                    {
-                        "user_id": s.user_id,
-                        "amount": s.amount_owed
-                    }
-                    for s in splits
-                ]
+                "paid_by": payer.name,               
+                "splits": split_data                 
             })
 
         # --------------------------------

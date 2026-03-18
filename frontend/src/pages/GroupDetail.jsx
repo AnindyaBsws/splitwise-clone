@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 import useGroupData from "../hooks/useGroupData";
 import getCurrentUserId from "../utils/getCurrentUserId";
@@ -19,7 +19,6 @@ function GroupDetail() {
   const navigate = useNavigate();
 
   const {
-
     loading,
     groupInfo,
     members,
@@ -30,7 +29,6 @@ function GroupDetail() {
     fetchExpenses,
     fetchBalances,
     fetchSimplifiedDebts
-
   } = useGroupData(id);
 
   const [newMemberId, setNewMemberId] = useState("");
@@ -47,7 +45,45 @@ function GroupDetail() {
   const [payerId, setPayerId] = useState("");
   const [splitBetween, setSplitBetween] = useState([]);
 
+  // 🔥 NEW STATE
+  const [totalExpense, setTotalExpense] = useState(0);
+
   const currentUserId = getCurrentUserId();
+
+  // --------------------------------
+  // FETCH TOTAL EXPENSE
+  // --------------------------------
+  const fetchTotalExpense = async () => {
+    try {
+      const res = await api.get(`/api/groups/${id}/total-expense`);
+      setTotalExpense(res.data.total_expense);
+    } catch (err) {
+      console.error("Error fetching total expense");
+    }
+  };
+
+  useEffect(() => {
+    fetchTotalExpense();
+  }, [id]);
+
+  // --------------------------------
+  // RESET TOTAL EXPENSE
+  // --------------------------------
+  const handleResetTotalExpense = async () => {
+
+    const confirm = window.confirm(
+      "Do you want to reset the group's total expense to zero?"
+    );
+
+    if (!confirm) return;
+
+    try {
+      await api.post(`/api/groups/${id}/reset-total-expense`);
+      fetchTotalExpense();
+    } catch (err) {
+      alert("Only creator or admin can reset");
+    }
+  };
 
   //Hooks First
   const allSettled = useMemo(() => {
@@ -58,11 +94,8 @@ function GroupDetail() {
   }, [balances]);
 
   const getMemberName = (userId) => {
-
     const member = members.find((m) => m.user_id === Number(userId));
-
     return member ? member.name : `User ${userId}`;
-
   };
 
   const openRemoveModal = async (member) => {
@@ -94,16 +127,13 @@ function GroupDetail() {
     try {
 
       await api.delete(`/api/groups/${id}`);
-
       navigate("/groups");
 
     } catch (error) {
 
       if (error.response) {
-
         setDeleteError(error.response.data.error);
         setShowDeleteModal(true);
-
       }
 
     }
@@ -119,7 +149,6 @@ function GroupDetail() {
     });
 
     setNewMemberId("");
-
     fetchMembers();
 
   };
@@ -127,13 +156,9 @@ function GroupDetail() {
   const toggleSplitUser = (userId) => {
 
     if (splitBetween.includes(userId)) {
-
       setSplitBetween(splitBetween.filter((id) => id !== userId));
-
     } else {
-
       setSplitBetween([...splitBetween, userId]);
-
     }
 
   };
@@ -141,20 +166,16 @@ function GroupDetail() {
   const handleAddExpense = async () => {
 
     if (!expenseTitle || !expenseAmount || !payerId || splitBetween.length === 0) {
-
       alert("Please fill all fields and select members.");
       return;
-
     }
 
     await api.post("/api/expenses/", {
-
       title: expenseTitle,
       group_id: Number(id),
       payer_id: Number(payerId),
       amount: Number(expenseAmount),
       split_between: splitBetween,
-
     });
 
     setExpenseTitle("");
@@ -165,6 +186,7 @@ function GroupDetail() {
     fetchExpenses();
     fetchBalances();
     fetchSimplifiedDebts();
+    fetchTotalExpense(); // 🔥 update total
 
   };
 
@@ -181,12 +203,10 @@ function GroupDetail() {
   const handleSettle = async (txn) => {
 
     await api.post("/api/settlements/", {
-
       group_id: Number(id),
       payer_id: Number(txn.from),
       receiver_id: Number(txn.to),
       amount: Number(txn.amount),
-
     });
 
     fetchBalances();
@@ -240,12 +260,34 @@ function GroupDetail() {
         deleteGroup={() => setShowDeleteModal(true)}
       />
 
-      {/* MAIN GRID */}
+      {/* 💰 TOTAL EXPENSE CARD */}
+      <div className="glass-card p-5 flex items-center justify-between">
 
+        <div>
+          <p className="text-sm text-gray-400">Total Expense (All Time)</p>
+          <p className="text-2xl font-bold text-indigo-400">
+            ₹{Number(totalExpense).toFixed(2)}
+          </p>
+        </div>
+
+        {(groupInfo?.created_by === currentUserId ||
+          members.find(m => m.user_id === currentUserId)?.role === "admin") && (
+
+          <button
+            onClick={handleResetTotalExpense}
+            className="text-sm border border-red-500 text-red-400 px-4 py-2 rounded-xl hover:bg-red-500/10"
+          >
+            Reset
+          </button>
+
+        )}
+
+      </div>
+
+      {/* MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-        {/* LEFT COLUMN */}
-
+        {/* LEFT */}
         <div className="space-y-8">
 
           <ExpenseForm
@@ -272,8 +314,7 @@ function GroupDetail() {
 
         </div>
 
-        {/* RIGHT COLUMN */}
-
+        {/* RIGHT */}
         <div className="space-y-8">
 
           <BalanceList
@@ -281,7 +322,7 @@ function GroupDetail() {
             getMemberName={getMemberName}
           />
 
-          {/* 🧠 AI BUTTON */}
+          {/* AI */}
           <div className="glass-card p-5 space-y-4">
 
             <div>
@@ -291,7 +332,6 @@ function GroupDetail() {
               </p>
             </div>
 
-            {/* BUTTONS */}
             <div className="flex flex-col sm:flex-row gap-3">
 
               <button
@@ -310,7 +350,6 @@ function GroupDetail() {
 
             </div>
 
-            {/* TEXT */}
             <p className="text-xs text-gray-400 text-center">
               Use custom debt simplification for clarification of your group's simplified settlements
             </p>

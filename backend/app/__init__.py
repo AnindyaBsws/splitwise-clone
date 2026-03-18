@@ -60,11 +60,5 @@ def create_app():
     app.register_blueprint(user_bp, url_prefix="/api/users")
     app.register_blueprint(ai_bp, url_prefix="/api/ai")
 
-    # RUN MIGRATIONS AFTER SERVER START
-    def run_migrations():
-        with app.app_context():
-            upgrade()
-
-    threading.Thread(target=run_migrations).start()
 
     return app

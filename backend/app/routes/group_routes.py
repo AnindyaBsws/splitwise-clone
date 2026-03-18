@@ -421,6 +421,58 @@ def get_members(group_id):
 
     return jsonify(result)
 
+# --------------------------------
+# GET TOTAL EXPENSE
+# --------------------------------
+@group_bp.route("/<int:group_id>/total-expense", methods=["GET"])
+@jwt_required()
+def get_total_expense(group_id):
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    return jsonify({
+        "total_expense": group.total_expense or 0
+    })
+
+# --------------------------------
+# RESET TOTAL EXPENSE (CREATOR + ADMIN)
+# --------------------------------
+@group_bp.route("/<int:group_id>/reset-total-expense", methods=["POST"])
+@jwt_required()
+def reset_total_expense(group_id):
+
+    requester_id = int(get_jwt_identity())
+
+    group = Group.query.get(group_id)
+
+    if not group:
+        return jsonify({"error": "Group not found"}), 404
+
+    # check membership
+    member = GroupMember.query.filter_by(
+        group_id=group_id,
+        user_id=requester_id
+    ).first()
+
+    if not member:
+        return jsonify({"error": "You are not a member"}), 403
+
+    # 🔥 allow BOTH creator + admin
+    if member.role not in ["creator", "admin"]:
+        return jsonify({
+            "error": "Only creator or admin can reset total expense"
+        }), 403
+
+    # reset
+    group.total_expense = 0
+    db.session.commit()
+
+    return jsonify({
+        "message": "Total expense reset successfully"
+    })
 
 # --------------------------------
 # GET BALANCES

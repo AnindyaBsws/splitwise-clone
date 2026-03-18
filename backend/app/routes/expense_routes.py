@@ -51,6 +51,13 @@ def add_expense():
         db.session.add(expense)
         db.session.flush()  # ensures expense.id is available
 
+        # UPDATE TOTAL EXPENSE
+        from ..models.group import Group
+
+        group = Group.query.get(group_id)
+        if group:
+            group.total_expense += amount
+
         # equal split
         split_amount = amount / len(split_between)
 
@@ -61,6 +68,14 @@ def add_expense():
                 amount_owed=split_amount
             )
             db.session.add(split)
+
+        # UPDATE TOTAL EXPENSE (SAFE)
+        from ..models.group import Group
+        group = Group.query.get(group_id)
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+
+        group.total_expense = (group.total_expense or 0) + amount
 
         db.session.commit()
 
@@ -73,6 +88,9 @@ def add_expense():
         "expense_id": expense.id,
         "group_id": group_id
     })
+
+
+
 
 @expense_bp.route("/group/<int:group_id>", methods=["GET"])
 @jwt_required()
