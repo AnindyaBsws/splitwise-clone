@@ -526,40 +526,58 @@ def delete_group(group_id):
 
     requester_id = int(get_jwt_identity())
 
-    group = Group.query.get(group_id)
+    try:
 
-    if not group:
-        return jsonify({"error": "Group not found"}), 404
+        group = Group.query.get(group_id)
 
-    if group.created_by != requester_id:
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+
+        if group.created_by != requester_id:
+            return jsonify({
+                "error": "Only group creator can delete the group"
+            }), 403
+
+        balances = calculate_balances(group_id)
+
+        if any(balance != 0 for balance in balances.values()):
+            return jsonify({
+                "error": "All debts must be settled before deleting the group"
+            }), 400
+
+        # -------------------------------
+        # DELETE ALL RELATED DATA
+        # -------------------------------
+
+        # settlements
+        Settlement.query.filter_by(group_id=group_id).delete()
+
+        # expense splits + expenses
+        expenses = Expense.query.filter_by(group_id=group_id).all()
+
+        for expense in expenses:
+            ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
+
+        Expense.query.filter_by(group_id=group_id).delete()
+
+        # 👇 THIS WAS MISSING (MAIN BUG)
+        ExpenseHistory.query.filter_by(group_id=group_id).delete()
+
+        # group members
+        GroupMember.query.filter_by(group_id=group_id).delete()
+
+        # finally delete group
+        db.session.delete(group)
+
+        db.session.commit()
+
         return jsonify({
-            "error": "Only group creator can delete the group"
-        }), 403
+            "message": "Group deleted successfully"
+        })
 
-    balances = calculate_balances(group_id)
-
-    if any(balance != 0 for balance in balances.values()):
-        return jsonify({
-            "error": "All debts must be settled before deleting the group"
-        }), 400
-
-    Settlement.query.filter_by(group_id=group_id).delete()
-
-    expenses = Expense.query.filter_by(group_id=group_id).all()
-    for expense in expenses:
-        ExpenseSplit.query.filter_by(expense_id=expense.id).delete()
-
-    Expense.query.filter_by(group_id=group_id).delete()
-
-    GroupMember.query.filter_by(group_id=group_id).delete()
-
-    db.session.delete(group)
-
-    db.session.commit()
-
-    return jsonify({
-        "message": "Group deleted successfully"
-    })
+    except Exception as e:
+        print("DELETE GROUP ERROR:", str(e))  # 👈 for debugging
+        return jsonify({"error": str(e)}), 500
 
 
 # --------------------------------
