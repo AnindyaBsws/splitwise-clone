@@ -282,20 +282,39 @@ function GroupDetail() {
           />
 
           {/* 🧠 AI BUTTON */}
-          <div className="glass-card p-5 flex justify-between items-center">
+          <div className="glass-card p-5 space-y-4">
+
             <div>
               <p className="font-semibold text-lg">AI Insights</p>
               <p className="text-sm text-gray-400">
-                Understand how debts were simplified
+                Understand how your debts were calculated
               </p>
             </div>
 
-            <button
-              onClick={() => navigate(`/groups/${id}/ai`)}
-              className="gradient-btn"
-            >
-              ✨ Explain Debts
-            </button>
+            {/* BUTTONS */}
+            <div className="flex flex-col sm:flex-row gap-3">
+
+              <button
+                onClick={() => navigate(`/groups/${id}/ai?mode=gemini`)}
+                className="gradient-btn flex-1"
+              >
+                🤖 Explain with Gemini
+              </button>
+
+              <button
+                onClick={() => navigate(`/groups/${id}/ai?mode=custom`)}
+                className="border border-indigo-500 text-indigo-400 hover:bg-indigo-500/10 rounded-xl px-4 py-2 flex-1"
+              >
+                🧮 Use Custom Logic
+              </button>
+
+            </div>
+
+            {/* TEXT */}
+            <p className="text-xs text-gray-400 text-center">
+              Use custom debt simplification for clarification of your group's simplified settlements
+            </p>
+
           </div>
 
           <SimplifiedDebts
