@@ -9,8 +9,9 @@ import ExpenseHistory from "../pages/ExpenseHistory";
 import ManageGroup from "../pages/ManageGroup";
 import Profile from "../pages/Profile";
 import JoinGroup from "../pages/JoinGroup"; 
-import Landing from "../pages/Landing"; //New
-import NotFound from "../pages/NotFound"; //New
+import Landing from "../pages/Landing"; 
+import NotFound from "../pages/NotFound"; 
+import AiExplain from "../pages/AiExplain"; //Ai Page
 
 import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
@@ -94,6 +95,17 @@ function AppRouter() {
             <ProtectedRoute>
               <MainLayout>
                 <Profile />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/groups/:id/ai"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <AiExplain />
               </MainLayout>
             </ProtectedRoute>
           }

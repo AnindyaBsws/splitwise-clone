@@ -50,12 +50,15 @@ def create_app():
     from .routes.group_routes import group_bp
     from .routes.expense_routes import expense_bp
     from .routes.settlement_routes import settlement_bp
+    from .routes.ai_routes import ai_bp
+
 
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
     app.register_blueprint(group_bp, url_prefix="/api/groups")
     app.register_blueprint(expense_bp, url_prefix="/api/expenses")
     app.register_blueprint(settlement_bp, url_prefix="/api/settlements")
     app.register_blueprint(user_bp, url_prefix="/api/users")
+    app.register_blueprint(ai_bp, url_prefix="/api/ai")
 
     # RUN MIGRATIONS AFTER SERVER START
     def run_migrations():

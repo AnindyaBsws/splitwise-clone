@@ -281,6 +281,23 @@ function GroupDetail() {
             getMemberName={getMemberName}
           />
 
+          {/* 🧠 AI BUTTON */}
+          <div className="glass-card p-5 flex justify-between items-center">
+            <div>
+              <p className="font-semibold text-lg">AI Insights</p>
+              <p className="text-sm text-gray-400">
+                Understand how debts were simplified
+              </p>
+            </div>
+
+            <button
+              onClick={() => navigate(`/groups/${id}/ai`)}
+              className="gradient-btn"
+            >
+              ✨ Explain Debts
+            </button>
+          </div>
+
           <SimplifiedDebts
             simplifiedDebts={simplifiedDebts}
             getMemberName={getMemberName}
