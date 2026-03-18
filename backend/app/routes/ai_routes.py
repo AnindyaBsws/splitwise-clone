@@ -170,3 +170,5 @@ Keep it simple and beginner-friendly.
     except Exception as e:
         print("GEMINI ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
+    
+    
