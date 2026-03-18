@@ -171,4 +171,3 @@ Keep it simple and beginner-friendly.
         print("GEMINI ERROR:", str(e))
         return jsonify({"error": str(e)}), 500
     
-    
