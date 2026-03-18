@@ -77,9 +77,7 @@ def gemini_explain(group_id):
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
-            return jsonify({
-                "error": "Gemini API key not configured"
-            }), 500
+            return jsonify({"error": "Gemini API key not configured"}), 500
 
         # --------------------------------
         # GET DATA
@@ -110,8 +108,6 @@ def gemini_explain(group_id):
         # PROMPT
         # --------------------------------
         prompt = f"""
-You are a helpful financial assistant.
-
 Explain how debts were calculated and simplified.
 
 Balances:
@@ -120,7 +116,7 @@ Balances:
 Expenses:
 {expense_data}
 
-Explain:
+Explain clearly:
 - Who owes whom
 - Why they owe
 - How simplification works
@@ -129,9 +125,14 @@ Keep it simple and beginner-friendly.
 """
 
         # --------------------------------
-        # GEMINI API CALL (FIXED)
+        # GEMINI API CALL (FINAL FIX)
         # --------------------------------
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}"
+        url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent"
+
+        headers = {
+            "Content-Type": "application/json",
+            "x-goog-api-key": api_key
+        }
 
         payload = {
             "contents": [
@@ -143,23 +144,17 @@ Keep it simple and beginner-friendly.
             ]
         }
 
-        headers = {
-            "Content-Type": "application/json"
-        }
-
         response = requests.post(url, headers=headers, json=payload)
 
         data = response.json()
 
-        print("GEMINI RAW RESPONSE:", data)  # DEBUG
+        print("GEMINI RAW RESPONSE:", data)
 
         # --------------------------------
-        # SAFE PARSING (CRITICAL FIX)
+        # SAFE PARSE
         # --------------------------------
         if "candidates" not in data:
-            return jsonify({
-                "error": data
-            }), 500
+            return jsonify({"error": data}), 500
 
         explanation = data["candidates"][0]["content"]["parts"][0]["text"]
 
