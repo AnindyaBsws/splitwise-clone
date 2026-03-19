@@ -31,7 +31,7 @@ def add_expense():
 
     # convert to float safely
     try:
-        amount = float(amount)
+        amount = round(float(amount), 2)
     except:
         return jsonify({"error": "Invalid amount"}), 400
 
@@ -61,7 +61,7 @@ def add_expense():
         group.total_expense = (group.total_expense or 0) + amount
 
         # equal split
-        split_amount = amount / len(split_between)
+        split_amount = round(amount / len(split_between), 2)
 
         for user_id in split_between:
             split = ExpenseSplit(
