@@ -49,14 +49,16 @@ def add_expense():
         )
 
         db.session.add(expense)
-        db.session.flush()  # ensures expense.id is available
+        db.session.flush()
 
-        # UPDATE TOTAL EXPENSE
+        # ✅ UPDATE TOTAL EXPENSE (ONLY ONCE)
         from ..models.group import Group
 
         group = Group.query.get(group_id)
-        if group:
-            group.total_expense += amount
+        if not group:
+            return jsonify({"error": "Group not found"}), 404
+
+        group.total_expense = (group.total_expense or 0) + amount
 
         # equal split
         split_amount = amount / len(split_between)
@@ -69,18 +71,11 @@ def add_expense():
             )
             db.session.add(split)
 
-        # UPDATE TOTAL EXPENSE (SAFE)
-        from ..models.group import Group
-        group = Group.query.get(group_id)
-        if not group:
-            return jsonify({"error": "Group not found"}), 404
-
-        group.total_expense = (group.total_expense or 0) + amount
-
         db.session.commit()
 
     except Exception as e:
         db.session.rollback()
+        print("ADD EXPENSE ERROR:", str(e))
         return jsonify({"error": "Failed to add expense"}), 500
 
     return jsonify({
