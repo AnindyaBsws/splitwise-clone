@@ -15,7 +15,6 @@ export default function Dashboard() {
   }, []);
 
   const fetchDashboardData = async () => {
-
     try {
 
       const currentUserId = getCurrentUserId();
@@ -42,13 +41,11 @@ export default function Dashboard() {
       let totalOwed = 0;
 
       balanceResponses.forEach((res) => {
-
         const balances = res.data;
         const userBalance = Number(balances[currentUserId] || 0);
 
         if (userBalance < 0) totalOwe += Math.abs(userBalance);
         if (userBalance > 0) totalOwed += userBalance;
-
       });
 
       const expenseRequests = groups.map((group) =>
@@ -86,7 +83,6 @@ export default function Dashboard() {
     } catch (error) {
       console.error("Dashboard fetch error:", error);
     }
-
   };
 
   /* ---------------- EMPTY STATE ---------------- */
@@ -97,12 +93,11 @@ export default function Dashboard() {
 
       <div className="page-container">
 
-        <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
+        <h1 className="text-3xl font-semibold mb-8 tracking-tight">
           Dashboard
         </h1>
 
-        <div className="p-10 text-center rounded-2xl 
-          bg-[#111217] border border-[#22232A]">
+        <div className="card text-center p-10">
 
           <h2 className="text-2xl font-semibold mb-3 text-white">
             No Groups Yet
@@ -113,9 +108,7 @@ export default function Dashboard() {
           </p>
 
           <Link to="/groups">
-            <button className="px-5 py-2 rounded-lg 
-              bg-gradient-to-r from-indigo-500 to-purple-600 
-              text-white font-medium hover:opacity-90 transition">
+            <button className="btn-primary px-5 py-2">
               Create Your First Group
             </button>
           </Link>
@@ -132,7 +125,7 @@ export default function Dashboard() {
 
     <div className="page-container">
 
-      <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
+      <h1 className="text-3xl font-semibold mb-8 tracking-tight">
         Dashboard
       </h1>
 
@@ -140,9 +133,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-        <div className="p-6 rounded-2xl 
-          bg-[#111217] border border-[#22232A]
-          hover:bg-[#1A1B21] transition">
+        <div className="card card-hover">
 
           <p className="text-[#9CA3AF] text-sm font-medium">
             Active Groups
@@ -154,29 +145,25 @@ export default function Dashboard() {
 
         </div>
 
-        <div className="p-6 rounded-2xl 
-          bg-[#111217] border border-[#22232A]
-          hover:bg-[#1A1B21] transition">
+        <div className="card card-hover">
 
           <p className="text-[#9CA3AF] text-sm font-medium">
             You Owe
           </p>
 
-          <h2 className="text-4xl font-bold mt-3 text-red-400">
+          <h2 className="text-4xl font-bold mt-3 stat-negative">
             ₹{youOwe.toFixed(2)}
           </h2>
 
         </div>
 
-        <div className="p-6 rounded-2xl 
-          bg-[#111217] border border-[#22232A]
-          hover:bg-[#1A1B21] transition">
+        <div className="card card-hover">
 
           <p className="text-[#9CA3AF] text-sm font-medium">
             You Are Owed
           </p>
 
-          <h2 className="text-4xl font-bold mt-3 text-green-400">
+          <h2 className="text-4xl font-bold mt-3 stat-positive">
             ₹{youAreOwed.toFixed(2)}
           </h2>
 
@@ -188,13 +175,11 @@ export default function Dashboard() {
 
       <div className="mb-12">
 
-        <h2 className="text-xl font-semibold mb-4 text-[#E5E7EB]">
+        <h2 className="text-xl font-semibold mb-4 tracking-tight">
           Quick Actions
         </h2>
 
-        <div className="p-6 rounded-2xl 
-          bg-[#111217] border border-[#22232A]
-          flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="card flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
           <div>
 
@@ -209,9 +194,7 @@ export default function Dashboard() {
           </div>
 
           <Link to="/groups">
-            <button className="px-5 py-2 rounded-lg 
-              bg-gradient-to-r from-indigo-500 to-purple-600 
-              text-white font-medium hover:opacity-90 transition">
+            <button className="btn-primary px-5 py-2">
               Open Groups
             </button>
           </Link>
@@ -224,27 +207,23 @@ export default function Dashboard() {
 
       <div>
 
-        <h2 className="text-xl font-semibold mb-4 text-[#E5E7EB]">
+        <h2 className="text-xl font-semibold mb-4 tracking-tight">
           Recent Activity
         </h2>
 
-        <div className="rounded-2xl 
-          bg-[#111217] border border-[#22232A] overflow-hidden">
+        <div className="card p-0 overflow-hidden">
 
           {recentExpenses.length === 0 && (
-
             <div className="p-4 text-[#9CA3AF]">
               No expenses yet
             </div>
-
           )}
 
           {recentExpenses.map((expense) => (
 
             <div
               key={expense.id}
-              className="flex justify-between items-center p-4
-              hover:bg-[#1A1B21] transition border-b border-[#22232A]"
+              className="ui-list-item flex justify-between items-center"
             >
 
               <div>

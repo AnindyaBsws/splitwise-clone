@@ -9,64 +9,84 @@ function DeleteGroupModal({
 
   return (
 
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="
+      fixed inset-0 z-50 flex items-center justify-center
+      bg-black/70 backdrop-blur-md
+    ">
 
-      <div className="card p-6 w-[420px]">
+      <div className="
+        relative w-full max-w-md mx-4
+        card p-6
+        shadow-[0_20px_60px_rgba(0,0,0,0.8)]
+        overflow-hidden
+      ">
 
-        <h2 className="text-xl font-semibold mb-4 text-white">
-          Delete Group
-        </h2>
+        {/* subtle danger glow */}
+        <div className="absolute inset-0 pointer-events-none rounded-2xl
+          bg-[radial-gradient(circle_at_top,rgba(239,68,68,0.15),transparent_60%)] opacity-60" />
 
-        {deleteError ? (
+        {/* CONTENT */}
+        <div className="relative z-10">
 
-          <div>
+          <h2 className="text-xl font-semibold text-white tracking-tight mb-4">
+            Delete Group
+          </h2>
 
-            <p className="text-red-400 mb-6">
-              {deleteError}
-            </p>
+          {deleteError ? (
 
-            <div className="flex justify-end">
+            <div>
 
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="btn-secondary"
-              >
-                OK
-              </button>
+              <p className="text-red-400 mb-6">
+                {deleteError}
+              </p>
 
-            </div>
+              <div className="flex justify-end">
 
-          </div>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="btn-secondary"
+                >
+                  OK
+                </button>
 
-        ) : (
-
-          <div>
-
-            <p className="mb-6 text-[#9CA3AF]">
-              Are you sure you want to delete this group?
-            </p>
-
-            <div className="flex justify-end gap-3">
-
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="btn-secondary"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={confirmDeleteGroup}
-                className="px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition"
-              >
-                Yes Delete
-              </button>
+              </div>
 
             </div>
 
-          </div>
+          ) : (
 
-        )}
+            <div>
+
+              <p className="mb-6 text-[#9CA3AF]">
+                Are you sure you want to delete this group?
+                <span className="block mt-1 text-sm text-[#6B7280]">
+                  This action cannot be undone.
+                </span>
+              </p>
+
+              <div className="flex justify-end gap-3">
+
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  onClick={confirmDeleteGroup}
+                  className="btn-danger px-4 py-2"
+                >
+                  Yes, Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          )}
+
+        </div>
 
       </div>
 

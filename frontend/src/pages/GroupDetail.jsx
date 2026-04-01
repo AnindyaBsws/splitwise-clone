@@ -61,11 +61,9 @@ function GroupDetail() {
   }, [id]);
 
   const handleResetTotalExpense = async () => {
-
     const confirm = window.confirm(
       "Do you want to reset the group's total expense to zero?"
     );
-
     if (!confirm) return;
 
     try {
@@ -89,7 +87,6 @@ function GroupDetail() {
   };
 
   const openRemoveModal = async (member) => {
-
     setMemberDetails(null);
 
     try {
@@ -104,7 +101,6 @@ function GroupDetail() {
         setShowRemoveModal(true);
       }
     }
-
   };
 
   const confirmDeleteGroup = async () => {
@@ -120,7 +116,6 @@ function GroupDetail() {
   };
 
   const handleAddMember = async () => {
-
     if (!newMemberId.trim()) return;
 
     await api.post(`/api/groups/${id}/members`, {
@@ -129,21 +124,17 @@ function GroupDetail() {
 
     setNewMemberId("");
     fetchMembers();
-
   };
 
   const toggleSplitUser = (userId) => {
-
     if (splitBetween.includes(userId)) {
       setSplitBetween(splitBetween.filter((id) => id !== userId));
     } else {
       setSplitBetween([...splitBetween, userId]);
     }
-
   };
 
   const handleAddExpense = async () => {
-
     if (!expenseTitle || !expenseAmount || !payerId || splitBetween.length === 0) {
       alert("Please fill all fields and select members.");
       return;
@@ -166,7 +157,6 @@ function GroupDetail() {
     fetchBalances();
     fetchSimplifiedDebts();
     fetchTotalExpense();
-
   };
 
   const handleClearExpenses = async () => {
@@ -190,7 +180,6 @@ function GroupDetail() {
   };
 
   const deleteMember = async () => {
-
     try {
       await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
       setShowRemoveModal(false);
@@ -204,13 +193,12 @@ function GroupDetail() {
         setShowRemoveModal(true);
       }
     }
-
   };
 
   if (loading) {
     return (
       <div className="page-container">
-        <div className="p-8 text-center rounded-2xl bg-[#111217] border border-[#22232A] text-[#9CA3AF]">
+        <div className="card text-center p-8 text-[#9CA3AF]">
           Loading group...
         </div>
       </div>
@@ -227,12 +215,12 @@ function GroupDetail() {
         deleteGroup={() => setShowDeleteModal(true)}
       />
 
-      {/* TOTAL EXPENSE */}
-      <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A] flex items-center justify-between">
+      {/* TOTAL EXPENSE (HIGHLIGHT CARD) */}
+      <div className="card flex items-center justify-between">
 
         <div>
           <p className="text-sm text-[#9CA3AF]">Total Expense</p>
-          <p className="text-3xl font-bold text-white mt-1">
+          <p className="text-4xl font-bold mt-2 text-white drop-shadow-[0_0_10px_rgba(99,102,241,0.4)]">
             ₹{Number(totalExpense).toFixed(2)}
           </p>
         </div>
@@ -242,7 +230,7 @@ function GroupDetail() {
 
           <button
             onClick={handleResetTotalExpense}
-            className="px-4 py-2 rounded-lg border border-red-500 text-red-400 hover:bg-red-500/10 transition"
+            className="btn-danger px-4 py-2"
           >
             Reset
           </button>
@@ -257,8 +245,10 @@ function GroupDetail() {
         {/* LEFT */}
         <div className="space-y-8">
 
-          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
-            <h2 className="text-lg font-semibold mb-4 text-white">Add Expense</h2>
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-4 text-white">
+              Add Expense
+            </h2>
             <ExpenseForm {...{
               expenseTitle, setExpenseTitle,
               expenseAmount, setExpenseAmount,
@@ -268,8 +258,10 @@ function GroupDetail() {
             }} />
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
-            <h2 className="text-lg font-semibold mb-4 text-white">Expenses</h2>
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-4 text-white">
+              Expenses
+            </h2>
             <ExpenseList {...{
               expenses, getMemberName,
               handleClearExpenses, allSettled,
@@ -282,15 +274,20 @@ function GroupDetail() {
         {/* RIGHT */}
         <div className="space-y-8">
 
-          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
-            <h2 className="text-lg font-semibold mb-4 text-white">Balances</h2>
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-4 text-white">
+              Balances
+            </h2>
             <BalanceList balances={balances} getMemberName={getMemberName} />
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A] space-y-4">
+          {/* AI CARD */}
+          <div className="card space-y-4">
 
             <div>
-              <p className="font-semibold text-lg text-white">AI Insights</p>
+              <p className="font-semibold text-lg text-white">
+                AI Insights
+              </p>
               <p className="text-sm text-[#9CA3AF]">
                 Understand how debts are calculated
               </p>
@@ -300,14 +297,14 @@ function GroupDetail() {
 
               <button
                 onClick={() => navigate(`/groups/${id}/ai?mode=gemini`)}
-                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:opacity-90 transition"
+                className="btn-primary flex-1"
               >
                 🤖 Gemini AI
               </button>
 
               <button
                 onClick={() => navigate(`/groups/${id}/ai?mode=custom`)}
-                className="flex-1 px-4 py-2 rounded-lg bg-[#1A1B21] border border-[#22232A] text-[#E5E7EB] hover:bg-[#22232A] transition"
+                className="btn-secondary flex-1"
               >
                 🧮 Custom Logic
               </button>
@@ -320,8 +317,10 @@ function GroupDetail() {
 
           </div>
 
-          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
-            <h2 className="text-lg font-semibold mb-4 text-white">Settlements</h2>
+          <div className="card">
+            <h2 className="text-lg font-semibold mb-4 text-white">
+              Settlements
+            </h2>
             <SimplifiedDebts
               simplifiedDebts={simplifiedDebts}
               getMemberName={getMemberName}

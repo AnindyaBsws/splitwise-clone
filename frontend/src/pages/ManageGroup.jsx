@@ -35,7 +35,9 @@ function ManageGroup() {
   if (!members || !groupInfo) {
     return (
       <div className="page-container">
-        <div className="card p-6 text-[#9CA3AF]">Loading group...</div>
+        <div className="card text-[#9CA3AF]">
+          Loading group...
+        </div>
       </div>
     );
   }
@@ -57,7 +59,6 @@ function ManageGroup() {
   };
 
   const deleteMember = async () => {
-
     try {
       await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
       setShowRemoveModal(false);
@@ -68,11 +69,9 @@ function ManageGroup() {
         setShowRemoveModal(true);
       }
     }
-
   };
 
   const confirmDeleteGroup = async () => {
-
     try {
       await api.delete(`/api/groups/${id}`);
       navigate("/groups");
@@ -82,18 +81,15 @@ function ManageGroup() {
         setShowDeleteModal(true);
       }
     }
-
   };
 
   const handleLeaveGroup = async () => {
-
     try {
       await api.post(`/api/groups/${id}/leave`);
       navigate("/groups");
     } catch (error) {
       alert(error.response?.data?.error || "Failed to leave group");
     }
-
   };
 
   const generateInviteLink = async () => {
@@ -174,9 +170,9 @@ ${registerLink}`;
 
   return (
 
-    <div className="page-container space-y-10 fade-in">
+    <div className="page-container space-y-12 fade-in">
 
-      <h1 className="text-3xl font-bold text-white">
+      <h1 className="text-3xl font-semibold text-white tracking-tight">
         Manage Group
       </h1>
 
@@ -197,14 +193,18 @@ ${registerLink}`;
       )}
 
       {/* INVITE SECTION */}
-
       {(isCreator || isAdmin) && (
 
-        <div className="card p-6">
+        <div className="card space-y-5">
 
-          <h2 className="text-xl font-semibold mb-4 text-white">
-            Invite Others
-          </h2>
+          <div>
+            <h2 className="text-xl font-semibold text-white">
+              Invite Others
+            </h2>
+            <p className="text-sm text-[#9CA3AF]">
+              Share this group with others using a secure invite link.
+            </p>
+          </div>
 
           <div className="flex flex-wrap gap-3">
 
@@ -217,7 +217,13 @@ ${registerLink}`;
 
             <button
               onClick={shareWhatsApp}
-              className="px-4 py-2 rounded-lg text-white bg-green-500 hover:bg-green-600 transition"
+              className="
+                px-4 py-2 rounded-xl text-white
+                bg-green-500
+                hover:bg-green-400
+                shadow-[0_0_15px_rgba(34,197,94,0.4)]
+                transition-all
+              "
             >
               WhatsApp
             </button>
@@ -236,10 +242,12 @@ ${registerLink}`;
       )}
 
       {/* DANGER ZONE */}
+      <div className="
+        card space-y-5
+        shadow-[0_0_20px_rgba(239,68,68,0.15)]
+      ">
 
-      <div className="card p-6 border border-red-500/30">
-
-        <h2 className="text-xl font-semibold text-red-400 mb-4">
+        <h2 className="text-xl font-semibold text-red-400">
           Danger Zone
         </h2>
 
@@ -253,14 +261,12 @@ ${registerLink}`;
           </button>
 
           {isCreator && (
-
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition"
+              className="btn-danger"
             >
               Delete Group
             </button>
-
           )}
 
         </div>

@@ -5,57 +5,142 @@
 /* ---------------- GLOBAL BASE ---------------- */
 
 body {
-  @apply min-h-screen font-sans text-[#E5E7EB] bg-[#0B0B0F];
+  @apply min-h-screen font-sans text-[#E5E7EB] bg-[#020617] antialiased;
 }
 
-/* Smooth transitions (keep but lighter impact) */
+/* smoother + less aggressive */
 * {
-  @apply transition-colors duration-200 ease-in-out;
+  @apply transition-all duration-200 ease-out;
 }
 
 /* ---------------- DESIGN SYSTEM ---------------- */
 
 @layer components {
 
-  /* CARD */
+  /* ---------- SURFACE LEVELS ---------- */
+
+  .surface-base {
+    @apply bg-[#020617];
+  }
+
+  .surface-elevated {
+    @apply bg-[#0B0B0F];
+  }
+
+  .surface-card {
+    @apply bg-gradient-to-b from-[#0B0B0F] to-[#07070A];
+  }
+
+
+  /* ---------- CARD ---------- */
+
   .card {
-    @apply bg-[#111217] border border-[#22232A] rounded-2xl;
+    @apply relative rounded-2xl p-5
+           surface-card
+           shadow-[0_10px_30px_rgba(0,0,0,0.6)]
+           overflow-hidden;
   }
 
-  /* INPUT */
+  /* subtle glow lighting */
+  .card::before {
+    content: "";
+    @apply absolute inset-0 rounded-2xl pointer-events-none;
+    background: radial-gradient(
+      circle at top,
+      rgba(99,102,241,0.12),
+      transparent 70%
+    );
+    opacity: 0.6;
+  }
+
+  .card-hover {
+    @apply hover:shadow-[0_0_40px_rgba(99,102,241,0.15)];
+  }
+
+
+  /* ---------- INPUT ---------- */
+
   .input {
-    @apply w-full px-4 py-2 rounded-lg
-           bg-[#0B0B0F] border border-[#22232A]
+    @apply w-full px-4 py-2 rounded-xl
+           bg-[#020617]
            text-[#E5E7EB] placeholder-[#6B7280]
-           focus:outline-none focus:border-indigo-500;
+           border border-transparent
+           shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]
+           focus:outline-none
+           focus:shadow-[inset_0_0_0_1px_rgba(99,102,241,0.6)];
   }
 
-  /* PRIMARY BUTTON */
+
+  /* ---------- BUTTONS ---------- */
+
+  .btn {
+    @apply px-4 py-2 rounded-xl font-medium
+           transition-all duration-200 ease-out;
+  }
+
+  /* PRIMARY */
   .btn-primary {
-    @apply px-4 py-2 rounded-lg
+    @apply btn text-white
            bg-gradient-to-r from-indigo-500 to-purple-600
-           text-white font-medium
-           hover:opacity-90;
+           shadow-[0_0_20px_rgba(99,102,241,0.3)]
+           hover:shadow-[0_0_30px_rgba(139,92,246,0.4)]
+           hover:opacity-95;
   }
 
-  /* SECONDARY BUTTON */
+  /* SECONDARY */
   .btn-secondary {
-    @apply px-4 py-2 rounded-lg
-           bg-[#1A1B21] border border-[#22232A]
+    @apply btn
+           bg-[#0B0B0F]
            text-[#E5E7EB]
-           hover:bg-[#22232A];
+           shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]
+           hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)];
+  }
+
+  /* DANGER */
+  .btn-danger {
+    @apply btn
+           bg-red-600 text-white
+           hover:bg-red-500
+           shadow-[0_0_15px_rgba(239,68,68,0.4)];
   }
 
   /* ICON BUTTON */
   .btn-icon {
     @apply w-10 h-10 flex items-center justify-center
-           rounded-full
-           bg-[#111217] border border-[#22232A]
+           rounded-xl
+           bg-[#0B0B0F]
            text-[#9CA3AF]
-           hover:bg-[#1A1B21] hover:text-white;
+           shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]
+           hover:text-white
+           hover:shadow-[0_0_20px_rgba(99,102,241,0.2)];
   }
 
-  /* PAGE CONTAINER */
+
+  /* ---------- LIST ITEM ---------- */
+
+  .list-item {
+    @apply px-4 py-3 rounded-xl
+           bg-[#0B0B0F]
+           shadow-[inset_0_0_0_1px_rgba(255,255,255,0.04)]
+           hover:bg-[#111217];
+  }
+
+
+  /* ---------- STAT CARD ---------- */
+
+  .stat-positive {
+    @apply text-green-400
+           drop-shadow-[0_0_10px_rgba(34,197,94,0.4)];
+  }
+
+  .stat-negative {
+    @apply text-red-400
+           drop-shadow-[0_0_10px_rgba(239,68,68,0.4)];
+  }
+
+
+  /* ---------- LAYOUT ---------- */
+
   .page-container {
     @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
   }
@@ -69,7 +154,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: linear-gradient(to bottom, #6366f1, #8b5cf6);
   border-radius: 10px;
 }
 

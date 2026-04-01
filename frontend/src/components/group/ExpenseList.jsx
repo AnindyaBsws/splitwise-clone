@@ -12,17 +12,17 @@ function ExpenseList({
 
   return (
 
-    <div className="card p-6">
+    <div className="space-y-5">
 
-      <h2 className="text-xl font-semibold mb-5 text-white">
+      <h2 className="text-xl font-semibold text-white tracking-tight">
         Current Expenses
       </h2>
 
       {expenses.length === 0 ? (
 
-        <p className="text-[#9CA3AF]">
+        <div className="ui-list-item text-[#9CA3AF] text-sm">
           No expenses yet
-        </p>
+        </div>
 
       ) : (
 
@@ -32,10 +32,7 @@ function ExpenseList({
 
             <div
               key={expense.expense_id}
-              className="p-4 rounded-xl
-              bg-[#1A1B21] border border-[#22232A]
-              flex justify-between items-center
-              hover:bg-[#22232A] transition"
+              className="ui-list-item flex justify-between items-center"
             >
 
               <div>
@@ -50,7 +47,11 @@ function ExpenseList({
 
               </div>
 
-              <div className="font-semibold text-lg text-indigo-400 break-all max-w-[120px] text-right">
+              <div className="
+                font-semibold text-lg text-indigo-400 
+                break-all max-w-[120px] text-right
+                drop-shadow-[0_0_8px_rgba(99,102,241,0.4)]
+              ">
                 {formatCurrency(expense.amount)}
               </div>
 
@@ -64,17 +65,19 @@ function ExpenseList({
 
       {/* ACTION BUTTONS */}
 
-      <div className="flex flex-col gap-3 mt-6">
+      <div className="flex flex-col gap-3 pt-2">
 
         <button
           onClick={handleClearExpenses}
           disabled={!allSettled}
-          className={`px-4 py-2 rounded-lg text-white transition
-          ${
-            allSettled
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-[#1A1B21] border border-[#22232A] text-[#6B7280] cursor-not-allowed"
-          }`}
+          className={`
+            px-4 py-2 rounded-xl font-medium transition-all
+            ${
+              allSettled
+                ? "btn-danger"
+                : "bg-[#0B0B0F] text-[#6B7280] cursor-not-allowed shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]"
+            }
+          `}
         >
           Clear Current Expenses
         </button>

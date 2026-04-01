@@ -10,32 +10,36 @@ function MainLayout({ children }) {
 
   return (
 
-    <div className="min-h-screen relative overflow-x-hidden bg-[#0B0B0F] text-[#E5E7EB]">
+    <div className="
+      min-h-screen relative overflow-x-hidden
+      bg-[#020617] text-[#E5E7EB]
+    ">
 
-      {/* Subtle radial glow (instead of blue gradient) */}
-      <div className="absolute inset-0 -z-10 
-        bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.08),transparent_40%),
-             radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.06),transparent_40%)]" 
-      />
+      {/* GLOBAL BACKGROUND GLOW */}
+      <div className="absolute inset-0 -z-10 pointer-events-none">
 
-      {/* Navbar */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[900px] h-[400px]
+          bg-[radial-gradient(circle,rgba(99,102,241,0.12),transparent_70%)] blur-3xl" />
+
+        <div className="absolute bottom-0 right-0 w-[500px] h-[300px]
+          bg-[radial-gradient(circle,rgba(139,92,246,0.08),transparent_70%)] blur-3xl" />
+
+      </div>
+
+      {/* NAVBAR */}
       <Navbar />
 
-      {/* Page Content */}
+      {/* CONTENT */}
       <main className="page-container py-6 fade-in">
 
-        {/* Back Button */}
+        {/* BACK BUTTON */}
         {showBackButton && (
 
           <div className="mb-6">
 
             <button
               onClick={() => navigate(-1)}
-              className="w-10 h-10 flex items-center justify-center rounded-full
-              bg-[#111217] hover:bg-[#1A1B21]
-              border border-[#22232A]
-              text-[#9CA3AF] hover:text-white
-              transition-all duration-200"
+              className="btn-icon"
             >
               ←
             </button>

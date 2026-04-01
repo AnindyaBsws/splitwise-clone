@@ -92,14 +92,13 @@ function Groups() {
 
     <div className="page-container">
 
-      <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
+      <h1 className="text-3xl font-semibold mb-8 tracking-tight">
         Groups
       </h1>
 
       {/* CREATE GROUP */}
 
-      <div className="p-6 mb-10 rounded-2xl 
-        bg-[#111217] border border-[#22232A]">
+      <div className="card mb-10">
 
         <h2 className="text-lg font-semibold mb-4 text-white">
           Create New Group
@@ -112,19 +111,12 @@ function Groups() {
             placeholder="New group name"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg
-            bg-[#0B0B0F] border border-[#22232A]
-            text-[#E5E7EB] placeholder-[#6B7280]
-            focus:outline-none focus:border-indigo-500
-            transition"
+            className="input flex-1"
           />
 
           <button
             onClick={handleCreateGroup}
-            className="px-5 py-2 rounded-lg
-            bg-gradient-to-r from-indigo-500 to-purple-600
-            text-white font-medium
-            hover:opacity-90 transition"
+            className="btn-primary px-5 py-2"
           >
             Create
           </button>
@@ -141,10 +133,11 @@ function Groups() {
 
           <div
             key={group.id}
-            className="p-6 rounded-2xl
-            bg-[#111217] border border-[#22232A]
-            flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
-            hover:bg-[#1A1B21] transition"
+            className="
+              card card-hover
+              flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+              cursor-pointer
+            "
           >
 
             {/* LEFT */}
@@ -152,8 +145,11 @@ function Groups() {
 
               <p
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="font-semibold text-lg text-white cursor-pointer
-                hover:text-indigo-400 transition"
+                className="
+                  font-semibold text-lg text-white
+                  hover:text-indigo-400
+                  transition
+                "
               >
                 {group.name}
               </p>
@@ -177,10 +173,7 @@ function Groups() {
 
               <button
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="px-4 py-2 rounded-lg
-                bg-gradient-to-r from-indigo-500 to-purple-600
-                text-white text-sm font-medium
-                hover:opacity-90 transition"
+                className="btn-primary text-sm px-4 py-2"
               >
                 Open
               </button>
@@ -189,11 +182,12 @@ function Groups() {
 
                 <button
                   onClick={() => openDeleteModal(group.id)}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg
-                  bg-[#1A1B21] hover:bg-red-500/10
-                  border border-[#22232A]
-                  text-red-400 hover:text-red-300
-                  transition"
+                  className="
+                    btn-icon
+                    text-red-400
+                    hover:text-red-300
+                    hover:shadow-[0_0_15px_rgba(239,68,68,0.4)]
+                  "
                 >
                   🗑
                 </button>

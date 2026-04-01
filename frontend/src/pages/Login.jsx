@@ -43,17 +43,27 @@ function Login() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-6 bg-[#0B0B0F]">
+    <div className="
+      min-h-screen flex items-center justify-center px-6
+      bg-[#020617] relative overflow-hidden
+    ">
 
-      {/* Login Card */}
+      {/* BACKGROUND GLOW */}
+      <div className="absolute inset-0 pointer-events-none
+        bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.15),transparent_60%)]" />
 
-      <div className="card w-full max-w-md p-8 fade-in">
+      {/* LOGIN CARD */}
+      <div className="
+        relative z-10
+        card w-full max-w-md p-8 fade-in
+        shadow-[0_20px_60px_rgba(0,0,0,0.8)]
+      ">
 
         {/* Title */}
-
         <div className="text-center mb-8">
 
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-semibold tracking-tight
+            bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
             Smart Expense Tracker
           </h1>
 
@@ -64,7 +74,6 @@ function Login() {
         </div>
 
         {/* Form */}
-
         <form onSubmit={handleSubmit} className="space-y-4">
 
           <input
@@ -83,23 +92,29 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button className="btn-primary w-full">
+          <button className="btn-primary w-full py-2.5">
             Login
           </button>
 
         </form>
 
-        {/* Register Link */}
+        {/* Divider */}
+        <div className="flex items-center gap-3 my-6">
+          <div className="h-px flex-1 bg-white/5"></div>
+          <span className="text-xs text-[#6B7280]">OR</span>
+          <div className="h-px flex-1 bg-white/5"></div>
+        </div>
 
-        <p className="text-center text-sm text-[#9CA3AF] mt-6">
+        {/* Register Link */}
+        <p className="text-center text-sm text-[#9CA3AF]">
 
           New user?{" "}
 
           <Link
             to="/register"
-            className="text-indigo-400 hover:text-indigo-300 font-medium"
+            className="text-indigo-400 hover:text-indigo-300 font-medium transition"
           >
-            Register here
+            Create an account
           </Link>
 
         </p>

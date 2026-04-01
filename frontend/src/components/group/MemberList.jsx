@@ -11,7 +11,11 @@ function MemberList({
 }) {
 
   if (!members || !groupInfo) {
-    return <div className="card p-6 text-[#9CA3AF]">Loading members...</div>;
+    return (
+      <div className="card p-6 text-[#9CA3AF]">
+        Loading members...
+      </div>
+    );
   }
 
   const [openMenu, setOpenMenu] = useState(null);
@@ -47,7 +51,6 @@ function MemberList({
   const updateRole = async (userId, role) => {
 
     try {
-
       await api.put(`/api/groups/${groupId}/members/${userId}/role`, {
         role
       });
@@ -56,10 +59,8 @@ function MemberList({
       fetchMembers();
 
     } catch (err) {
-
       console.error(err);
       alert(err.response?.data?.error || "Failed to update role");
-
     }
 
   };
@@ -96,9 +97,9 @@ function MemberList({
 
   return (
 
-    <div className="card p-6">
+    <div className="space-y-5">
 
-      <h2 className="text-xl font-semibold mb-5 text-white">
+      <h2 className="text-xl font-semibold text-white tracking-tight">
         Members
       </h2>
 
@@ -112,22 +113,24 @@ function MemberList({
 
             <div
               key={member.user_id}
-              className="p-4 rounded-xl
-              bg-[#1A1B21] border border-[#22232A]
-              flex justify-between items-center
-              hover:bg-[#22232A] transition"
+              className="ui-list-item flex justify-between items-center"
             >
 
               {/* LEFT SIDE */}
-
               <div className="flex items-center gap-3">
 
+                {/* Avatar */}
                 <div
-                  className={`${getAvatarColor(member.name)} text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold`}
+                  className={`
+                    ${getAvatarColor(member.name)}
+                    text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold
+                    shadow-[0_0_10px_rgba(0,0,0,0.5)]
+                  `}
                 >
                   {member.name[0].toUpperCase()}
                 </div>
 
+                {/* Info */}
                 <div className="flex flex-col">
 
                   <div className="font-medium text-white">
@@ -137,19 +140,25 @@ function MemberList({
                   <div className="mt-1 flex gap-2">
 
                     {member.role === "creator" && (
-                      <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
+                      <span className="text-xs px-2 py-1 rounded-full
+                        bg-purple-500/10 text-purple-400
+                        shadow-[0_0_8px_rgba(168,85,247,0.3)]">
                         Creator
                       </span>
                     )}
 
                     {member.role === "admin" && (
-                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">
+                      <span className="text-xs px-2 py-1 rounded-full
+                        bg-blue-500/10 text-blue-400
+                        shadow-[0_0_8px_rgba(59,130,246,0.3)]">
                         Admin
                       </span>
                     )}
 
                     {member.role === "member" && (
-                      <span className="text-xs bg-[#22232A] text-[#9CA3AF] px-2 py-1 rounded-full">
+                      <span className="text-xs px-2 py-1 rounded-full
+                        bg-[#0B0B0F] text-[#9CA3AF]
+                        shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
                         Member
                       </span>
                     )}
@@ -161,7 +170,6 @@ function MemberList({
               </div>
 
               {/* ACTION MENU */}
-
               {(isCreator || isAdmin) &&
                 member.role !== "creator" &&
                 member.user_id !== currentUserId && (
@@ -177,7 +185,10 @@ function MemberList({
                           : member.user_id
                       );
                     }}
-                    className="text-[#9CA3AF] hover:text-white text-lg"
+                    className="
+                      btn-icon
+                      w-9 h-9 text-lg
+                    "
                   >
                     ⋮
                   </button>
@@ -186,8 +197,13 @@ function MemberList({
 
                     <div
                       ref={menuRef}
-                      className="absolute right-0 mt-2 w-44 z-20
-                      bg-[#111217] border border-[#22232A] rounded-lg overflow-hidden"
+                      className="
+                        absolute right-0 mt-2 w-44 z-20
+                        rounded-xl overflow-hidden
+                        bg-[#0B0B0F]
+                        shadow-[0_10px_30px_rgba(0,0,0,0.8)]
+                        border border-white/5
+                      "
                     >
 
                       {isCreator && !isCreatorMember && (
@@ -199,7 +215,7 @@ function MemberList({
                               e.stopPropagation();
                               updateRole(member.user_id, "member");
                             }}
-                            className="block w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1A1B21]"
+                            className="w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#111217]"
                           >
                             Demote to Member
                           </button>
@@ -211,7 +227,7 @@ function MemberList({
                               e.stopPropagation();
                               updateRole(member.user_id, "admin");
                             }}
-                            className="block w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1A1B21]"
+                            className="w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#111217]"
                           >
                             Promote to Admin
                           </button>
@@ -228,7 +244,7 @@ function MemberList({
                             openRemoveModal(member);
                             setOpenMenu(null);
                           }}
-                          className="block w-full text-left px-4 py-2 text-red-400 hover:bg-[#1A1B21]"
+                          className="w-full text-left px-4 py-2 text-red-400 hover:bg-[#111217]"
                         >
                           Remove Member
                         </button>

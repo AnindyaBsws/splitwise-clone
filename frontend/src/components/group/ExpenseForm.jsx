@@ -41,9 +41,9 @@ function ExpenseForm({
 
   return (
 
-    <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+    <div className="space-y-6">
 
-      <h2 className="text-xl font-semibold mb-5 text-white">
+      <h2 className="text-xl font-semibold text-white tracking-tight">
         Add Expense
       </h2>
 
@@ -54,11 +54,7 @@ function ExpenseForm({
         placeholder="Expense title"
         value={expenseTitle}
         onChange={(e) => setExpenseTitle(e.target.value)}
-        className="w-full mb-3 px-4 py-2 rounded-lg
-        bg-[#0B0B0F] border border-[#22232A]
-        text-[#E5E7EB] placeholder-[#6B7280]
-        focus:outline-none focus:border-indigo-500
-        transition"
+        className="input"
       />
 
       {/* AMOUNT */}
@@ -69,11 +65,7 @@ function ExpenseForm({
         value={expenseAmount}
         min="0"
         onChange={(e) => setExpenseAmount(e.target.value)}
-        className="w-full mb-3 px-4 py-2 rounded-lg
-        bg-[#0B0B0F] border border-[#22232A]
-        text-[#E5E7EB] placeholder-[#6B7280]
-        focus:outline-none focus:border-indigo-500
-        transition"
+        className="input"
       />
 
       {/* PAYER */}
@@ -81,11 +73,7 @@ function ExpenseForm({
       <select
         value={payerId}
         onChange={(e) => setPayerId(e.target.value)}
-        className="w-full mb-4 px-4 py-2 rounded-lg
-        bg-[#0B0B0F] border border-[#22232A]
-        text-[#E5E7EB]
-        focus:outline-none focus:border-indigo-500
-        transition"
+        className="input"
       >
         <option value="">Paid by</option>
 
@@ -99,9 +87,9 @@ function ExpenseForm({
 
       {/* SPLIT MEMBERS */}
 
-      <div className="mb-5">
+      <div className="space-y-3">
 
-        <p className="text-sm text-[#9CA3AF] mb-2">
+        <p className="text-sm text-[#9CA3AF]">
           Split Between
         </p>
 
@@ -116,12 +104,15 @@ function ExpenseForm({
               <button
                 key={member.user_id}
                 onClick={() => toggleSplitUser(member.user_id)}
-                className={`px-3 py-1.5 rounded-full text-sm border transition
-                ${
-                  selected
-                    ? "bg-indigo-500 text-white border-indigo-500"
-                    : "bg-[#1A1B21] text-[#9CA3AF] border-[#22232A] hover:bg-[#22232A] hover:text-white"
-                }`}
+                className={`
+                  px-3 py-1.5 rounded-full text-sm font-medium
+                  transition-all duration-200
+                  ${
+                    selected
+                      ? "bg-indigo-500 text-white shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                      : "bg-[#0B0B0F] text-[#9CA3AF] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)] hover:text-white hover:shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+                  }
+                `}
               >
                 {member.name}
               </button>
@@ -138,10 +129,7 @@ function ExpenseForm({
 
       <button
         onClick={handleSubmit}
-        className="w-full py-2.5 rounded-lg
-        bg-gradient-to-r from-indigo-500 to-purple-600
-        text-white font-medium
-        hover:opacity-90 transition"
+        className="btn-primary w-full py-2.5"
       >
         Add Expense
       </button>
