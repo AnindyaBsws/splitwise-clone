@@ -24,26 +24,15 @@ function Groups() {
     return Number(payload.sub);
   };
 
-  // --------------------------------
-  // FETCH GROUPS
-  // --------------------------------
   useEffect(() => {
 
     const fetchGroups = async () => {
-
       try {
-
         const data = await getGroups();
-
-        // Backend already returns memberCount
         setGroups(data);
-
       } catch (error) {
-
         console.error("Error fetching groups", error);
-
       }
-
     };
 
     fetchGroups();
@@ -51,9 +40,6 @@ function Groups() {
 
   }, []);
 
-  // --------------------------------
-  // CREATE GROUP
-  // --------------------------------
   const handleCreateGroup = async () => {
 
     if (!groupName.trim()) return;
@@ -70,19 +56,15 @@ function Groups() {
       setGroupName("");
 
     } catch (error) {
-
       console.error("Error creating group", error);
-
     }
 
   };
 
   const openDeleteModal = (groupId) => {
-
     setSelectedGroupId(groupId);
     setDeleteError(null);
     setShowDeleteModal(true);
-
   };
 
   const confirmDeleteGroup = async () => {
@@ -109,13 +91,15 @@ function Groups() {
 
   return (
 
-    <div className="page-container">
+    <div className="page-container space-y-10">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Groups
-      </h1>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Groups</h1>
+      </div>
 
-      <div className="glass-card p-6 mb-10">
+      {/* CREATE GROUP CARD */}
+      <div className="glass-card p-6">
 
         <h2 className="text-lg font-semibold mb-4">
           Create New Group
@@ -125,7 +109,7 @@ function Groups() {
 
           <input
             type="text"
-            placeholder="New group name"
+            placeholder="Enter group name..."
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
             className="neon-input flex-1"
@@ -142,39 +126,40 @@ function Groups() {
 
       </div>
 
-      <div className="space-y-5">
+      {/* GROUP LIST */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         {groups.map((group) => (
 
           <div
             key={group.id}
-            className="glass-card p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:-translate-y-1"
+            className="glass-card p-6 flex flex-col justify-between glass-hover"
           >
 
-            <div>
+            {/* GROUP INFO */}
+            <div className="space-y-2">
 
               <p
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="font-semibold text-lg cursor-pointer hover:text-indigo-400"
+                className="font-semibold text-lg cursor-pointer hover:text-primary"
               >
                 {group.name}
               </p>
 
               <p className="text-sm text-gray-400">
-                Members: {group.memberCount}
+                {group.memberCount} members
               </p>
 
               {Number(group.created_by) === Number(currentUserId) && (
-
-                <p className="text-sm text-gray-400">
+                <p className="text-xs text-gray-500">
                   Created by you
                 </p>
-
               )}
 
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* ACTIONS */}
+            <div className="flex items-center justify-between mt-6">
 
               <button
                 onClick={() => navigate(`/groups/${group.id}`)}
@@ -202,6 +187,7 @@ function Groups() {
 
       </div>
 
+      {/* MODAL */}
       <DeleteGroupModal
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}

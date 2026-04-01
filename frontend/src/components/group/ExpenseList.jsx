@@ -1,4 +1,5 @@
 import { formatCurrency } from "../../utils/formatCurrency";
+import React from "react";
 
 function ExpenseList({
   expenses,
@@ -11,32 +12,37 @@ function ExpenseList({
 
   return (
 
-    <div className="glass-card p-6">
+    <div className="space-y-6">
 
-      <h2 className="text-xl font-semibold mb-5">
-        Current Expenses
-      </h2>
+      {/* HEADER */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">
+          Current Expenses
+        </h2>
+      </div>
 
-      {expenses.length === 0 ? (
+      {/* LIST */}
+      <div className="glass-card divide-y divide-white/10">
 
-        <p className="text-gray-400">
-          No expenses yet
-        </p>
+        {expenses.length === 0 ? (
 
-      ) : (
+          <div className="p-4 text-gray-400">
+            No expenses yet
+          </div>
 
-        <div className="space-y-3">
+        ) : (
 
-          {expenses.map((expense) => (
+          expenses.map((expense) => (
 
             <div
               key={expense.expense_id}
-              className="glass-card p-4 flex justify-between items-center hover:-translate-y-1"
+              className="flex justify-between items-center p-4 hover:bg-white/5 transition"
             >
 
-              <div>
+              {/* LEFT */}
+              <div className="space-y-1 max-w-[70%]">
 
-                <p className="font-semibold text-white truncate max-w-[220px]">
+                <p className="font-medium text-white truncate">
                   💸 {expense.title}
                 </p>
 
@@ -46,39 +52,43 @@ function ExpenseList({
 
               </div>
 
-              <div className="font-semibold text-lg text-indigo-400 break-all max-w-[120px] text-right">
-                {formatCurrency(expense.amount)}
+              {/* RIGHT */}
+              <div className="text-right">
+
+                <p className="font-semibold text-primary text-lg">
+                  {formatCurrency(expense.amount)}
+                </p>
+
               </div>
 
             </div>
 
-          ))}
+          ))
 
-        </div>
+        )}
 
-      )}
+      </div>
 
       {/* ACTION BUTTONS */}
-
-      <div className="flex flex-col gap-3 mt-6">
+      <div className="flex flex-col sm:flex-row gap-3">
 
         <button
           onClick={handleClearExpenses}
           disabled={!allSettled}
-          className={`px-4 py-2 rounded-lg text-white ${
+          className={`flex-1 px-4 py-2 rounded-xl text-sm font-medium transition ${
             allSettled
-              ? "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500"
-              : "bg-gray-600 cursor-not-allowed"
+              ? "bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20"
+              : "bg-white/5 text-gray-500 border border-white/10 cursor-not-allowed"
           }`}
         >
-          Clear Current Expenses
+          Clear Expenses
         </button>
 
         <button
           onClick={() => navigate(`/groups/${id}/history`)}
-          className="gradient-btn bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500"
+          className="gradient-btn flex-1"
         >
-          Expense History
+          View History
         </button>
 
       </div>
@@ -88,7 +98,5 @@ function ExpenseList({
   );
 
 }
-
-import React from "react";
 
 export default React.memo(ExpenseList);

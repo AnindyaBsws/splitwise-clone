@@ -15,66 +15,64 @@ function RemoveMemberModal({
 
   return (
 
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50">
 
-      <div className="glass-card p-6 w-[420px]">
+      <div className="glass-card p-6 w-[90%] max-w-md space-y-5">
 
-        <h2 className="text-xl font-semibold mb-4">
+        {/* TITLE */}
+        <h2 className="text-xl font-semibold text-white">
           Remove Member
         </h2>
 
         {hasDebt ? (
 
-          <div>
-
-            <p className="text-red-400 mb-6">
-              Debts need to be cleared first for this member.
+          <>
+            {/* ERROR STATE */}
+            <p className="text-red-400 text-sm leading-relaxed">
+              This member has pending debts. Clear all balances before removing them.
             </p>
 
             <div className="flex justify-end">
-
               <button
                 onClick={() => setShowRemoveModal(false)}
-                className="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-white"
+                className="glass-card px-4 py-2 text-sm"
               >
                 OK
               </button>
-
             </div>
-
-          </div>
+          </>
 
         ) : (
 
-          <div>
-
-            <p className="mb-6 text-gray-300">
+          <>
+            {/* CONFIRM TEXT */}
+            <p className="text-gray-300 text-sm leading-relaxed">
               Are you sure you want to remove{" "}
-              <strong className="text-white">
+              <span className="text-white font-medium">
                 {selectedMember?.name}
-              </strong>{" "}
+              </span>{" "}
               from this group?
             </p>
 
-            <div className="flex justify-end gap-3">
+            {/* ACTIONS */}
+            <div className="flex justify-end gap-3 pt-2">
 
               <button
                 onClick={() => setShowRemoveModal(false)}
-                className="px-4 py-2 rounded-lg border border-white/10 hover:bg-white/10"
+                className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition"
               >
                 Cancel
               </button>
 
               <button
                 onClick={deleteMember}
-                className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-700 hover:from-red-400 hover:to-red-600 text-white"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition"
               >
                 Remove
               </button>
 
             </div>
-
-          </div>
+          </>
 
         )}
 
@@ -83,6 +81,7 @@ function RemoveMemberModal({
     </div>
 
   );
+
 }
 
 export default RemoveMemberModal;

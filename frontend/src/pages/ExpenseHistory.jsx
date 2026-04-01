@@ -13,13 +13,10 @@ function ExpenseHistory() {
     try {
 
       const res = await api.get(`/api/groups/${id}/history`);
-
       setHistory(res.data);
 
     } catch (error) {
-
       console.error("Error fetching history", error);
-
     }
 
   };
@@ -33,9 +30,7 @@ function ExpenseHistory() {
     try {
 
       await api.delete(`/api/groups/${id}/history`);
-
       setHistory([]);
-
       alert("Expense history deleted");
 
     } catch (error) {
@@ -50,25 +45,15 @@ function ExpenseHistory() {
 
   };
 
-  /* -----------------------------
-     Calculate total consumption
-  ----------------------------- */
-
   const totalConsumption = history.reduce((sum, h) => {
     return sum + Number(h.amount);
   }, 0);
-
-  /* -----------------------------
-     Group history by date
-  ----------------------------- */
 
   const groupedHistory = history.reduce((acc, h) => {
 
     const date = new Date(h.created_at).toLocaleDateString();
 
-    if (!acc[date]) {
-      acc[date] = [];
-    }
+    if (!acc[date]) acc[date] = [];
 
     acc[date].push(h);
 
@@ -78,68 +63,83 @@ function ExpenseHistory() {
 
   return (
 
-    <div className="page-container space-y-8 fade-in">
+    <div className="page-container space-y-10 fade-in">
 
+      {/* HEADER */}
       <h1 className="text-3xl font-bold">
         Expense History
       </h1>
 
-      {/* TOTAL SPENDING */}
+      {/* TOTAL */}
+      <div className="glass-card p-6 flex items-center justify-between">
 
-      <div className="glass-card p-6">
+        <div>
+          <p className="text-sm text-gray-400">
+            Total Group Spending
+          </p>
+          <p className="text-3xl font-bold text-primary mt-1">
+            ₹{totalConsumption}
+          </p>
+        </div>
 
-        <p className="text-gray-400 text-sm">
-          Total Group Spending
-        </p>
-
-        <p className="text-3xl font-bold text-indigo-400 mt-2">
-          ₹{totalConsumption}
-        </p>
+        {history.length > 0 && (
+          <button
+            onClick={handleDeleteHistory}
+            className="px-4 py-2 rounded-xl text-sm bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition"
+          >
+            Clear History
+          </button>
+        )}
 
       </div>
 
-      {/* HISTORY LIST */}
-
+      {/* HISTORY */}
       {history.length === 0 ? (
 
-        <div className="glass-card p-6 text-gray-400">
+        <div className="glass-card p-6 text-gray-400 text-center">
           No expense history
         </div>
 
       ) : (
 
-        <div className="space-y-6">
+        <div className="space-y-8">
 
           {Object.keys(groupedHistory).map((date) => (
 
-            <div key={date}>
+            <div key={date} className="space-y-3">
 
-              {/* DATE HEADER */}
-
-              <h2 className="text-lg font-semibold text-gray-300 mb-3">
+              {/* DATE */}
+              <p className="text-sm text-gray-400">
                 {date}
-              </h2>
+              </p>
 
-              <div className="space-y-3">
+              {/* LIST */}
+              <div className="glass-card divide-y divide-white/10">
 
                 {groupedHistory[date].map((h) => (
 
                   <div
                     key={h.id}
-                    className="glass-card p-4 hover:-translate-y-1"
+                    className="flex justify-between items-center p-4 hover:bg-white/5 transition"
                   >
 
-                    <p className="font-semibold">
-                      {h.title}
-                    </p>
+                    {/* LEFT */}
+                    <div className="space-y-1">
 
-                    <p className="text-sm text-gray-400">
-                      Amount: ₹{h.amount}
-                    </p>
+                      <p className="font-medium text-white">
+                        {h.title}
+                      </p>
 
-                    <p className="text-sm text-gray-400">
-                      Paid by: {h.paid_by}
-                    </p>
+                      <p className="text-sm text-gray-400">
+                        Paid by {h.paid_by}
+                      </p>
+
+                    </div>
+
+                    {/* RIGHT */}
+                    <div className="font-semibold text-primary">
+                      ₹{h.amount}
+                    </div>
 
                   </div>
 
@@ -150,15 +150,6 @@ function ExpenseHistory() {
             </div>
 
           ))}
-
-          {/* DELETE BUTTON */}
-
-          <button
-            onClick={handleDeleteHistory}
-            className="px-5 py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white"
-          >
-            Delete All History
-          </button>
 
         </div>
 

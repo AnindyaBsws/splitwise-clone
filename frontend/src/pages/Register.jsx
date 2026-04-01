@@ -11,7 +11,6 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) navigate("/dashboard");
@@ -40,7 +39,6 @@ function Register() {
       });
 
       alert("Registration successful");
-
       navigate("/login");
 
     } catch (error) {
@@ -53,28 +51,32 @@ function Register() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
 
-      {/* Register Card */}
+      {/* BACKGROUND BLOBS */}
+      <div className="gradient-bg">
+        <div className="gradient-blob blob1"></div>
+        <div className="gradient-blob blob2"></div>
+        <div className="gradient-blob blob3"></div>
+      </div>
 
-      <div className="glass-card w-full max-w-md p-8 fade-in">
+      {/* REGISTER CARD */}
+      <div className="glass-card w-full max-w-md p-8 space-y-6 fade-in">
 
-        {/* Header */}
+        {/* HEADER */}
+        <div className="text-center">
 
-        <div className="text-center mb-8">
-
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
-            Smart Expense Tracker
+          <h1 className="text-3xl font-bold bg-gradient-main bg-clip-text text-transparent">
+            Create Account
           </h1>
 
-          <p className="text-gray-300 mt-2 text-sm">
-            Create your account and start tracking shared expenses.
+          <p className="text-gray-400 mt-2 text-sm">
+            Start tracking shared expenses in seconds
           </p>
 
         </div>
 
-        {/* Form */}
-
+        {/* FORM */}
         <form onSubmit={handleRegister} className="space-y-4">
 
           <input
@@ -118,15 +120,14 @@ function Register() {
 
         </form>
 
-        {/* Login Link */}
-
-        <p className="text-center text-sm text-gray-300 mt-6">
+        {/* FOOTER */}
+        <p className="text-center text-sm text-gray-400">
 
           Already have an account?{" "}
 
           <Link
             to="/login"
-            className="text-indigo-400 hover:text-indigo-300 font-medium"
+            className="text-primary hover:text-purple-400 font-medium"
           >
             Login
           </Link>

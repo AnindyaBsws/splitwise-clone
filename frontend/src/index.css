@@ -6,25 +6,63 @@
 
 body {
   @apply min-h-screen text-white font-sans;
-  background: radial-gradient(circle at 20% 20%, #1e293b, #020617);
+  background: radial-gradient(circle at 10% 10%, #1e293b, #020617 60%);
+  overflow-x: hidden;
 }
 
 /* Smooth transitions everywhere */
 * {
-  @apply transition-all duration-200 ease-in-out;
+  @apply transition-all duration-300 ease-smooth;
 }
 
 /* ---------------- GLASS CARD ---------------- */
 
 .glass-card {
-  @apply bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl;
+  @apply rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5
+         backdrop-blur-lg shadow-glass;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.02)
+  );
+  /* Glass border masking (supported in modern browsers) */
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+                linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+
+  /* Fallback for non-webkit browsers */
+  mask-composite: exclude;
+  
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Hover lift effect */
+.glass-hover {
+  @apply transition-all duration-300;
+}
+
+.glass-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* ---------------- INPUT STYLES ---------------- */
 
 .neon-input {
-  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/20 
-         focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/40
+  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
+         focus:border-primary focus:ring-2 focus:ring-primary/40
          outline-none text-white placeholder-gray-400;
 }
 
@@ -32,9 +70,9 @@ body {
 
 .gradient-btn {
   @apply px-6 py-3 rounded-xl font-semibold text-white
-         bg-gradient-to-r from-indigo-500 to-purple-600
-         hover:from-indigo-400 hover:to-purple-500
-         shadow-lg hover:shadow-xl;
+         bg-gradient-main shadow-glow
+         hover:scale-[1.03] active:scale-[0.98]
+         transition-all duration-300;
 }
 
 /* ---------------- CIRCLE ICON BUTTON ---------------- */
@@ -42,7 +80,7 @@ body {
 .circle-icon-btn {
   @apply w-10 h-10 flex items-center justify-center
          rounded-full bg-white/10 backdrop-blur-md
-         border border-white/20
+         border border-white/10
          hover:bg-white/20 hover:scale-105;
 }
 
@@ -50,6 +88,12 @@ body {
 
 .page-container {
   @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Section spacing */
+
+.section {
+  @apply py-10 md:py-14;
 }
 
 /* ---------------- SCROLLBAR ---------------- */
@@ -66,13 +110,13 @@ body {
 /* ---------------- ANIMATIONS ---------------- */
 
 .fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -80,26 +124,7 @@ body {
   }
 }
 
-@keyframes float {
-
-  0% {
-    transform: translateY(0px);
-    opacity: 0.2;
-  }
-
-  50% {
-    transform: translateY(-40px);
-    opacity: 0.6;
-  }
-
-  100% {
-    transform: translateY(0px);
-    opacity: 0.2;
-  }
-
-}
-
-/* Animated Gradient Background */
+/* Floating background blobs */
 
 .gradient-bg {
   position: fixed;
@@ -140,17 +165,13 @@ body {
 }
 
 @keyframes floatBlob {
-
   0% {
-    transform: translate(0,0) scale(1);
+    transform: translate(0, 0) scale(1);
   }
-
   50% {
-    transform: translate(80px,-60px) scale(1.1);
+    transform: translate(80px, -60px) scale(1.1);
   }
-
   100% {
-    transform: translate(0,0) scale(1);
+    transform: translate(0, 0) scale(1);
   }
-
 }

@@ -25,7 +25,6 @@ function AddMember({ groupId, fetchMembers }) {
       setError(null);
 
       setUserTag("");
-
       fetchMembers();
 
     } catch (err) {
@@ -39,46 +38,41 @@ function AddMember({ groupId, fetchMembers }) {
 
   return (
 
-    <div className="glass-card p-6">
+    <div className="space-y-4">
 
-      <h2 className="text-xl font-semibold mb-4">
-        Add Member
-      </h2>
-
+      {/* INPUT + BUTTON */}
       <div className="flex flex-col sm:flex-row gap-3">
 
         <input
           type="text"
-          placeholder="Enter User Tag (ex: #GVO94D)"
+          placeholder="Enter User Tag (e.g. #GVO94D)"
           value={userTag}
           onChange={(e) => setUserTag(e.target.value)}
-          className="flex-1 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
+          className="neon-input flex-1"
         />
 
         <button
           onClick={handleAdd}
-          className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white"
+          className="px-5 py-2 rounded-xl text-sm font-medium bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition"
         >
-          Add
+          Add Member
         </button>
 
       </div>
 
-      {/* SUCCESS MESSAGE */}
-
+      {/* SUCCESS */}
       {message && (
 
-        <div className="mt-4 bg-green-500/20 text-green-300 p-3 rounded-lg">
+        <div className="text-sm px-4 py-2 rounded-xl bg-green-500/10 text-green-400 border border-green-500/30">
           {message}
         </div>
 
       )}
 
-      {/* ERROR MESSAGE */}
-
+      {/* ERROR */}
       {error && (
 
-        <div className="mt-4 bg-red-500/20 text-red-300 p-3 rounded-lg">
+        <div className="text-sm px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30">
           {error}
         </div>
 

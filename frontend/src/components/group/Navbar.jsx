@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 function Navbar() {
 
   const { token } = useAuth();
+  const location = useLocation();
 
   let userName = "User";
 
@@ -16,61 +17,73 @@ function Navbar() {
     }
   }
 
+  const isActive = (path) =>
+    location.pathname === path
+      ? "text-white"
+      : "text-gray-400 hover:text-white";
+
   return (
 
-    <nav className="sticky top-4 z-50 page-container">
+    <nav className="sticky top-6 z-50 px-4">
 
-      <div className="glass-card px-6 py-3 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto">
 
-        {/* LEFT SIDE */}
-        <div className="flex items-center gap-6">
+        <div className="glass-card px-6 py-3 flex items-center justify-between shadow-glow">
 
-          <Link
-            to="/dashboard"
-            className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent"
-          >
-            Smart Expense Tracker
-          </Link>
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-8">
 
-          <div className="hidden sm:flex items-center gap-6">
-
+            {/* LOGO */}
             <Link
               to="/dashboard"
-              className="text-gray-300 hover:text-white"
+              className="text-lg sm:text-xl font-bold bg-gradient-main bg-clip-text text-transparent"
             >
-              Dashboard
+              Luminous
             </Link>
 
-            <Link
-              to="/groups"
-              className="text-gray-300 hover:text-white"
-            >
-              Groups
-            </Link>
+            {/* NAV LINKS */}
+            <div className="hidden md:flex items-center gap-6">
+
+              <Link
+                to="/dashboard"
+                className={`${isActive("/dashboard")} transition`}
+              >
+                Dashboard
+              </Link>
+
+              <Link
+                to="/groups"
+                className={`${isActive("/groups")} transition`}
+              >
+                Groups
+              </Link>
+
+            </div>
 
           </div>
 
-        </div>
+          {/* RIGHT SIDE */}
+          <div className="flex items-center gap-4">
 
-        {/* RIGHT SIDE */}
-        <div className="flex items-center gap-3">
+            {/* PROFILE */}
+            <Link
+              to="/profile"
+              className="flex items-center gap-3 px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur transition"
+            >
 
-          <Link
-            to="/profile"
-            className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20"
-          >
+              {/* Avatar */}
+              <div className="w-9 h-9 rounded-full bg-gradient-main flex items-center justify-center text-sm font-bold shadow-glow">
+                {userName[0].toUpperCase()}
+              </div>
 
-            {/* Avatar */}
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center text-sm font-bold">
-              {userName[0].toUpperCase()}
-            </div>
+              {/* Name */}
+              <span className="hidden sm:block text-gray-200 font-medium">
+                {userName}
+              </span>
 
-            {/* Name (hidden on mobile) */}
-            <span className="hidden sm:block text-gray-200">
-              {userName}
-            </span>
+            </Link>
 
-          </Link>
+          </div>
 
         </div>
 

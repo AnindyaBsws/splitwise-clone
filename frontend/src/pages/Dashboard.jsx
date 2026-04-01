@@ -46,7 +46,6 @@ export default function Dashboard() {
       balanceResponses.forEach((res) => {
 
         const balances = res.data;
-
         const userBalance = Number(balances[currentUserId] || 0);
 
         if (userBalance < 0) totalOwe += Math.abs(userBalance);
@@ -90,9 +89,7 @@ export default function Dashboard() {
       setYouAreOwed(totalOwed);
 
     } catch (error) {
-
       console.error("Dashboard fetch error:", error);
-
     }
 
   };
@@ -100,9 +97,7 @@ export default function Dashboard() {
   /* ---------------- EMPTY STATE ---------------- */
 
   if (groupCount === 0) {
-
     return (
-
       <div className="page-container">
 
         <h1 className="text-3xl font-bold mb-8">
@@ -120,151 +115,156 @@ export default function Dashboard() {
           </p>
 
           <Link to="/groups">
-
             <button className="gradient-btn">
               Create Your First Group
             </button>
-
           </Link>
 
         </div>
 
       </div>
-
     );
-
   }
 
   return (
 
-    <div className="page-container">
+    <div className="page-container space-y-10">
 
-      <h1 className="text-3xl font-bold mb-8">
-        Dashboard
+      {/* HEADER */}
+      <h1 className="text-3xl font-bold">
+        Overview
       </h1>
 
-      {/* SUMMARY CARDS */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        {/* LEFT SIDE */}
+        <div className="lg:col-span-3 space-y-8">
 
-        <div className="glass-card p-6 hover:-translate-y-1">
+          {/* SUMMARY CARDS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <p className="text-gray-300 text-sm font-medium">
-            Active Groups
-          </p>
+            <div className="glass-card p-6 glass-hover">
+              <p className="text-gray-400 text-sm">You Are Owed</p>
+              <h2 className="text-4xl font-bold text-green-400 mt-3">
+                ₹{youAreOwed.toFixed(2)}
+              </h2>
+            </div>
 
-          <h2 className="text-4xl font-bold mt-3">
-            {groupCount}
-          </h2>
+            <div className="glass-card p-6 glass-hover">
+              <p className="text-gray-400 text-sm">You Owe</p>
+              <h2 className="text-4xl font-bold text-red-400 mt-3">
+                ₹{youOwe.toFixed(2)}
+              </h2>
+            </div>
 
-        </div>
-
-        <div className="glass-card p-6 hover:-translate-y-1">
-
-          <p className="text-gray-300 text-sm font-medium">
-            You Owe
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-red-400">
-            ₹{youOwe.toFixed(2)}
-          </h2>
-
-        </div>
-
-        <div className="glass-card p-6 hover:-translate-y-1">
-
-          <p className="text-gray-300 text-sm font-medium">
-            You Are Owed
-          </p>
-
-          <h2 className="text-4xl font-bold mt-3 text-green-400">
-            ₹{youAreOwed.toFixed(2)}
-          </h2>
-
-        </div>
-
-      </div>
-
-      {/* QUICK ACTION */}
-
-      <div className="mb-12">
-
-        <h2 className="text-xl font-semibold mb-4">
-          Quick Actions
-        </h2>
-
-        <div className="glass-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-          <div>
-
-            <p className="font-medium">
-              Manage Groups
-            </p>
-
-            <p className="text-sm text-gray-400">
-              Create groups, add expenses and settle balances
-            </p>
+            <div className="glass-card p-6 glass-hover">
+              <p className="text-gray-400 text-sm">Active Groups</p>
+              <h2 className="text-4xl font-bold mt-3">
+                {groupCount}
+              </h2>
+            </div>
 
           </div>
 
-          <Link to="/groups">
+          {/* QUICK ACTION (IMPROVED, NOT REMOVED) */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4">
+              Quick Actions
+            </h2>
 
-            <button className="gradient-btn">
-              Open Groups
-            </button>
+            <div className="glass-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-          </Link>
+              <div>
+                <p className="font-medium">
+                  Manage Groups
+                </p>
+                <p className="text-sm text-gray-400">
+                  Create groups, add expenses and settle balances
+                </p>
+              </div>
+
+              <Link to="/groups">
+                <button className="gradient-btn">
+                  Open Groups
+                </button>
+              </Link>
+
+            </div>
+          </div>
+
+          {/* RECENT ACTIVITY */}
+          <div>
+
+            <h2 className="text-xl font-semibold mb-4">
+              Recent Activity
+            </h2>
+
+            <div className="glass-card divide-y divide-white/10">
+
+              {recentExpenses.length === 0 && (
+                <div className="p-4 text-gray-400">
+                  No expenses yet
+                </div>
+              )}
+
+              {recentExpenses.map((expense) => (
+
+                <div
+                  key={expense.id}
+                  className="flex justify-between items-center p-4 hover:bg-white/5"
+                >
+
+                  <div>
+                    <p className="font-medium">
+                      {expense.title}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {expense.groupName}
+                    </p>
+                  </div>
+
+                  <div className="font-semibold text-gray-200">
+                    ₹{Number(expense.amount).toFixed(2)}
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
 
         </div>
 
-      </div>
+        {/* RIGHT PANEL */}
+        <div className="space-y-6">
 
-      {/* RECENT ACTIVITY */}
+          <div className="glass-card p-6">
 
-      <div>
+            <h2 className="text-lg font-semibold mb-4">
+              Quick Actions
+            </h2>
 
-        <h2 className="text-xl font-semibold mb-4">
-          Recent Activity
-        </h2>
+            <div className="flex flex-col gap-3">
 
-        <div className="glass-card divide-y divide-white/10">
+              <Link to="/groups">
+                <button className="gradient-btn w-full">
+                  Manage Groups
+                </button>
+              </Link>
 
-          {recentExpenses.length === 0 && (
+              <button className="glass-card p-3 text-left">
+                Export Reports
+              </button>
 
-            <div className="p-4 text-gray-400">
-              No expenses yet
-            </div>
-
-          )}
-
-          {recentExpenses.map((expense) => (
-
-            <div
-              key={expense.id}
-              className="flex justify-between items-center p-4 hover:bg-white/5"
-            >
-
-              <div>
-
-                <p className="font-medium">
-                  {expense.title}
-                </p>
-
-                <p className="text-sm text-gray-400">
-                  {expense.groupName}
-                </p>
-
-              </div>
-
-              <div className="font-semibold text-gray-200">
-
-                ₹{Number(expense.amount).toFixed(2)}
-
-              </div>
+              <button className="glass-card p-3 text-left">
+                Settle All Balances
+              </button>
 
             </div>
 
-          ))}
+          </div>
 
         </div>
 

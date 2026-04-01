@@ -1,4 +1,5 @@
 import { formatCurrency } from "../../utils/formatCurrency";
+import React from "react";
 
 function BalanceList({ balances, getMemberName }) {
 
@@ -6,23 +7,25 @@ function BalanceList({ balances, getMemberName }) {
 
   return (
 
-    <div className="glass-card p-6">
+    <div className="space-y-6">
 
-      <h2 className="text-xl font-semibold mb-5">
+      {/* HEADER */}
+      <h2 className="text-xl font-semibold">
         Balances
       </h2>
 
-      {entries.length === 0 ? (
+      {/* LIST */}
+      <div className="glass-card divide-y divide-white/10">
 
-        <p className="text-gray-400">
-          No balances yet
-        </p>
+        {entries.length === 0 ? (
 
-      ) : (
+          <div className="p-4 text-gray-400">
+            No balances yet
+          </div>
 
-        <div className="space-y-3">
+        ) : (
 
-          {entries.map(([userId, amount]) => {
+          entries.map(([userId, amount]) => {
 
             const value = Number(amount);
             const isPositive = value > 0;
@@ -31,30 +34,24 @@ function BalanceList({ balances, getMemberName }) {
 
               <div
                 key={userId}
-                className="glass-card p-4 flex justify-between items-center hover:-translate-y-1"
+                className="flex justify-between items-center p-4 hover:bg-white/5 transition"
               >
 
-                <span className="text-gray-300">
+                {/* LEFT */}
+                <div className="text-sm">
 
-                  <span
-                    className={`font-semibold ${
-                      isPositive
-                        ? "text-green-400"
-                        : "text-red-400"
-                    }`}
-                  >
-
+                  <span className="font-medium text-white">
                     {getMemberName(userId)}
-
                   </span>
 
-                  {" "}
+                  <span className="text-gray-400 ml-2">
+                    {isPositive ? "gets" : "owes"}
+                  </span>
 
-                  {isPositive ? "gets" : "owes"}
+                </div>
 
-                </span>
-
-                <span
+                {/* RIGHT */}
+                <div
                   className={`font-semibold ${
                     isPositive
                       ? "text-green-400"
@@ -62,24 +59,22 @@ function BalanceList({ balances, getMemberName }) {
                   }`}
                 >
                   {formatCurrency(Math.abs(value))}
-                </span>
+                </div>
 
               </div>
 
             );
 
-          })}
+          })
 
-        </div>
+        )}
 
-      )}
+      </div>
 
     </div>
 
   );
 
 }
-
-import React from "react";
 
 export default React.memo(BalanceList);

@@ -1,3 +1,5 @@
+import React from "react";
+
 function SimplifiedDebts({
   simplifiedDebts,
   getMemberName,
@@ -6,70 +8,72 @@ function SimplifiedDebts({
 
   return (
 
-    <div className="glass-card p-6">
+    <div className="space-y-6">
 
-      <h2 className="text-xl font-semibold mb-4">
-        Simplified Debts
+      {/* HEADER */}
+      <h2 className="text-xl font-semibold">
+        Settlements
       </h2>
 
-      {simplifiedDebts.length === 0 ? (
+      {/* LIST */}
+      <div className="glass-card divide-y divide-white/10">
 
-        <p className="text-gray-400">
-          All settled 🎉
-        </p>
+        {simplifiedDebts.length === 0 ? (
 
-      ) : (
+          <div className="p-4 text-gray-400 text-center">
+            All settled 🎉
+          </div>
 
-        <div className="space-y-3">
+        ) : (
 
-          {simplifiedDebts.map((txn, index) => (
+          simplifiedDebts.map((txn, index) => (
 
             <div
               key={index}
-              className="glass-card p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 hover:-translate-y-1"
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-3 hover:bg-white/5 transition"
             >
 
-              <span className="text-gray-300">
+              {/* LEFT: FLOW */}
+              <div className="flex items-center gap-2 text-sm flex-wrap">
 
-                <span className="font-semibold text-white">
+                <span className="font-medium text-white">
                   {getMemberName(txn.from)}
                 </span>
 
-                {" "}pays{" "}
+                <span className="text-gray-500">→</span>
 
-                <span className="font-semibold text-white">
+                <span className="font-medium text-white">
                   {getMemberName(txn.to)}
                 </span>
 
-                {" "}
+                <span className="text-gray-500">•</span>
 
                 <span className="text-green-400 font-semibold">
                   ₹{txn.amount.toFixed(2)}
                 </span>
 
-              </span>
+              </div>
 
+              {/* RIGHT: BUTTON */}
               <button
                 onClick={() => handleSettle(txn)}
-                className="gradient-btn bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 px-4 py-2 rounded-lg text-sm"
+                className="px-4 py-2 rounded-xl text-sm font-medium bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition"
               >
                 Settle
               </button>
 
             </div>
 
-          ))}
+          ))
 
-        </div>
+        )}
 
-      )}
+      </div>
 
     </div>
 
   );
 
 }
-
-import React from "react";
 
 export default React.memo(SimplifiedDebts);

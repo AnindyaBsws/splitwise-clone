@@ -41,56 +41,58 @@ function ExpenseForm({
 
   return (
 
-    <div className="glass-card p-6">
-
-      <h2 className="text-xl font-semibold mb-5">
-        Add Expense
-      </h2>
+    <div className="space-y-5">
 
       {/* TITLE */}
-
-      <input
-        type="text"
-        placeholder="Expense title"
-        value={expenseTitle}
-        onChange={(e) => setExpenseTitle(e.target.value)}
-        className="w-full mb-3 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
-      />
+      <div>
+        <label className="text-sm text-gray-400 mb-1 block">
+          Expense Title
+        </label>
+        <input
+          type="text"
+          placeholder="e.g. Dinner, Rent, Groceries"
+          value={expenseTitle}
+          onChange={(e) => setExpenseTitle(e.target.value)}
+          className="neon-input"
+        />
+      </div>
 
       {/* AMOUNT */}
-
-      <input
-        type="number"
-        placeholder="Amount"
-        value={expenseAmount}
-        min="0"
-        onChange={(e) => setExpenseAmount(e.target.value)}
-        className="w-full mb-3 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white placeholder-gray-400 focus:outline-none"
-      />
+      <div>
+        <label className="text-sm text-gray-400 mb-1 block">
+          Amount
+        </label>
+        <input
+          type="number"
+          placeholder="Enter amount"
+          value={expenseAmount}
+          min="0"
+          onChange={(e) => setExpenseAmount(e.target.value)}
+          className="neon-input"
+        />
+      </div>
 
       {/* PAYER */}
-
-      <select
-        value={payerId}
-        onChange={(e) => setPayerId(e.target.value)}
-        className="w-full mb-4 px-3 py-2 rounded-lg bg-white/10 border border-white/10 text-white"
-      >
-
-        <option value="">Paid by</option>
-
-        {members.map((member) => (
-
-          <option key={member.user_id} value={member.user_id}>
-            {member.name}
-          </option>
-
-        ))}
-
-      </select>
+      <div>
+        <label className="text-sm text-gray-400 mb-1 block">
+          Paid By
+        </label>
+        <select
+          value={payerId}
+          onChange={(e) => setPayerId(e.target.value)}
+          className="neon-input"
+        >
+          <option value="">Select member</option>
+          {members.map((member) => (
+            <option key={member.user_id} value={member.user_id}>
+              {member.name}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {/* SPLIT MEMBERS */}
-
-      <div className="mb-4">
+      <div>
 
         <p className="text-sm text-gray-400 mb-2">
           Split Between
@@ -107,10 +109,10 @@ function ExpenseForm({
               <button
                 key={member.user_id}
                 onClick={() => toggleSplitUser(member.user_id)}
-                className={`px-3 py-1 rounded-full text-sm ${
+                className={`px-3 py-1.5 rounded-full text-sm transition ${
                   selected
-                    ? "bg-indigo-500 text-white"
-                    : "bg-white/10 text-gray-300"
+                    ? "bg-gradient-main text-white shadow-glow"
+                    : "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10"
                 }`}
               >
                 {member.name}
@@ -124,11 +126,10 @@ function ExpenseForm({
 
       </div>
 
-      {/* ADD BUTTON */}
-
+      {/* BUTTON */}
       <button
         onClick={handleSubmit}
-        className="gradient-btn w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 py-2 rounded-lg text-white"
+        className="gradient-btn w-full mt-2"
       >
         Add Expense
       </button>

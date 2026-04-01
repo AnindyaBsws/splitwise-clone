@@ -20,7 +20,6 @@ function JoinGroup() {
       try {
 
         const res = await api.get(`/api/groups/invite/${token}`);
-
         setGroup(res.data);
 
       } catch (err) {
@@ -47,7 +46,6 @@ function JoinGroup() {
     try {
 
       const res = await api.post(`/api/groups/join/${token}`);
-
       navigate(`/groups/${res.data.group_id}`);
 
     } catch (err) {
@@ -62,23 +60,23 @@ function JoinGroup() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-        <p className="text-lg">Loading invite...</p>
+      <div className="min-h-screen flex items-center justify-center text-gray-400">
+        Loading invite...
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
+      <div className="min-h-screen flex items-center justify-center px-6">
 
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-8 text-center">
+        <div className="glass-card p-8 text-center space-y-4 max-w-md">
 
-          <h2 className="text-xl font-semibold mb-3">
+          <h2 className="text-xl font-semibold">
             Invite Error
           </h2>
 
-          <p className="text-red-400">
+          <p className="text-red-400 text-sm">
             {error}
           </p>
 
@@ -90,41 +88,71 @@ function JoinGroup() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
 
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl shadow-xl p-8 w-[420px]">
+      {/* BACKGROUND BLOBS */}
+      <div className="gradient-bg">
+        <div className="gradient-blob blob1"></div>
+        <div className="gradient-blob blob2"></div>
+        <div className="gradient-blob blob3"></div>
+      </div>
 
-        <h1 className="text-2xl font-bold text-center mb-2">
-          {group.group_name}
-        </h1>
+      <div className="glass-card w-full max-w-md p-8 space-y-6 fade-in">
 
-        <p className="text-gray-400 text-center mb-6">
-          Created by <span className="text-white">{group.creator}</span>
-        </p>
+        {/* HEADER */}
+        <div className="text-center">
 
-        <div className="border border-slate-700 rounded-lg p-4 mb-6 bg-slate-900">
+          <h1 className="text-2xl font-bold">
+            {group.group_name}
+          </h1>
 
-          <h2 className="font-semibold mb-3 text-gray-300">
+          <p className="text-gray-400 text-sm mt-1">
+            Created by{" "}
+            <span className="text-white font-medium">
+              {group.creator}
+            </span>
+          </p>
+
+        </div>
+
+        {/* MEMBERS */}
+        <div className="glass-card p-4 space-y-2">
+
+          <p className="text-sm text-gray-400">
             Members
-          </h2>
+          </p>
 
           {group.members?.length > 0 ? (
-            group.members.map((m) => (
-              <div key={m.id} className="text-gray-400">
-                • {m.name}
-              </div>
-            ))
+
+            <div className="space-y-1">
+
+              {group.members.map((m) => (
+
+                <div
+                  key={m.id}
+                  className="text-sm text-gray-300"
+                >
+                  • {m.name}
+                </div>
+
+              ))}
+
+            </div>
+
           ) : (
+
             <p className="text-gray-500 text-sm">
-              No members found
+              No members yet
             </p>
+
           )}
 
         </div>
 
+        {/* ACTION */}
         <button
           onClick={handleJoin}
-          className="w-full bg-blue-600 hover:bg-blue-700 transition py-2 rounded-lg font-semibold"
+          className="gradient-btn w-full"
         >
           Join Group
         </button>

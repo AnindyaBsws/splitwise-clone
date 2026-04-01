@@ -252,20 +252,21 @@ function GroupDetail() {
 
   return (
 
-    <div className="page-container space-y-10 fade-in">
+    <div className="page-container space-y-12 fade-in">
 
+      {/* HEADER */}
       <GroupHeader
         groupInfo={groupInfo}
         currentUserId={currentUserId}
         deleteGroup={() => setShowDeleteModal(true)}
       />
 
-      {/* 💰 TOTAL EXPENSE CARD */}
-      <div className="glass-card p-5 flex items-center justify-between">
+      {/* TOTAL EXPENSE */}
+      <div className="glass-card p-6 flex items-center justify-between glass-hover">
 
         <div>
-          <p className="text-sm text-gray-400">Total Expense (All Time)</p>
-          <p className="text-2xl font-bold text-indigo-400">
+          <p className="text-sm text-gray-400">Total Expense</p>
+          <p className="text-3xl font-bold text-primary mt-1">
             ₹{Number(totalExpense).toFixed(2)}
           </p>
         </div>
@@ -275,7 +276,7 @@ function GroupDetail() {
 
           <button
             onClick={handleResetTotalExpense}
-            className="text-sm border border-red-500 text-red-400 px-4 py-2 rounded-xl hover:bg-red-500/10"
+            className="px-4 py-2 rounded-xl border border-red-500 text-red-400 hover:bg-red-500/10 transition"
           >
             Reset
           </button>
@@ -285,50 +286,71 @@ function GroupDetail() {
       </div>
 
       {/* MAIN GRID */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        {/* LEFT */}
+        {/* LEFT SIDE */}
         <div className="space-y-8">
 
-          <ExpenseForm
-            expenseTitle={expenseTitle}
-            setExpenseTitle={setExpenseTitle}
-            expenseAmount={expenseAmount}
-            setExpenseAmount={setExpenseAmount}
-            payerId={payerId}
-            setPayerId={setPayerId}
-            splitBetween={splitBetween}
-            toggleSplitUser={toggleSplitUser}
-            members={members}
-            handleAddExpense={handleAddExpense}
-          />
+          {/* ADD EXPENSE */}
+          <div className="glass-card p-6">
+            <h2 className="text-lg font-semibold mb-4">
+              Add Expense
+            </h2>
 
-          <ExpenseList
-            expenses={expenses}
-            getMemberName={getMemberName}
-            handleClearExpenses={handleClearExpenses}
-            allSettled={allSettled}
-            navigate={navigate}
-            id={id}
-          />
+            <ExpenseForm
+              expenseTitle={expenseTitle}
+              setExpenseTitle={setExpenseTitle}
+              expenseAmount={expenseAmount}
+              setExpenseAmount={setExpenseAmount}
+              payerId={payerId}
+              setPayerId={setPayerId}
+              splitBetween={splitBetween}
+              toggleSplitUser={toggleSplitUser}
+              members={members}
+              handleAddExpense={handleAddExpense}
+            />
+          </div>
+
+          {/* EXPENSE LIST */}
+          <div className="glass-card p-6">
+            <h2 className="text-lg font-semibold mb-4">
+              Expenses
+            </h2>
+
+            <ExpenseList
+              expenses={expenses}
+              getMemberName={getMemberName}
+              handleClearExpenses={handleClearExpenses}
+              allSettled={allSettled}
+              navigate={navigate}
+              id={id}
+            />
+          </div>
 
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT SIDE */}
         <div className="space-y-8">
 
-          <BalanceList
-            balances={balances}
-            getMemberName={getMemberName}
-          />
+          {/* BALANCES */}
+          <div className="glass-card p-6">
+            <h2 className="text-lg font-semibold mb-4">
+              Balances
+            </h2>
 
-          {/* AI */}
-          <div className="glass-card p-5 space-y-4">
+            <BalanceList
+              balances={balances}
+              getMemberName={getMemberName}
+            />
+          </div>
+
+          {/* AI INSIGHTS */}
+          <div className="glass-card p-6 space-y-4">
 
             <div>
               <p className="font-semibold text-lg">AI Insights</p>
               <p className="text-sm text-gray-400">
-                Understand how your debts were calculated
+                Understand how debts are calculated
               </p>
             </div>
 
@@ -338,34 +360,42 @@ function GroupDetail() {
                 onClick={() => navigate(`/groups/${id}/ai?mode=gemini`)}
                 className="gradient-btn flex-1"
               >
-                🤖 Explain with Gemini
+                🤖 Gemini AI
               </button>
 
               <button
                 onClick={() => navigate(`/groups/${id}/ai?mode=custom`)}
-                className="border border-indigo-500 text-indigo-400 hover:bg-indigo-500/10 rounded-xl px-4 py-2 flex-1"
+                className="glass-card p-3 flex-1 text-center"
               >
-                🧮 Use Custom Logic
+                🧮 Custom Logic
               </button>
 
             </div>
 
             <p className="text-xs text-gray-400 text-center">
-              Use custom debt simplification for clarification of your group's simplified settlements
+              Get simplified explanations of your group's balances
             </p>
 
           </div>
 
-          <SimplifiedDebts
-            simplifiedDebts={simplifiedDebts}
-            getMemberName={getMemberName}
-            handleSettle={handleSettle}
-          />
+          {/* SIMPLIFIED DEBTS */}
+          <div className="glass-card p-6">
+            <h2 className="text-lg font-semibold mb-4">
+              Settlements
+            </h2>
+
+            <SimplifiedDebts
+              simplifiedDebts={simplifiedDebts}
+              getMemberName={getMemberName}
+              handleSettle={handleSettle}
+            />
+          </div>
 
         </div>
 
       </div>
 
+      {/* MODALS */}
       <RemoveMemberModal
         showRemoveModal={showRemoveModal}
         setShowRemoveModal={setShowRemoveModal}
