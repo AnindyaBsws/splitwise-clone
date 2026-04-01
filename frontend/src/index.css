@@ -2,15 +2,39 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ---------------- GOOGLE FONTS ---------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 /* ---------------- GLOBAL BASE ---------------- */
 
 body {
-  @apply min-h-screen font-sans text-[#E5E7EB] bg-[#0A0A0F] antialiased;
+  @apply min-h-screen text-[#E5E7EB] bg-[#0A0A0F] antialiased;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
 /* smoother + less aggressive */
 * {
   @apply transition-all duration-200 ease-out;
+}
+
+/* ---------------- TYPOGRAPHY SYSTEM ---------------- */
+
+@layer components {
+
+  .font-sans {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* for money / stats */
+  .stat-number {
+    @apply font-mono tracking-tight;
+  }
+
 }
 
 /* ---------------- DESIGN SYSTEM ---------------- */
@@ -41,7 +65,6 @@ body {
            overflow-hidden;
   }
 
-  /* subtle glow lighting (FIXED) */
   .card::before {
     content: "";
     @apply absolute inset-0 rounded-2xl pointer-events-none;
@@ -78,7 +101,6 @@ body {
            transition-all duration-200 ease-out;
   }
 
-  /* PRIMARY */
   .btn-primary {
     @apply btn text-white
            bg-gradient-to-r from-indigo-500 to-purple-600
@@ -87,7 +109,6 @@ body {
            hover:opacity-95;
   }
 
-  /* SECONDARY */
   .btn-secondary {
     @apply btn
            bg-[#111217]
@@ -96,7 +117,6 @@ body {
            hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)];
   }
 
-  /* DANGER */
   .btn-danger {
     @apply btn
            bg-red-600 text-white
@@ -104,7 +124,6 @@ body {
            shadow-[0_0_12px_rgba(239,68,68,0.35)];
   }
 
-  /* ICON BUTTON */
   .btn-icon {
     @apply w-10 h-10 flex items-center justify-center
            rounded-xl
