@@ -8,67 +8,68 @@ function SimplifiedDebts({
 
   return (
 
-    <div className="space-y-6">
+    <div className="card p-6">
 
-      {/* HEADER */}
-      <h2 className="text-xl font-semibold">
-        Settlements
+      <h2 className="text-xl font-semibold mb-4 text-white">
+        Simplified Debts
       </h2>
 
-      {/* LIST */}
-      <div className="glass-card divide-y divide-white/10">
+      {simplifiedDebts.length === 0 ? (
 
-        {simplifiedDebts.length === 0 ? (
+        <p className="text-[#9CA3AF]">
+          All settled 🎉
+        </p>
 
-          <div className="p-4 text-gray-400 text-center">
-            All settled 🎉
-          </div>
+      ) : (
 
-        ) : (
+        <div className="space-y-3">
 
-          simplifiedDebts.map((txn, index) => (
+          {simplifiedDebts.map((txn, index) => (
 
             <div
               key={index}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 gap-3 hover:bg-white/5 transition"
+              className="p-4 rounded-xl
+              bg-[#1A1B21] border border-[#22232A]
+              flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3
+              hover:bg-[#22232A] transition"
             >
 
-              {/* LEFT: FLOW */}
-              <div className="flex items-center gap-2 text-sm flex-wrap">
+              <span className="text-[#9CA3AF]">
 
-                <span className="font-medium text-white">
+                <span className="font-semibold text-white">
                   {getMemberName(txn.from)}
                 </span>
 
-                <span className="text-gray-500">→</span>
+                {" "}pays{" "}
 
-                <span className="font-medium text-white">
+                <span className="font-semibold text-white">
                   {getMemberName(txn.to)}
                 </span>
 
-                <span className="text-gray-500">•</span>
+                {" "}
 
                 <span className="text-green-400 font-semibold">
                   ₹{txn.amount.toFixed(2)}
                 </span>
 
-              </div>
+              </span>
 
-              {/* RIGHT: BUTTON */}
               <button
                 onClick={() => handleSettle(txn)}
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition"
+                className="px-4 py-2 rounded-lg text-sm font-medium
+                bg-green-500 text-white
+                hover:bg-green-600 transition"
               >
                 Settle
               </button>
 
             </div>
 
-          ))
+          ))}
 
-        )}
+        </div>
 
-      </div>
+      )}
 
     </div>
 

@@ -7,25 +7,23 @@ function BalanceList({ balances, getMemberName }) {
 
   return (
 
-    <div className="space-y-6">
+    <div className="card p-6">
 
-      {/* HEADER */}
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-xl font-semibold mb-5 text-white">
         Balances
       </h2>
 
-      {/* LIST */}
-      <div className="glass-card divide-y divide-white/10">
+      {entries.length === 0 ? (
 
-        {entries.length === 0 ? (
+        <p className="text-[#9CA3AF]">
+          No balances yet
+        </p>
 
-          <div className="p-4 text-gray-400">
-            No balances yet
-          </div>
+      ) : (
 
-        ) : (
+        <div className="space-y-3">
 
-          entries.map(([userId, amount]) => {
+          {entries.map(([userId, amount]) => {
 
             const value = Number(amount);
             const isPositive = value > 0;
@@ -34,24 +32,31 @@ function BalanceList({ balances, getMemberName }) {
 
               <div
                 key={userId}
-                className="flex justify-between items-center p-4 hover:bg-white/5 transition"
+                className="p-4 rounded-xl
+                bg-[#1A1B21] border border-[#22232A]
+                flex justify-between items-center
+                hover:bg-[#22232A] transition"
               >
 
-                {/* LEFT */}
-                <div className="text-sm">
+                <span className="text-[#9CA3AF]">
 
-                  <span className="font-medium text-white">
+                  <span
+                    className={`font-semibold ${
+                      isPositive
+                        ? "text-green-400"
+                        : "text-red-400"
+                    }`}
+                  >
                     {getMemberName(userId)}
                   </span>
 
-                  <span className="text-gray-400 ml-2">
-                    {isPositive ? "gets" : "owes"}
-                  </span>
+                  {" "}
 
-                </div>
+                  {isPositive ? "gets" : "owes"}
 
-                {/* RIGHT */}
-                <div
+                </span>
+
+                <span
                   className={`font-semibold ${
                     isPositive
                       ? "text-green-400"
@@ -59,17 +64,17 @@ function BalanceList({ balances, getMemberName }) {
                   }`}
                 >
                   {formatCurrency(Math.abs(value))}
-                </div>
+                </span>
 
               </div>
 
             );
 
-          })
+          })}
 
-        )}
+        </div>
 
-      </div>
+      )}
 
     </div>
 

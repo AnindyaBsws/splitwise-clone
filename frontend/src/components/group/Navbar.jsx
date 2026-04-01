@@ -1,10 +1,9 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
 
 function Navbar() {
 
   const { token } = useAuth();
-  const location = useLocation();
 
   let userName = "User";
 
@@ -17,73 +16,67 @@ function Navbar() {
     }
   }
 
-  const isActive = (path) =>
-    location.pathname === path
-      ? "text-white"
-      : "text-gray-400 hover:text-white";
-
   return (
 
-    <nav className="sticky top-6 z-50 px-4">
+    <nav className="sticky top-4 z-50 page-container">
 
-      <div className="max-w-6xl mx-auto">
+      <div className="px-6 py-3 flex items-center justify-between rounded-2xl
+        bg-[#111217]/80 backdrop-blur-lg border border-[#22232A] shadow-lg">
 
-        <div className="glass-card px-6 py-3 flex items-center justify-between shadow-glow">
+        {/* LEFT SIDE */}
+        <div className="flex items-center gap-6">
 
-          {/* LEFT SIDE */}
-          <div className="flex items-center gap-8">
+          <Link
+            to="/dashboard"
+            className="text-lg sm:text-xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent"
+          >
+            Smart Expense Tracker
+          </Link>
 
-            {/* LOGO */}
+          <div className="hidden sm:flex items-center gap-6">
+
             <Link
               to="/dashboard"
-              className="text-lg sm:text-xl font-bold bg-gradient-main bg-clip-text text-transparent"
+              className="text-[#9CA3AF] hover:text-white transition-colors duration-200"
             >
-              Luminous
+              Dashboard
             </Link>
 
-            {/* NAV LINKS */}
-            <div className="hidden md:flex items-center gap-6">
+            <Link
+              to="/groups"
+              className="text-[#9CA3AF] hover:text-white transition-colors duration-200"
+            >
+              Groups
+            </Link>
 
-              <Link
-                to="/dashboard"
-                className={`${isActive("/dashboard")} transition`}
-              >
-                Dashboard
-              </Link>
+          </div>
 
-              <Link
-                to="/groups"
-                className={`${isActive("/groups")} transition`}
-              >
-                Groups
-              </Link>
+        </div>
 
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-3">
+
+          <Link
+            to="/profile"
+            className="flex items-center gap-2 px-3 py-2 rounded-full
+            bg-[#1A1B21] hover:bg-[#22232A]
+            border border-[#22232A]
+            transition-all duration-200"
+          >
+
+            {/* Avatar */}
+            <div className="w-8 h-8 rounded-full 
+              bg-gradient-to-r from-indigo-500 to-purple-600 
+              flex items-center justify-center text-sm font-bold text-white">
+              {userName[0].toUpperCase()}
             </div>
 
-          </div>
+            {/* Name */}
+            <span className="hidden sm:block text-[#E5E7EB]">
+              {userName}
+            </span>
 
-          {/* RIGHT SIDE */}
-          <div className="flex items-center gap-4">
-
-            {/* PROFILE */}
-            <Link
-              to="/profile"
-              className="flex items-center gap-3 px-3 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 backdrop-blur transition"
-            >
-
-              {/* Avatar */}
-              <div className="w-9 h-9 rounded-full bg-gradient-main flex items-center justify-center text-sm font-bold shadow-glow">
-                {userName[0].toUpperCase()}
-              </div>
-
-              {/* Name */}
-              <span className="hidden sm:block text-gray-200 font-medium">
-                {userName}
-              </span>
-
-            </Link>
-
-          </div>
+          </Link>
 
         </div>
 

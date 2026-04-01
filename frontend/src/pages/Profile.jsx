@@ -14,10 +14,14 @@ function Profile() {
     const fetchUser = async () => {
 
       try {
+
         const res = await api.get("/api/users/me");
         setUser(res.data);
+
       } catch (error) {
+
         console.error("Failed to load profile", error);
+
       }
 
     };
@@ -36,7 +40,7 @@ function Profile() {
   if (!user) {
 
     return (
-      <div className="page-container text-center mt-20 text-gray-400">
+      <div className="page-container text-center mt-20 text-[#9CA3AF]">
         Loading profile...
       </div>
     );
@@ -47,48 +51,56 @@ function Profile() {
 
     <div className="page-container flex justify-center">
 
-      <div className="glass-card w-full max-w-xl p-8 space-y-8 fade-in">
+      <div className="card w-full max-w-xl p-8">
 
         {/* HEADER */}
-        <div className="flex items-center gap-4">
 
-          <div className="w-16 h-16 rounded-full bg-gradient-main flex items-center justify-center text-xl font-bold text-white shadow-glow">
+        <div className="flex items-center gap-4 mb-8">
+
+          <div className="w-14 h-14 rounded-full 
+            bg-gradient-to-r from-indigo-500 to-purple-600 
+            flex items-center justify-center 
+            text-xl font-bold text-white">
             {user.name[0].toUpperCase()}
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold">
+
+            <h1 className="text-2xl font-bold text-white">
               {user.name}
             </h1>
-            <p className="text-gray-400 text-sm">
+
+            <p className="text-[#9CA3AF] text-sm">
               Account Profile
             </p>
+
           </div>
 
         </div>
 
-        {/* DETAILS */}
+        {/* PROFILE DETAILS */}
+
         <div className="space-y-6">
 
-          <div className="glass-card p-4">
+          <div>
 
-            <p className="text-gray-400 text-sm">
+            <p className="text-[#9CA3AF] text-sm">
               Email
             </p>
 
-            <p className="text-lg font-medium text-white mt-1">
+            <p className="text-lg font-medium text-white">
               {user.email}
             </p>
 
           </div>
 
-          <div className="glass-card p-4">
+          <div>
 
-            <p className="text-gray-400 text-sm">
+            <p className="text-[#9CA3AF] text-sm">
               User Tag
             </p>
 
-            <p className="text-lg font-semibold text-primary mt-1">
+            <p className="text-lg font-semibold text-indigo-400">
               {user.user_tag}
             </p>
 
@@ -96,13 +108,19 @@ function Profile() {
 
         </div>
 
-        {/* ACTION */}
-        <button
-          onClick={handleLogout}
-          className="w-full px-4 py-3 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition"
-        >
-          Logout
-        </button>
+        {/* LOGOUT BUTTON */}
+
+        <div className="mt-10">
+
+          <button
+            onClick={handleLogout}
+            className="w-full px-4 py-2 rounded-lg 
+            text-white bg-red-500 hover:bg-red-600 transition"
+          >
+            Logout
+          </button>
+
+        </div>
 
       </div>
 

@@ -2,89 +2,56 @@ import Navbar from "../components/group/Navbar";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function MainLayout({ children }) {
+
   const location = useLocation();
   const navigate = useNavigate();
 
   const showBackButton = location.pathname !== "/dashboard";
 
   return (
-    <div className="min-h-screen flex bg-transparent relative overflow-hidden">
 
-      {/* Background blobs */}
-      <div className="gradient-bg">
-        <div className="gradient-blob blob1"></div>
-        <div className="gradient-blob blob2"></div>
-        <div className="gradient-blob blob3"></div>
-      </div>
+    <div className="min-h-screen relative overflow-x-hidden bg-[#0B0B0F] text-[#E5E7EB]">
 
-      {/* LEFT SIDEBAR (DESKTOP ONLY) */}
-      <aside className="hidden md:flex flex-col w-64 p-6 border-r border-white/10 bg-white/5 backdrop-blur-xl">
+      {/* Subtle radial glow (instead of blue gradient) */}
+      <div className="absolute inset-0 -z-10 
+        bg-[radial-gradient(circle_at_20%_20%,rgba(139,92,246,0.08),transparent_40%),
+             radial-gradient(circle_at_80%_0%,rgba(37,99,235,0.06),transparent_40%)]" 
+      />
 
-        <h1 className="text-xl font-bold mb-10 text-white">
-          Luminous
-        </h1>
+      {/* Navbar */}
+      <Navbar />
 
-        <nav className="flex flex-col gap-4">
+      {/* Page Content */}
+      <main className="page-container py-6 fade-in">
 
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="text-left px-4 py-3 rounded-xl hover:bg-white/10"
-          >
-            Dashboard
-          </button>
+        {/* Back Button */}
+        {showBackButton && (
 
-          <button
-            onClick={() => navigate("/groups")}
-            className="text-left px-4 py-3 rounded-xl hover:bg-white/10"
-          >
-            Groups
-          </button>
+          <div className="mb-6">
 
-          <button
-            onClick={() => navigate("/profile")}
-            className="text-left px-4 py-3 rounded-xl hover:bg-white/10"
-          >
-            Profile
-          </button>
+            <button
+              onClick={() => navigate(-1)}
+              className="w-10 h-10 flex items-center justify-center rounded-full
+              bg-[#111217] hover:bg-[#1A1B21]
+              border border-[#22232A]
+              text-[#9CA3AF] hover:text-white
+              transition-all duration-200"
+            >
+              ←
+            </button>
 
-        </nav>
+          </div>
 
-        {/* Bottom CTA */}
-        <div className="mt-auto">
-          <button className="gradient-btn w-full">
-            Add Expense
-          </button>
-        </div>
+        )}
 
-      </aside>
+        {children}
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col">
-
-        {/* Top Navbar (keep your existing one) */}
-        <Navbar />
-
-        <main className="flex-1 page-container py-6 fade-in">
-
-          {/* Back Button */}
-          {showBackButton && (
-            <div className="mb-6">
-              <button
-                onClick={() => navigate(-1)}
-                className="circle-icon-btn"
-              >
-                ←
-              </button>
-            </div>
-          )}
-
-          {children}
-
-        </main>
-      </div>
+      </main>
 
     </div>
+
   );
+
 }
 
 export default MainLayout;

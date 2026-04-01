@@ -34,8 +34,8 @@ function ManageGroup() {
 
   if (!members || !groupInfo) {
     return (
-      <div className="page-container text-gray-400 mt-10">
-        Loading group...
+      <div className="page-container">
+        <div className="card p-6 text-[#9CA3AF]">Loading group...</div>
       </div>
     );
   }
@@ -59,19 +59,14 @@ function ManageGroup() {
   const deleteMember = async () => {
 
     try {
-
       await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
-
       setShowRemoveModal(false);
       fetchMembers();
-
     } catch (error) {
-
       if (error.response) {
         setMemberDetails(error.response.data);
         setShowRemoveModal(true);
       }
-
     }
 
   };
@@ -79,17 +74,13 @@ function ManageGroup() {
   const confirmDeleteGroup = async () => {
 
     try {
-
       await api.delete(`/api/groups/${id}`);
       navigate("/groups");
-
     } catch (error) {
-
       if (error.response) {
         setDeleteError(error.response.data.error);
         setShowDeleteModal(true);
       }
-
     }
 
   };
@@ -97,37 +88,24 @@ function ManageGroup() {
   const handleLeaveGroup = async () => {
 
     try {
-
       await api.post(`/api/groups/${id}/leave`);
       navigate("/groups");
-
     } catch (error) {
-
       alert(error.response?.data?.error || "Failed to leave group");
-
     }
 
   };
 
-  // ---------------- INVITE ----------------
-
   const generateInviteLink = async () => {
-
     try {
-
       const res = await api.post(`/api/groups/${id}/invite`);
       setInviteLink(res.data.invite_link);
-
     } catch {
-
       alert("Failed to generate invite link");
-
     }
-
   };
 
   const copyInviteLink = async () => {
-
     try {
 
       let link = inviteLink;
@@ -139,19 +117,14 @@ function ManageGroup() {
       }
 
       await navigator.clipboard.writeText(link);
-
       alert("Invite link copied");
 
     } catch {
-
       alert("Failed to copy invite link");
-
     }
-
   };
 
   const shareWhatsApp = async () => {
-
     try {
 
       let link = inviteLink;
@@ -181,11 +154,8 @@ ${registerLink}`;
       );
 
     } catch {
-
       alert("Failed to generate invite link");
-
     }
-
   };
 
   const shareEmail = async () => {
@@ -204,47 +174,35 @@ ${registerLink}`;
 
   return (
 
-    <div className="page-container space-y-12 fade-in">
+    <div className="page-container space-y-10 fade-in">
 
-      {/* HEADER */}
-      <h1 className="text-3xl font-bold">
+      <h1 className="text-3xl font-bold text-white">
         Manage Group
       </h1>
 
-      {/* MEMBERS */}
-      <div className="space-y-4">
-        <MemberList
-          members={members}
-          groupInfo={groupInfo}
-          currentUserId={currentUserId}
+      <MemberList
+        members={members}
+        groupInfo={groupInfo}
+        currentUserId={currentUserId}
+        groupId={id}
+        openRemoveModal={openRemoveModal}
+        fetchMembers={fetchMembers}
+      />
+
+      {(isCreator || isAdmin) && (
+        <AddMember
           groupId={id}
-          openRemoveModal={openRemoveModal}
           fetchMembers={fetchMembers}
         />
-      </div>
-
-      {/* ADD MEMBER */}
-      {(isCreator || isAdmin) && (
-        <div className="space-y-3">
-          <h2 className="text-lg font-semibold">
-            Add Member
-          </h2>
-
-          <div className="glass-card p-6">
-            <AddMember
-              groupId={id}
-              fetchMembers={fetchMembers}
-            />
-          </div>
-        </div>
       )}
 
-      {/* INVITE */}
+      {/* INVITE SECTION */}
+
       {(isCreator || isAdmin) && (
 
-        <div className="glass-card p-6 space-y-4">
+        <div className="card p-6">
 
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-xl font-semibold mb-4 text-white">
             Invite Others
           </h2>
 
@@ -252,21 +210,21 @@ ${registerLink}`;
 
             <button
               onClick={copyInviteLink}
-              className="gradient-btn"
+              className="btn-primary"
             >
-              Copy Link
+              Copy Invite Link
             </button>
 
             <button
               onClick={shareWhatsApp}
-              className="px-4 py-2 rounded-xl text-sm bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20 transition"
+              className="px-4 py-2 rounded-lg text-white bg-green-500 hover:bg-green-600 transition"
             >
               WhatsApp
             </button>
 
             <button
               onClick={shareEmail}
-              className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition"
+              className="btn-secondary"
             >
               Email
             </button>
@@ -278,17 +236,18 @@ ${registerLink}`;
       )}
 
       {/* DANGER ZONE */}
-      <div className="glass-card p-6 border border-red-500/30 space-y-4">
 
-        <h2 className="text-lg font-semibold text-red-400">
+      <div className="card p-6 border border-red-500/30">
+
+        <h2 className="text-xl font-semibold text-red-400 mb-4">
           Danger Zone
         </h2>
 
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-4">
 
           <button
             onClick={handleLeaveGroup}
-            className="px-4 py-2 rounded-xl text-sm bg-white/5 border border-white/10 hover:bg-white/10 transition"
+            className="btn-secondary"
           >
             Leave Group
           </button>
@@ -297,7 +256,7 @@ ${registerLink}`;
 
             <button
               onClick={() => setShowDeleteModal(true)}
-              className="px-4 py-2 rounded-xl text-sm font-medium bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 transition"
+              className="px-4 py-2 rounded-lg text-white bg-red-500 hover:bg-red-600 transition"
             >
               Delete Group
             </button>
@@ -308,7 +267,6 @@ ${registerLink}`;
 
       </div>
 
-      {/* MODALS */}
       <RemoveMemberModal
         showRemoveModal={showRemoveModal}
         setShowRemoveModal={setShowRemoveModal}

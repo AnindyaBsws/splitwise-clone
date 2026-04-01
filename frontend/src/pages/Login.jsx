@@ -43,38 +43,34 @@ function Login() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-[#0B0B0F]">
 
-      {/* BACKGROUND BLOBS */}
-      <div className="gradient-bg">
-        <div className="gradient-blob blob1"></div>
-        <div className="gradient-blob blob2"></div>
-        <div className="gradient-blob blob3"></div>
-      </div>
+      {/* Login Card */}
 
-      {/* LOGIN CARD */}
-      <div className="glass-card w-full max-w-md p-8 space-y-6 fade-in">
+      <div className="card w-full max-w-md p-8 fade-in">
 
-        {/* TITLE */}
-        <div className="text-center">
+        {/* Title */}
 
-          <h1 className="text-3xl font-bold bg-gradient-main bg-clip-text text-transparent">
-            Welcome Back
+        <div className="text-center mb-8">
+
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+            Smart Expense Tracker
           </h1>
 
-          <p className="text-gray-400 mt-2 text-sm">
-            Login to continue managing your expenses
+          <p className="text-[#9CA3AF] mt-2 text-sm">
+            Track shared expenses and settle debts effortlessly.
           </p>
 
         </div>
 
-        {/* FORM */}
+        {/* Form */}
+
         <form onSubmit={handleSubmit} className="space-y-4">
 
           <input
             type="email"
             placeholder="Email address"
-            className="neon-input"
+            className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -82,27 +78,28 @@ function Login() {
           <input
             type="password"
             placeholder="Password"
-            className="neon-input"
+            className="input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <button className="gradient-btn w-full">
+          <button className="btn-primary w-full">
             Login
           </button>
 
         </form>
 
-        {/* FOOTER */}
-        <p className="text-center text-sm text-gray-400">
+        {/* Register Link */}
 
-          Don’t have an account?{" "}
+        <p className="text-center text-sm text-[#9CA3AF] mt-6">
+
+          New user?{" "}
 
           <Link
             to="/register"
-            className="text-primary hover:text-purple-400 font-medium"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
-            Register
+            Register here
           </Link>
 
         </p>

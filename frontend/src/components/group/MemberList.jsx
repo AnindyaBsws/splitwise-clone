@@ -11,7 +11,7 @@ function MemberList({
 }) {
 
   if (!members || !groupInfo) {
-    return <div className="glass-card p-6">Loading members...</div>;
+    return <div className="card p-6 text-[#9CA3AF]">Loading members...</div>;
   }
 
   const [openMenu, setOpenMenu] = useState(null);
@@ -64,6 +64,20 @@ function MemberList({
 
   };
 
+  const avatarColors = [
+    "bg-blue-500",
+    "bg-purple-500",
+    "bg-green-500",
+    "bg-orange-500",
+    "bg-pink-500",
+    "bg-indigo-500"
+  ];
+
+  const getAvatarColor = (name) => {
+    const index = name.charCodeAt(0) % avatarColors.length;
+    return avatarColors[index];
+  };
+
   const sortedMembers = [...members].sort((a, b) => {
 
     const rolePriority = {
@@ -82,15 +96,13 @@ function MemberList({
 
   return (
 
-    <div className="space-y-6">
+    <div className="card p-6">
 
-      {/* HEADER */}
-      <h2 className="text-xl font-semibold">
+      <h2 className="text-xl font-semibold mb-5 text-white">
         Members
       </h2>
 
-      {/* LIST */}
-      <div className="glass-card divide-y divide-white/10">
+      <div className="space-y-3">
 
         {sortedMembers.map((member) => {
 
@@ -100,40 +112,44 @@ function MemberList({
 
             <div
               key={member.user_id}
-              className="flex justify-between items-center p-4 hover:bg-white/5 transition"
+              className="p-4 rounded-xl
+              bg-[#1A1B21] border border-[#22232A]
+              flex justify-between items-center
+              hover:bg-[#22232A] transition"
             >
 
-              {/* LEFT */}
+              {/* LEFT SIDE */}
+
               <div className="flex items-center gap-3">
 
-                {/* Avatar */}
-                <div className="w-9 h-9 rounded-full bg-gradient-main flex items-center justify-center text-sm font-semibold text-white">
+                <div
+                  className={`${getAvatarColor(member.name)} text-white rounded-full w-9 h-9 flex items-center justify-center font-semibold`}
+                >
                   {member.name[0].toUpperCase()}
                 </div>
 
-                {/* Info */}
                 <div className="flex flex-col">
 
-                  <span className="font-medium text-white">
+                  <div className="font-medium text-white">
                     {member.name}
-                  </span>
+                  </div>
 
-                  <div className="flex gap-2 mt-1">
+                  <div className="mt-1 flex gap-2">
 
                     {member.role === "creator" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300">
+                      <span className="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full">
                         Creator
                       </span>
                     )}
 
                     {member.role === "admin" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">
+                      <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full">
                         Admin
                       </span>
                     )}
 
                     {member.role === "member" && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-gray-300">
+                      <span className="text-xs bg-[#22232A] text-[#9CA3AF] px-2 py-1 rounded-full">
                         Member
                       </span>
                     )}
@@ -145,6 +161,7 @@ function MemberList({
               </div>
 
               {/* ACTION MENU */}
+
               {(isCreator || isAdmin) &&
                 member.role !== "creator" &&
                 member.user_id !== currentUserId && (
@@ -153,17 +170,14 @@ function MemberList({
 
                   <button
                     onClick={(e) => {
-
                       e.stopPropagation();
-
                       setOpenMenu(
                         openMenu === member.user_id
                           ? null
                           : member.user_id
                       );
-
                     }}
-                    className="text-gray-400 hover:text-white text-lg px-2"
+                    className="text-[#9CA3AF] hover:text-white text-lg"
                   >
                     ⋮
                   </button>
@@ -172,7 +186,8 @@ function MemberList({
 
                     <div
                       ref={menuRef}
-                      className="absolute right-0 mt-2 w-44 glass-card z-20 divide-y divide-white/10"
+                      className="absolute right-0 mt-2 w-44 z-20
+                      bg-[#111217] border border-[#22232A] rounded-lg overflow-hidden"
                     >
 
                       {isCreator && !isCreatorMember && (
@@ -181,12 +196,10 @@ function MemberList({
 
                           <button
                             onClick={(e) => {
-
                               e.stopPropagation();
                               updateRole(member.user_id, "member");
-
                             }}
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-white/5"
+                            className="block w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1A1B21]"
                           >
                             Demote to Member
                           </button>
@@ -195,12 +208,10 @@ function MemberList({
 
                           <button
                             onClick={(e) => {
-
                               e.stopPropagation();
                               updateRole(member.user_id, "admin");
-
                             }}
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-white/5"
+                            className="block w-full text-left px-4 py-2 text-sm text-[#E5E7EB] hover:bg-[#1A1B21]"
                           >
                             Promote to Admin
                           </button>
@@ -213,13 +224,11 @@ function MemberList({
 
                         <button
                           onClick={(e) => {
-
                             e.stopPropagation();
                             openRemoveModal(member);
                             setOpenMenu(null);
-
                           }}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-white/5"
+                          className="block w-full text-left px-4 py-2 text-red-400 hover:bg-[#1A1B21]"
                         >
                           Remove Member
                         </button>

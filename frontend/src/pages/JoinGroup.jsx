@@ -60,23 +60,23 @@ function JoinGroup() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-gray-400">
-        Loading invite...
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0B0F] text-[#9CA3AF]">
+        <p className="text-lg">Loading invite...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-6">
+      <div className="min-h-screen flex items-center justify-center bg-[#0B0B0F]">
 
-        <div className="glass-card p-8 text-center space-y-4 max-w-md">
+        <div className="card p-8 text-center">
 
-          <h2 className="text-xl font-semibold">
+          <h2 className="text-xl font-semibold mb-3 text-white">
             Invite Error
           </h2>
 
-          <p className="text-red-400 text-sm">
+          <p className="text-red-400">
             {error}
           </p>
 
@@ -88,71 +88,44 @@ function JoinGroup() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-[#0B0B0F]">
 
-      {/* BACKGROUND BLOBS */}
-      <div className="gradient-bg">
-        <div className="gradient-blob blob1"></div>
-        <div className="gradient-blob blob2"></div>
-        <div className="gradient-blob blob3"></div>
-      </div>
+      <div className="card p-8 w-[420px]">
 
-      <div className="glass-card w-full max-w-md p-8 space-y-6 fade-in">
+        <h1 className="text-2xl font-bold text-center mb-2 text-white">
+          {group.group_name}
+        </h1>
 
-        {/* HEADER */}
-        <div className="text-center">
+        <p className="text-[#9CA3AF] text-center mb-6">
+          Created by{" "}
+          <span className="text-white font-medium">
+            {group.creator}
+          </span>
+        </p>
 
-          <h1 className="text-2xl font-bold">
-            {group.group_name}
-          </h1>
+        <div className="p-4 mb-6 rounded-lg bg-[#1A1B21] border border-[#22232A]">
 
-          <p className="text-gray-400 text-sm mt-1">
-            Created by{" "}
-            <span className="text-white font-medium">
-              {group.creator}
-            </span>
-          </p>
-
-        </div>
-
-        {/* MEMBERS */}
-        <div className="glass-card p-4 space-y-2">
-
-          <p className="text-sm text-gray-400">
+          <h2 className="font-semibold mb-3 text-[#E5E7EB]">
             Members
-          </p>
+          </h2>
 
           {group.members?.length > 0 ? (
-
-            <div className="space-y-1">
-
-              {group.members.map((m) => (
-
-                <div
-                  key={m.id}
-                  className="text-sm text-gray-300"
-                >
-                  • {m.name}
-                </div>
-
-              ))}
-
-            </div>
-
+            group.members.map((m) => (
+              <div key={m.id} className="text-[#9CA3AF]">
+                • {m.name}
+              </div>
+            ))
           ) : (
-
-            <p className="text-gray-500 text-sm">
-              No members yet
+            <p className="text-[#6B7280] text-sm">
+              No members found
             </p>
-
           )}
 
         </div>
 
-        {/* ACTION */}
         <button
           onClick={handleJoin}
-          className="gradient-btn w-full"
+          className="btn-primary w-full"
         >
           Join Group
         </button>

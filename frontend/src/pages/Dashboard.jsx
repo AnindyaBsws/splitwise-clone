@@ -32,8 +32,6 @@ export default function Dashboard() {
         return;
       }
 
-      /* ---------- FETCH BALANCES IN PARALLEL ---------- */
-
       const balanceRequests = groups.map((group) =>
         api.get(`/api/groups/${group.id}/balances`)
       );
@@ -52,8 +50,6 @@ export default function Dashboard() {
         if (userBalance > 0) totalOwed += userBalance;
 
       });
-
-      /* ---------- FETCH EXPENSES IN PARALLEL ---------- */
 
       const expenseRequests = groups.map((group) =>
         api.get(`/api/expenses/group/${group.id}`)
@@ -84,7 +80,6 @@ export default function Dashboard() {
       allExpenses.sort((a, b) => b.id - a.id);
 
       setRecentExpenses(allExpenses.slice(0, 5));
-
       setYouOwe(totalOwe);
       setYouAreOwed(totalOwed);
 
@@ -97,25 +92,30 @@ export default function Dashboard() {
   /* ---------------- EMPTY STATE ---------------- */
 
   if (groupCount === 0) {
+
     return (
+
       <div className="page-container">
 
-        <h1 className="text-3xl font-bold mb-8">
+        <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
           Dashboard
         </h1>
 
-        <div className="glass-card p-10 text-center">
+        <div className="p-10 text-center rounded-2xl 
+          bg-[#111217] border border-[#22232A]">
 
-          <h2 className="text-2xl font-semibold mb-3">
+          <h2 className="text-2xl font-semibold mb-3 text-white">
             No Groups Yet
           </h2>
 
-          <p className="text-gray-300 mb-6">
+          <p className="text-[#9CA3AF] mb-6">
             Create your first group to start tracking shared expenses.
           </p>
 
           <Link to="/groups">
-            <button className="gradient-btn">
+            <button className="px-5 py-2 rounded-lg 
+              bg-gradient-to-r from-indigo-500 to-purple-600 
+              text-white font-medium hover:opacity-90 transition">
               Create Your First Group
             </button>
           </Link>
@@ -123,148 +123,149 @@ export default function Dashboard() {
         </div>
 
       </div>
+
     );
+
   }
 
   return (
 
-    <div className="page-container space-y-10">
+    <div className="page-container">
 
-      {/* HEADER */}
-      <h1 className="text-3xl font-bold">
-        Overview
+      <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
+        Dashboard
       </h1>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* SUMMARY CARDS */}
 
-        {/* LEFT SIDE */}
-        <div className="lg:col-span-3 space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-          {/* SUMMARY CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="p-6 rounded-2xl 
+          bg-[#111217] border border-[#22232A]
+          hover:bg-[#1A1B21] transition">
 
-            <div className="glass-card p-6 glass-hover">
-              <p className="text-gray-400 text-sm">You Are Owed</p>
-              <h2 className="text-4xl font-bold text-green-400 mt-3">
-                ₹{youAreOwed.toFixed(2)}
-              </h2>
-            </div>
+          <p className="text-[#9CA3AF] text-sm font-medium">
+            Active Groups
+          </p>
 
-            <div className="glass-card p-6 glass-hover">
-              <p className="text-gray-400 text-sm">You Owe</p>
-              <h2 className="text-4xl font-bold text-red-400 mt-3">
-                ₹{youOwe.toFixed(2)}
-              </h2>
-            </div>
-
-            <div className="glass-card p-6 glass-hover">
-              <p className="text-gray-400 text-sm">Active Groups</p>
-              <h2 className="text-4xl font-bold mt-3">
-                {groupCount}
-              </h2>
-            </div>
-
-          </div>
-
-          {/* QUICK ACTION (IMPROVED, NOT REMOVED) */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4">
-              Quick Actions
-            </h2>
-
-            <div className="glass-card p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-              <div>
-                <p className="font-medium">
-                  Manage Groups
-                </p>
-                <p className="text-sm text-gray-400">
-                  Create groups, add expenses and settle balances
-                </p>
-              </div>
-
-              <Link to="/groups">
-                <button className="gradient-btn">
-                  Open Groups
-                </button>
-              </Link>
-
-            </div>
-          </div>
-
-          {/* RECENT ACTIVITY */}
-          <div>
-
-            <h2 className="text-xl font-semibold mb-4">
-              Recent Activity
-            </h2>
-
-            <div className="glass-card divide-y divide-white/10">
-
-              {recentExpenses.length === 0 && (
-                <div className="p-4 text-gray-400">
-                  No expenses yet
-                </div>
-              )}
-
-              {recentExpenses.map((expense) => (
-
-                <div
-                  key={expense.id}
-                  className="flex justify-between items-center p-4 hover:bg-white/5"
-                >
-
-                  <div>
-                    <p className="font-medium">
-                      {expense.title}
-                    </p>
-                    <p className="text-sm text-gray-400">
-                      {expense.groupName}
-                    </p>
-                  </div>
-
-                  <div className="font-semibold text-gray-200">
-                    ₹{Number(expense.amount).toFixed(2)}
-                  </div>
-
-                </div>
-
-              ))}
-
-            </div>
-
-          </div>
+          <h2 className="text-4xl font-bold mt-3 text-white">
+            {groupCount}
+          </h2>
 
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="space-y-6">
+        <div className="p-6 rounded-2xl 
+          bg-[#111217] border border-[#22232A]
+          hover:bg-[#1A1B21] transition">
 
-          <div className="glass-card p-6">
+          <p className="text-[#9CA3AF] text-sm font-medium">
+            You Owe
+          </p>
 
-            <h2 className="text-lg font-semibold mb-4">
-              Quick Actions
-            </h2>
+          <h2 className="text-4xl font-bold mt-3 text-red-400">
+            ₹{youOwe.toFixed(2)}
+          </h2>
 
-            <div className="flex flex-col gap-3">
+        </div>
 
-              <Link to="/groups">
-                <button className="gradient-btn w-full">
-                  Manage Groups
-                </button>
-              </Link>
+        <div className="p-6 rounded-2xl 
+          bg-[#111217] border border-[#22232A]
+          hover:bg-[#1A1B21] transition">
 
-              <button className="glass-card p-3 text-left">
-                Export Reports
-              </button>
+          <p className="text-[#9CA3AF] text-sm font-medium">
+            You Are Owed
+          </p>
 
-              <button className="glass-card p-3 text-left">
-                Settle All Balances
-              </button>
+          <h2 className="text-4xl font-bold mt-3 text-green-400">
+            ₹{youAreOwed.toFixed(2)}
+          </h2>
+
+        </div>
+
+      </div>
+
+      {/* QUICK ACTION */}
+
+      <div className="mb-12">
+
+        <h2 className="text-xl font-semibold mb-4 text-[#E5E7EB]">
+          Quick Actions
+        </h2>
+
+        <div className="p-6 rounded-2xl 
+          bg-[#111217] border border-[#22232A]
+          flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+
+          <div>
+
+            <p className="font-medium text-white">
+              Manage Groups
+            </p>
+
+            <p className="text-sm text-[#9CA3AF]">
+              Create groups, add expenses and settle balances
+            </p>
+
+          </div>
+
+          <Link to="/groups">
+            <button className="px-5 py-2 rounded-lg 
+              bg-gradient-to-r from-indigo-500 to-purple-600 
+              text-white font-medium hover:opacity-90 transition">
+              Open Groups
+            </button>
+          </Link>
+
+        </div>
+
+      </div>
+
+      {/* RECENT ACTIVITY */}
+
+      <div>
+
+        <h2 className="text-xl font-semibold mb-4 text-[#E5E7EB]">
+          Recent Activity
+        </h2>
+
+        <div className="rounded-2xl 
+          bg-[#111217] border border-[#22232A] overflow-hidden">
+
+          {recentExpenses.length === 0 && (
+
+            <div className="p-4 text-[#9CA3AF]">
+              No expenses yet
+            </div>
+
+          )}
+
+          {recentExpenses.map((expense) => (
+
+            <div
+              key={expense.id}
+              className="flex justify-between items-center p-4
+              hover:bg-[#1A1B21] transition border-b border-[#22232A]"
+            >
+
+              <div>
+
+                <p className="font-medium text-white">
+                  {expense.title}
+                </p>
+
+                <p className="text-sm text-[#9CA3AF]">
+                  {expense.groupName}
+                </p>
+
+              </div>
+
+              <div className="font-semibold text-[#E5E7EB]">
+                ₹{Number(expense.amount).toFixed(2)}
+              </div>
 
             </div>
 
-          </div>
+          ))}
 
         </div>
 

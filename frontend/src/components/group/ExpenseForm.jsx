@@ -41,60 +41,67 @@ function ExpenseForm({
 
   return (
 
-    <div className="space-y-5">
+    <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+
+      <h2 className="text-xl font-semibold mb-5 text-white">
+        Add Expense
+      </h2>
 
       {/* TITLE */}
-      <div>
-        <label className="text-sm text-gray-400 mb-1 block">
-          Expense Title
-        </label>
-        <input
-          type="text"
-          placeholder="e.g. Dinner, Rent, Groceries"
-          value={expenseTitle}
-          onChange={(e) => setExpenseTitle(e.target.value)}
-          className="neon-input"
-        />
-      </div>
+
+      <input
+        type="text"
+        placeholder="Expense title"
+        value={expenseTitle}
+        onChange={(e) => setExpenseTitle(e.target.value)}
+        className="w-full mb-3 px-4 py-2 rounded-lg
+        bg-[#0B0B0F] border border-[#22232A]
+        text-[#E5E7EB] placeholder-[#6B7280]
+        focus:outline-none focus:border-indigo-500
+        transition"
+      />
 
       {/* AMOUNT */}
-      <div>
-        <label className="text-sm text-gray-400 mb-1 block">
-          Amount
-        </label>
-        <input
-          type="number"
-          placeholder="Enter amount"
-          value={expenseAmount}
-          min="0"
-          onChange={(e) => setExpenseAmount(e.target.value)}
-          className="neon-input"
-        />
-      </div>
+
+      <input
+        type="number"
+        placeholder="Amount"
+        value={expenseAmount}
+        min="0"
+        onChange={(e) => setExpenseAmount(e.target.value)}
+        className="w-full mb-3 px-4 py-2 rounded-lg
+        bg-[#0B0B0F] border border-[#22232A]
+        text-[#E5E7EB] placeholder-[#6B7280]
+        focus:outline-none focus:border-indigo-500
+        transition"
+      />
 
       {/* PAYER */}
-      <div>
-        <label className="text-sm text-gray-400 mb-1 block">
-          Paid By
-        </label>
-        <select
-          value={payerId}
-          onChange={(e) => setPayerId(e.target.value)}
-          className="neon-input"
-        >
-          <option value="">Select member</option>
-          {members.map((member) => (
-            <option key={member.user_id} value={member.user_id}>
-              {member.name}
-            </option>
-          ))}
-        </select>
-      </div>
+
+      <select
+        value={payerId}
+        onChange={(e) => setPayerId(e.target.value)}
+        className="w-full mb-4 px-4 py-2 rounded-lg
+        bg-[#0B0B0F] border border-[#22232A]
+        text-[#E5E7EB]
+        focus:outline-none focus:border-indigo-500
+        transition"
+      >
+        <option value="">Paid by</option>
+
+        {members.map((member) => (
+          <option key={member.user_id} value={member.user_id}>
+            {member.name}
+          </option>
+        ))}
+
+      </select>
 
       {/* SPLIT MEMBERS */}
-      <div>
 
-        <p className="text-sm text-gray-400 mb-2">
+      <div className="mb-5">
+
+        <p className="text-sm text-[#9CA3AF] mb-2">
           Split Between
         </p>
 
@@ -109,10 +116,11 @@ function ExpenseForm({
               <button
                 key={member.user_id}
                 onClick={() => toggleSplitUser(member.user_id)}
-                className={`px-3 py-1.5 rounded-full text-sm transition ${
+                className={`px-3 py-1.5 rounded-full text-sm border transition
+                ${
                   selected
-                    ? "bg-gradient-main text-white shadow-glow"
-                    : "bg-white/5 border border-white/10 text-gray-300 hover:bg-white/10"
+                    ? "bg-indigo-500 text-white border-indigo-500"
+                    : "bg-[#1A1B21] text-[#9CA3AF] border-[#22232A] hover:bg-[#22232A] hover:text-white"
                 }`}
               >
                 {member.name}
@@ -126,10 +134,14 @@ function ExpenseForm({
 
       </div>
 
-      {/* BUTTON */}
+      {/* ADD BUTTON */}
+
       <button
         onClick={handleSubmit}
-        className="gradient-btn w-full mt-2"
+        className="w-full py-2.5 rounded-lg
+        bg-gradient-to-r from-indigo-500 to-purple-600
+        text-white font-medium
+        hover:opacity-90 transition"
       >
         Add Expense
       </button>

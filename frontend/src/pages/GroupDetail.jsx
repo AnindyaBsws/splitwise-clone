@@ -32,11 +32,9 @@ function GroupDetail() {
   } = useGroupData(id);
 
   const [newMemberId, setNewMemberId] = useState("");
-
   const [selectedMember, setSelectedMember] = useState(null);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [memberDetails, setMemberDetails] = useState(null);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
@@ -45,14 +43,10 @@ function GroupDetail() {
   const [payerId, setPayerId] = useState("");
   const [splitBetween, setSplitBetween] = useState([]);
 
-  // 🔥 NEW STATE
   const [totalExpense, setTotalExpense] = useState(0);
 
   const currentUserId = getCurrentUserId();
 
-  // --------------------------------
-  // FETCH TOTAL EXPENSE
-  // --------------------------------
   const fetchTotalExpense = async () => {
     try {
       const res = await api.get(`/api/groups/${id}/total-expense`);
@@ -66,9 +60,6 @@ function GroupDetail() {
     fetchTotalExpense();
   }, [id]);
 
-  // --------------------------------
-  // RESET TOTAL EXPENSE
-  // --------------------------------
   const handleResetTotalExpense = async () => {
 
     const confirm = window.confirm(
@@ -85,7 +76,6 @@ function GroupDetail() {
     }
   };
 
-  //Hooks First
   const allSettled = useMemo(() => {
     return (
       Object.values(balances).length > 0 &&
@@ -103,41 +93,30 @@ function GroupDetail() {
     setMemberDetails(null);
 
     try {
-
       const res = await api.get(`/api/groups/${id}/members/${member.user_id}`);
-
       setMemberDetails(res.data);
       setSelectedMember(member);
       setShowRemoveModal(true);
-
     } catch (error) {
-
       if (error.response) {
         setMemberDetails(error.response.data);
         setSelectedMember(member);
         setShowRemoveModal(true);
       }
-
     }
 
   };
 
   const confirmDeleteGroup = async () => {
-
     try {
-
       await api.delete(`/api/groups/${id}`);
       navigate("/groups");
-
     } catch (error) {
-
       if (error.response) {
         setDeleteError(error.response.data.error);
         setShowDeleteModal(true);
       }
-
     }
-
   };
 
   const handleAddMember = async () => {
@@ -186,22 +165,18 @@ function GroupDetail() {
     fetchExpenses();
     fetchBalances();
     fetchSimplifiedDebts();
-    fetchTotalExpense(); // 🔥 update total
+    fetchTotalExpense();
 
   };
 
   const handleClearExpenses = async () => {
-
     await api.post(`/api/groups/${id}/clear-expenses`);
-
     fetchExpenses();
     fetchBalances();
     fetchSimplifiedDebts();
-
   };
 
   const handleSettle = async (txn) => {
-
     await api.post("/api/settlements/", {
       group_id: Number(id),
       payer_id: Number(txn.from),
@@ -212,38 +187,30 @@ function GroupDetail() {
     fetchBalances();
     fetchSimplifiedDebts();
     fetchExpenses();
-
   };
 
   const deleteMember = async () => {
 
     try {
-
       await api.delete(`/api/groups/${id}/members/${selectedMember.user_id}`);
-
       setShowRemoveModal(false);
-
       fetchMembers();
       fetchBalances();
       fetchSimplifiedDebts();
       fetchExpenses();
-
     } catch (error) {
-
       if (error.response) {
         setMemberDetails(error.response.data);
         setShowRemoveModal(true);
       }
-
     }
 
   };
 
-  // Prevent UI from rendering before group data arrives
   if (loading) {
     return (
       <div className="page-container">
-        <div className="glass-card p-8 text-center text-gray-300">
+        <div className="p-8 text-center rounded-2xl bg-[#111217] border border-[#22232A] text-[#9CA3AF]">
           Loading group...
         </div>
       </div>
@@ -254,7 +221,6 @@ function GroupDetail() {
 
     <div className="page-container space-y-12 fade-in">
 
-      {/* HEADER */}
       <GroupHeader
         groupInfo={groupInfo}
         currentUserId={currentUserId}
@@ -262,11 +228,11 @@ function GroupDetail() {
       />
 
       {/* TOTAL EXPENSE */}
-      <div className="glass-card p-6 flex items-center justify-between glass-hover">
+      <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A] flex items-center justify-between">
 
         <div>
-          <p className="text-sm text-gray-400">Total Expense</p>
-          <p className="text-3xl font-bold text-primary mt-1">
+          <p className="text-sm text-[#9CA3AF]">Total Expense</p>
+          <p className="text-3xl font-bold text-white mt-1">
             ₹{Number(totalExpense).toFixed(2)}
           </p>
         </div>
@@ -276,7 +242,7 @@ function GroupDetail() {
 
           <button
             onClick={handleResetTotalExpense}
-            className="px-4 py-2 rounded-xl border border-red-500 text-red-400 hover:bg-red-500/10 transition"
+            className="px-4 py-2 rounded-lg border border-red-500 text-red-400 hover:bg-red-500/10 transition"
           >
             Reset
           </button>
@@ -285,71 +251,47 @@ function GroupDetail() {
 
       </div>
 
-      {/* MAIN GRID */}
+      {/* GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-        {/* LEFT SIDE */}
+        {/* LEFT */}
         <div className="space-y-8">
 
-          {/* ADD EXPENSE */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Add Expense
-            </h2>
-
-            <ExpenseForm
-              expenseTitle={expenseTitle}
-              setExpenseTitle={setExpenseTitle}
-              expenseAmount={expenseAmount}
-              setExpenseAmount={setExpenseAmount}
-              payerId={payerId}
-              setPayerId={setPayerId}
-              splitBetween={splitBetween}
-              toggleSplitUser={toggleSplitUser}
-              members={members}
-              handleAddExpense={handleAddExpense}
-            />
+          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+            <h2 className="text-lg font-semibold mb-4 text-white">Add Expense</h2>
+            <ExpenseForm {...{
+              expenseTitle, setExpenseTitle,
+              expenseAmount, setExpenseAmount,
+              payerId, setPayerId,
+              splitBetween, toggleSplitUser,
+              members, handleAddExpense
+            }} />
           </div>
 
-          {/* EXPENSE LIST */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Expenses
-            </h2>
-
-            <ExpenseList
-              expenses={expenses}
-              getMemberName={getMemberName}
-              handleClearExpenses={handleClearExpenses}
-              allSettled={allSettled}
-              navigate={navigate}
-              id={id}
-            />
+          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+            <h2 className="text-lg font-semibold mb-4 text-white">Expenses</h2>
+            <ExpenseList {...{
+              expenses, getMemberName,
+              handleClearExpenses, allSettled,
+              navigate, id
+            }} />
           </div>
 
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* RIGHT */}
         <div className="space-y-8">
 
-          {/* BALANCES */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Balances
-            </h2>
-
-            <BalanceList
-              balances={balances}
-              getMemberName={getMemberName}
-            />
+          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+            <h2 className="text-lg font-semibold mb-4 text-white">Balances</h2>
+            <BalanceList balances={balances} getMemberName={getMemberName} />
           </div>
 
-          {/* AI INSIGHTS */}
-          <div className="glass-card p-6 space-y-4">
+          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A] space-y-4">
 
             <div>
-              <p className="font-semibold text-lg">AI Insights</p>
-              <p className="text-sm text-gray-400">
+              <p className="font-semibold text-lg text-white">AI Insights</p>
+              <p className="text-sm text-[#9CA3AF]">
                 Understand how debts are calculated
               </p>
             </div>
@@ -358,32 +300,28 @@ function GroupDetail() {
 
               <button
                 onClick={() => navigate(`/groups/${id}/ai?mode=gemini`)}
-                className="gradient-btn flex-1"
+                className="flex-1 px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:opacity-90 transition"
               >
                 🤖 Gemini AI
               </button>
 
               <button
                 onClick={() => navigate(`/groups/${id}/ai?mode=custom`)}
-                className="glass-card p-3 flex-1 text-center"
+                className="flex-1 px-4 py-2 rounded-lg bg-[#1A1B21] border border-[#22232A] text-[#E5E7EB] hover:bg-[#22232A] transition"
               >
                 🧮 Custom Logic
               </button>
 
             </div>
 
-            <p className="text-xs text-gray-400 text-center">
+            <p className="text-xs text-[#6B7280] text-center">
               Get simplified explanations of your group's balances
             </p>
 
           </div>
 
-          {/* SIMPLIFIED DEBTS */}
-          <div className="glass-card p-6">
-            <h2 className="text-lg font-semibold mb-4">
-              Settlements
-            </h2>
-
+          <div className="p-6 rounded-2xl bg-[#111217] border border-[#22232A]">
+            <h2 className="text-lg font-semibold mb-4 text-white">Settlements</h2>
             <SimplifiedDebts
               simplifiedDebts={simplifiedDebts}
               getMemberName={getMemberName}
@@ -395,21 +333,20 @@ function GroupDetail() {
 
       </div>
 
-      {/* MODALS */}
-      <RemoveMemberModal
-        showRemoveModal={showRemoveModal}
-        setShowRemoveModal={setShowRemoveModal}
-        memberDetails={memberDetails}
-        selectedMember={selectedMember}
-        deleteMember={deleteMember}
-      />
+      <RemoveMemberModal {...{
+        showRemoveModal,
+        setShowRemoveModal,
+        memberDetails,
+        selectedMember,
+        deleteMember
+      }} />
 
-      <DeleteGroupModal
-        showDeleteModal={showDeleteModal}
-        setShowDeleteModal={setShowDeleteModal}
-        confirmDeleteGroup={confirmDeleteGroup}
-        deleteError={deleteError}
-      />
+      <DeleteGroupModal {...{
+        showDeleteModal,
+        setShowDeleteModal,
+        confirmDeleteGroup,
+        deleteError
+      }} />
 
     </div>
 

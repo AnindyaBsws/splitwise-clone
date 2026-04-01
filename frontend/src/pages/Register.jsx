@@ -11,6 +11,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
+  // Redirect if already logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) navigate("/dashboard");
@@ -39,6 +40,7 @@ function Register() {
       });
 
       alert("Registration successful");
+
       navigate("/login");
 
     } catch (error) {
@@ -51,38 +53,34 @@ function Register() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center px-6 bg-[#0B0B0F]">
 
-      {/* BACKGROUND BLOBS */}
-      <div className="gradient-bg">
-        <div className="gradient-blob blob1"></div>
-        <div className="gradient-blob blob2"></div>
-        <div className="gradient-blob blob3"></div>
-      </div>
+      {/* Register Card */}
 
-      {/* REGISTER CARD */}
-      <div className="glass-card w-full max-w-md p-8 space-y-6 fade-in">
+      <div className="card w-full max-w-md p-8 fade-in">
 
-        {/* HEADER */}
-        <div className="text-center">
+        {/* Header */}
 
-          <h1 className="text-3xl font-bold bg-gradient-main bg-clip-text text-transparent">
-            Create Account
+        <div className="text-center mb-8">
+
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-500 bg-clip-text text-transparent">
+            Smart Expense Tracker
           </h1>
 
-          <p className="text-gray-400 mt-2 text-sm">
-            Start tracking shared expenses in seconds
+          <p className="text-[#9CA3AF] mt-2 text-sm">
+            Create your account and start tracking shared expenses.
           </p>
 
         </div>
 
-        {/* FORM */}
+        {/* Form */}
+
         <form onSubmit={handleRegister} className="space-y-4">
 
           <input
             type="text"
             placeholder="Full name"
-            className="neon-input"
+            className="input"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -90,7 +88,7 @@ function Register() {
           <input
             type="email"
             placeholder="Email address"
-            className="neon-input"
+            className="input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -98,7 +96,7 @@ function Register() {
           <input
             type="password"
             placeholder="Password"
-            className="neon-input"
+            className="input"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -106,28 +104,29 @@ function Register() {
           <input
             type="password"
             placeholder="Confirm password"
-            className="neon-input"
+            className="input"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
           <button
             type="submit"
-            className="gradient-btn w-full"
+            className="btn-primary w-full"
           >
             Register
           </button>
 
         </form>
 
-        {/* FOOTER */}
-        <p className="text-center text-sm text-gray-400">
+        {/* Login Link */}
+
+        <p className="text-center text-sm text-[#9CA3AF] mt-6">
 
           Already have an account?{" "}
 
           <Link
             to="/login"
-            className="text-primary hover:text-purple-400 font-medium"
+            className="text-indigo-400 hover:text-indigo-300 font-medium"
           >
             Login
           </Link>

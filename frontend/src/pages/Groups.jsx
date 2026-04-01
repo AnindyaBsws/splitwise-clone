@@ -51,7 +51,6 @@ function Groups() {
       });
 
       const data = await getGroups();
-
       setGroups(data);
       setGroupName("");
 
@@ -91,17 +90,18 @@ function Groups() {
 
   return (
 
-    <div className="page-container space-y-10">
+    <div className="page-container">
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Groups</h1>
-      </div>
+      <h1 className="text-3xl font-bold mb-8 text-[#E5E7EB]">
+        Groups
+      </h1>
 
-      {/* CREATE GROUP CARD */}
-      <div className="glass-card p-6">
+      {/* CREATE GROUP */}
 
-        <h2 className="text-lg font-semibold mb-4">
+      <div className="p-6 mb-10 rounded-2xl 
+        bg-[#111217] border border-[#22232A]">
+
+        <h2 className="text-lg font-semibold mb-4 text-white">
           Create New Group
         </h2>
 
@@ -109,15 +109,22 @@ function Groups() {
 
           <input
             type="text"
-            placeholder="Enter group name..."
+            placeholder="New group name"
             value={groupName}
             onChange={(e) => setGroupName(e.target.value)}
-            className="neon-input flex-1"
+            className="flex-1 px-4 py-2 rounded-lg
+            bg-[#0B0B0F] border border-[#22232A]
+            text-[#E5E7EB] placeholder-[#6B7280]
+            focus:outline-none focus:border-indigo-500
+            transition"
           />
 
           <button
             onClick={handleCreateGroup}
-            className="gradient-btn"
+            className="px-5 py-2 rounded-lg
+            bg-gradient-to-r from-indigo-500 to-purple-600
+            text-white font-medium
+            hover:opacity-90 transition"
           >
             Create
           </button>
@@ -127,43 +134,53 @@ function Groups() {
       </div>
 
       {/* GROUP LIST */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div className="space-y-4">
 
         {groups.map((group) => (
 
           <div
             key={group.id}
-            className="glass-card p-6 flex flex-col justify-between glass-hover"
+            className="p-6 rounded-2xl
+            bg-[#111217] border border-[#22232A]
+            flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4
+            hover:bg-[#1A1B21] transition"
           >
 
-            {/* GROUP INFO */}
-            <div className="space-y-2">
+            {/* LEFT */}
+            <div>
 
               <p
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="font-semibold text-lg cursor-pointer hover:text-primary"
+                className="font-semibold text-lg text-white cursor-pointer
+                hover:text-indigo-400 transition"
               >
                 {group.name}
               </p>
 
-              <p className="text-sm text-gray-400">
-                {group.memberCount} members
+              <p className="text-sm text-[#9CA3AF]">
+                Members: {group.memberCount}
               </p>
 
               {Number(group.created_by) === Number(currentUserId) && (
-                <p className="text-xs text-gray-500">
+
+                <p className="text-sm text-[#6B7280]">
                   Created by you
                 </p>
+
               )}
 
             </div>
 
-            {/* ACTIONS */}
-            <div className="flex items-center justify-between mt-6">
+            {/* RIGHT */}
+            <div className="flex items-center gap-3">
 
               <button
                 onClick={() => navigate(`/groups/${group.id}`)}
-                className="gradient-btn"
+                className="px-4 py-2 rounded-lg
+                bg-gradient-to-r from-indigo-500 to-purple-600
+                text-white text-sm font-medium
+                hover:opacity-90 transition"
               >
                 Open
               </button>
@@ -172,7 +189,11 @@ function Groups() {
 
                 <button
                   onClick={() => openDeleteModal(group.id)}
-                  className="text-red-400 hover:text-red-300 text-xl"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg
+                  bg-[#1A1B21] hover:bg-red-500/10
+                  border border-[#22232A]
+                  text-red-400 hover:text-red-300
+                  transition"
                 >
                   🗑
                 </button>
@@ -187,7 +208,6 @@ function Groups() {
 
       </div>
 
-      {/* MODAL */}
       <DeleteGroupModal
         showDeleteModal={showDeleteModal}
         setShowDeleteModal={setShowDeleteModal}

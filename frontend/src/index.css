@@ -2,98 +2,64 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ---------------- GLOBAL STYLES ---------------- */
+/* ---------------- GLOBAL BASE ---------------- */
 
 body {
-  @apply min-h-screen text-white font-sans;
-  background: radial-gradient(circle at 10% 10%, #1e293b, #020617 60%);
-  overflow-x: hidden;
+  @apply min-h-screen font-sans text-[#E5E7EB] bg-[#0B0B0F];
 }
 
-/* Smooth transitions everywhere */
+/* Smooth transitions (keep but lighter impact) */
 * {
-  @apply transition-all duration-300 ease-smooth;
+  @apply transition-colors duration-200 ease-in-out;
 }
 
-/* ---------------- GLASS CARD ---------------- */
+/* ---------------- DESIGN SYSTEM ---------------- */
 
-.glass-card {
-  @apply rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-white/5
-         backdrop-blur-lg shadow-glass;
+@layer components {
 
-  position: relative;
-  overflow: hidden;
-}
+  /* CARD */
+  .card {
+    @apply bg-[#111217] border border-[#22232A] rounded-2xl;
+  }
 
-.glass-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    120deg,
-    rgba(255, 255, 255, 0.15),
-    rgba(255, 255, 255, 0.02)
-  );
-  /* Glass border masking (supported in modern browsers) */
-  -webkit-mask: linear-gradient(#000 0 0) content-box,
-                linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
+  /* INPUT */
+  .input {
+    @apply w-full px-4 py-2 rounded-lg
+           bg-[#0B0B0F] border border-[#22232A]
+           text-[#E5E7EB] placeholder-[#6B7280]
+           focus:outline-none focus:border-indigo-500;
+  }
 
-  /* Fallback for non-webkit browsers */
-  mask-composite: exclude;
-  
-  mask-composite: exclude;
-  pointer-events: none;
-}
+  /* PRIMARY BUTTON */
+  .btn-primary {
+    @apply px-4 py-2 rounded-lg
+           bg-gradient-to-r from-indigo-500 to-purple-600
+           text-white font-medium
+           hover:opacity-90;
+  }
 
-/* Hover lift effect */
-.glass-hover {
-  @apply transition-all duration-300;
-}
+  /* SECONDARY BUTTON */
+  .btn-secondary {
+    @apply px-4 py-2 rounded-lg
+           bg-[#1A1B21] border border-[#22232A]
+           text-[#E5E7EB]
+           hover:bg-[#22232A];
+  }
 
-.glass-hover:hover {
-  transform: translateY(-4px) scale(1.01);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-}
+  /* ICON BUTTON */
+  .btn-icon {
+    @apply w-10 h-10 flex items-center justify-center
+           rounded-full
+           bg-[#111217] border border-[#22232A]
+           text-[#9CA3AF]
+           hover:bg-[#1A1B21] hover:text-white;
+  }
 
-/* ---------------- INPUT STYLES ---------------- */
+  /* PAGE CONTAINER */
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
 
-.neon-input {
-  @apply w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10
-         focus:border-primary focus:ring-2 focus:ring-primary/40
-         outline-none text-white placeholder-gray-400;
-}
-
-/* ---------------- BUTTONS ---------------- */
-
-.gradient-btn {
-  @apply px-6 py-3 rounded-xl font-semibold text-white
-         bg-gradient-main shadow-glow
-         hover:scale-[1.03] active:scale-[0.98]
-         transition-all duration-300;
-}
-
-/* ---------------- CIRCLE ICON BUTTON ---------------- */
-
-.circle-icon-btn {
-  @apply w-10 h-10 flex items-center justify-center
-         rounded-full bg-white/10 backdrop-blur-md
-         border border-white/10
-         hover:bg-white/20 hover:scale-105;
-}
-
-/* ---------------- PAGE CONTAINER ---------------- */
-
-.page-container {
-  @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-
-/* Section spacing */
-
-.section {
-  @apply py-10 md:py-14;
 }
 
 /* ---------------- SCROLLBAR ---------------- */
@@ -110,68 +76,16 @@ body {
 /* ---------------- ANIMATIONS ---------------- */
 
 .fade-in {
-  animation: fadeIn 0.4s ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-/* Floating background blobs */
-
-.gradient-bg {
-  position: fixed;
-  inset: 0;
-  z-index: -10;
-  overflow: hidden;
-}
-
-.gradient-blob {
-  position: absolute;
-  width: 600px;
-  height: 600px;
-  filter: blur(120px);
-  opacity: 0.35;
-  border-radius: 50%;
-  animation: floatBlob 18s ease-in-out infinite;
-}
-
-.blob1 {
-  background: #6366f1;
-  top: -200px;
-  left: -150px;
-}
-
-.blob2 {
-  background: #8b5cf6;
-  bottom: -200px;
-  right: -150px;
-  animation-delay: 4s;
-}
-
-.blob3 {
-  background: #ec4899;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation-delay: 8s;
-}
-
-@keyframes floatBlob {
-  0% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(80px, -60px) scale(1.1);
-  }
-  100% {
-    transform: translate(0, 0) scale(1);
   }
 }
